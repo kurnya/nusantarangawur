@@ -75,7 +75,7 @@ Tambahan dibanding brief: `welcome` (memberi `pid` dan `token`), `profile`, `syn
 
 ## Batas waktu giliran
 
-Host memilih di lobi: tanpa batas (bawaan), 60, 90, 120, atau 180 detik. Tenggat dihitung **per giliran** (bukan per aksi). Setiap aksi menambah tenggat sebesar perkiraan lama animasinya (`src/game/timing.ts`), supaya waktu tidak termakan animasi di layar pemain. Host menyiarkan sisa waktu lewat pesan `timer`; semua layar menampilkan hitung mundur di kartu kontrol. Jika waktu habis, Host memainkan giliran otomatis (lempar dadu bila perlu, lalu akhiri giliran; kota tidak dibeli).
+Host memilih di lobi: tanpa batas (bawaan), 15, 30, 60, 90, 120, atau 180 detik. Tenggat dihitung **per giliran** (bukan per aksi). Setiap aksi menambah tenggat sebesar perkiraan lama animasinya (`src/game/timing.ts`), supaya waktu tidak termakan animasi di layar pemain. Host menyiarkan sisa waktu lewat pesan `timer`; semua layar menampilkan hitung mundur di kartu kontrol. Jika waktu habis, Host memainkan giliran otomatis (lempar dadu bila perlu, lalu akhiri giliran; kota tidak dibeli).
 
 ## Diagnosis koneksi
 

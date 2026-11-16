@@ -33,7 +33,7 @@ export interface LobbyActions {
 }
 
 /** pilihan batas waktu giliran (detik); 0 = tanpa batas */
-export const TURN_LIMITS = [0, 60, 90, 120, 180];
+export const TURN_LIMITS = [0, 15, 30, 60, 90, 120, 180];
 export const limitText = (s: number) => (s ? `${s} detik` : 'Tanpa batas');
 
 const QUALITY_OPTS: [QualityPref, string][] = [

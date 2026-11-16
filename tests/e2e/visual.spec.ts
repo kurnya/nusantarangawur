@@ -33,7 +33,7 @@ test.describe.configure({ mode: 'serial' });
 
 test('cuaca @visual', async ({ page }) => {
   test.setTimeout(600_000);
-  await page.goto('?mode=local');
+  await page.goto('?mode=local&dev=1');
   await page.click('#start');
   await page.waitForTimeout(1500);
   for (const w of WX) {
@@ -47,7 +47,7 @@ test('cuaca @visual', async ({ page }) => {
 
 test('animasi bencana @visual', async ({ page }) => {
   test.setTimeout(900_000);
-  await page.goto('?mode=local');
+  await page.goto('?mode=local&dev=1');
   await page.click('#start');
   await page.waitForTimeout(1500);
   const only = process.env.FX_ONLY?.split(',');

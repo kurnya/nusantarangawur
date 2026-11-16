@@ -51,3 +51,7 @@
 - **F6** `ci.yml`: job `check` wajib (lint, typecheck, tes, build); job `e2e` Playwright `continue-on-error` dulu karena WebGL perangkat lunak lambat di runner.
 - **F6** Variabel opsional `VITE_ICE_SERVERS_URL` ikut diteruskan ke build (kosong = tanpa TURN).
 - **F6** `scripts/pages-check.mjs` memeriksa build di sub-path dengan browser sungguhan.
+- **P1** (permintaan pemilik setelah rilis) Tombol "Uji animasi" disembunyikan; hanya muncul dengan `?dev=1` (dipakai tes visual).
+- **P1** Tampilan cuaca hidup/mati di mode online hanya bisa diubah Host dan berlaku untuk semua layar (`settings.weatherFx`, boleh diubah saat bermain). Ini tetap hanya tampilan; aturan cuaca jalan terus. Di mode satu perangkat tombolnya tetap ada.
+- **P1** Kartu Nasib/Bencana dan musibah cuaca: pengambil kartu melihat modal di tengah; pemain lain hanya notifikasi kecil di pojok kanan atas (hilang sendiri 7 detik, bisa diklik). Layar pemain lain menunggu 2 detik supaya animasi sesudahnya tetap kira-kira serempak.
+- **P1** Optimasi: label petak hanya digambar ulang jika isinya berubah (sebelumnya 244 kanvas 512 px digambar dan diunggah ke GPU setiap aksi). Profil kualitas Tinggi/Sedang/Rendah + Otomatis (dari jumlah inti CPU, memori, dan jenis perangkat) mengatur resolusi label (512/256 px), bayangan, kepadatan pohon, detail air dan gunung, jumlah hujan, antialias, dan batas FPS (60, atau 30 di Rendah). Mode Otomatis juga menurunkan/menaikkan resolusi render dari FPS terukur. Pilihan ada di menu awal; `?low=1` tetap memaksa Rendah.

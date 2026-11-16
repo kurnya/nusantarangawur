@@ -68,6 +68,11 @@ Tambahan dibanding brief: `welcome` (memberi `pid` dan `token`), `profile`, `syn
 - Nama dibersihkan dari karakter kontrol, maksimal 14 karakter, dan selalu di-escape sebelum masuk HTML.
 - Hanya Host yang bisa mulai, mengeluarkan pemain, dan mengakhiri permainan.
 
+## Kartu dan cuaca di mode online
+
+- Kartu Nasib/Bencana dan musibah cuaca: hanya pemain yang mengambil kartu yang melihat kartu di tengah layar. Pemain lain melihat notifikasi kecil di pojok kanan atas.
+- Tombol **Cuaca: hidup/mati** hanya ada di layar Host dan berlaku untuk semua pemain (hanya tampilan; efek cuaca pada aturan tetap berjalan).
+
 ## Batas waktu giliran
 
 Host memilih di lobi: tanpa batas (bawaan), 60, 90, 120, atau 180 detik. Tenggat dihitung **per giliran** (bukan per aksi). Setiap aksi menambah tenggat sebesar perkiraan lama animasinya (`src/game/timing.ts`), supaya waktu tidak termakan animasi di layar pemain. Host menyiarkan sisa waktu lewat pesan `timer`; semua layar menampilkan hitung mundur di kartu kontrol. Jika waktu habis, Host memainkan giliran otomatis (lempar dadu bila perlu, lalu akhiri giliran; kota tidak dibeli).

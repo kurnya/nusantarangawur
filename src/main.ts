@@ -11,13 +11,17 @@ import { Hud } from './ui/hud';
 import { hideMenu, savedName, showMenu } from './ui/lobby';
 import { setupScreen } from './ui/setup';
 import { openTile } from './ui/tileInfo';
+import { loadQualityPref, resolveQuality } from './view/quality';
 import { GameView } from './view/scene';
 
 const params = new URLSearchParams(location.search);
 /** ?fast=1 melewati animasi (untuk tes) */
 const fast = params.get('fast') === '1';
-/** ?low=1 mode kualitas rendah */
-const lowQuality = params.get('low') === '1';
+/** ?low=1 paksa kualitas rendah; selain itu pilihan pemain (bawaan otomatis) */
+const qualityPref = loadQualityPref();
+const quality = resolveQuality(qualityPref, params.get('low') === '1');
+/** ?dev=1 menampilkan alat pengembang (panel Uji animasi) */
+const dev = params.get('dev') === '1';
 /** ?net=tab: transport antar tab (tes/pengembangan); bawaan PeerJS */
 const netTab = params.get('net') === 'tab';
 const reducedMotion = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -64,7 +68,8 @@ try {
   view = new GameView({
     stage: $('#stage'),
     getState,
-    lowQuality,
+    quality,
+    dynamicResolution: qualityPref === 'auto' && params.get('low') !== '1',
     fast,
     reducedMotion,
     onTileClick: (i) => onTile(i),
@@ -92,12 +97,14 @@ ref.presenter = presenter;
 
 if (view) {
   const v = view;
-  setupFxPanel(v, hud, () => {
-    const s = game?.state;
-    if (!s) return null;
-    const p = s.players[s.turn];
-    return p ? { tile: p.pos, pid: p.id, busy: !!game?.playing } : null;
-  });
+  if (dev)
+    setupFxPanel(v, hud, () => {
+      const s = game?.state;
+      if (!s) return null;
+      const p = s.players[s.turn];
+      return p ? { tile: p.pos, pid: p.id, busy: !!game?.playing } : null;
+    });
+  if (!dev) $('#camFx').hidden = true;
   $('#camFocus').onclick = () => {
     const s = getState();
     const p = s?.players[s.turn];
@@ -110,6 +117,11 @@ if (view) {
   $('#camIn').onclick = () => v.zoom(1 / 1.25);
   $('#camOut').onclick = () => v.zoom(1.25);
   $('#camWeather').onclick = () => {
+    // mode online: hanya Host, berlaku untuk semua layar
+    if (online) {
+      online.toggleWeather();
+      return;
+    }
     $('#camWeather').textContent = v.toggleWeather() ? 'Cuaca: hidup' : 'Cuaca: mati';
   };
 }
@@ -175,6 +187,8 @@ declare global {
       readonly game: ActiveGame | null;
       readonly online: OnlineGame | null;
       view: GameView | null;
+      hud: Hud;
+      presenter: Presenter;
       openTile: (i: number) => void;
     };
   }
@@ -187,5 +201,7 @@ window.__nn = {
     return online;
   },
   view,
+  hud,
+  presenter,
   openTile: onTile,
 };

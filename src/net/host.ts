@@ -86,9 +86,10 @@ export class HostSession {
   constructor(o: HostOptions) {
     this.o = o;
     this.code = o.code;
-    this.settings = { startMoney: C.START_MONEY, turnLimit: 0, ...o.settings };
+    this.settings = { startMoney: C.START_MONEY, turnLimit: 0, weatherFx: true, ...o.settings };
     if (o.restore) {
-      this.settings = o.restore.settings;
+      // simpanan versi lama belum punya weatherFx
+      this.settings = { ...o.restore.settings, weatherFx: o.restore.settings.weatherFx ?? true };
       this.state = o.restore.state;
       this.seats = o.restore.seats.map((s) => ({
         ...s,
@@ -335,6 +336,13 @@ export class HostSession {
   setSettings(p: Partial<RoomSettings>): void {
     if (this.started) return;
     this.settings = { ...this.settings, ...p };
+    this.broadcastLobby();
+  }
+
+  /** Hidupkan/matikan tampilan cuaca untuk semua pemain (boleh saat bermain). */
+  setWeatherFx(on: boolean): void {
+    if (this.settings.weatherFx === on) return;
+    this.settings = { ...this.settings, weatherFx: on };
     this.broadcastLobby();
   }
 

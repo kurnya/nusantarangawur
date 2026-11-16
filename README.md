@@ -24,5 +24,5 @@ Fase 0 (fondasi), Fase 1 (mesin murni, `src/engine/`), Fase 2 (tampilan 3D + hot
 ## Masalah diketahui / langkah berikut
 
 - Atlas kota huruf D, F, J belum ada; kota-kota itu tampil sebagai inisial (lihat docs/ASSETS.md).
-- Parameter URL: `?fast=1` lewati animasi, `?low=1` kualitas rendah.
+- Parameter URL: `?fast=1` lewati animasi, `?low=1` paksa kualitas rendah, `?dev=1` tampilkan panel Uji animasi. Kualitas grafis bisa dipilih di menu awal (bawaan Otomatis).
 - Tes browser pertama kali butuh `npx playwright install chromium`.

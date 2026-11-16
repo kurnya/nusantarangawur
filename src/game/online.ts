@@ -159,6 +159,7 @@ export class OnlineGame {
           if (!lobby.started) this.renderLobby();
           else if (this.started && !presenter.playing) presenter.renderAll();
           this.syncEndButton();
+          this.applyWeatherFx(lobby.settings.weatherFx);
         },
         onSnapshot: (s) => this.enqueue(async () => this.applySnapshot(s)),
         onEvents: (prev, events, s) => this.enqueue(() => this.playEvents(prev, events, s)),
@@ -312,6 +313,21 @@ export class OnlineGame {
       [{ label: 'Batal' }, { label: 'Keluarkan', cls: 'pri' }],
     );
     if (k === 1) this.host.kick(id);
+  }
+
+  /** Tampilan cuaca diatur Host untuk semua layar; tombolnya hanya muncul di layar Host. */
+  private applyWeatherFx(on: boolean): void {
+    this.d.view?.setWeatherVisible(on);
+    const b = document.getElementById('camWeather');
+    if (!b) return;
+    b.hidden = !this.isHost;
+    b.textContent = on ? 'Cuaca: hidup' : 'Cuaca: mati';
+  }
+
+  /** Host: hidupkan/matikan tampilan cuaca untuk semua pemain. */
+  toggleWeather(): void {
+    const on = this.client?.lobby?.settings.weatherFx ?? true;
+    this.host?.setWeatherFx(!on);
   }
 
   private syncEndButton(): void {

@@ -418,6 +418,38 @@ export class Hud {
     document.getElementById('modal')?.classList.add('hidden');
   }
 
+  /**
+   * Notifikasi kartu kecil di pojok kanan atas, untuk pemain yang bukan pengambil kartu.
+   * Tidak menghalangi layar; hilang sendiri. Teks di-escape.
+   */
+  /** jumlah notifikasi pojok yang pernah tampil (untuk tes) */
+  cornerCount = 0;
+
+  cornerCard(n: { kind: CardKind; tag: string; who: string; text: string; icon: string }): void {
+    this.cornerCount++;
+    let box = document.getElementById('cardNotes');
+    if (!box) {
+      box = el('div', 'cardnotes');
+      box.id = 'cardNotes';
+      box.setAttribute('aria-live', 'polite');
+      document.getElementById('stage')?.appendChild(box);
+    }
+    const d = el(
+      'div',
+      `cnote c-${n.kind}`,
+      `<div class="cnh"><span>${n.kind}</span><small>${esc(n.tag)}</small></div><div class="cnb"><b>${esc(n.who)}</b> <span class="em">${n.icon}</span> ${esc(n.text)}</div>`,
+    );
+    d.title = 'Klik untuk menutup';
+    const close = () => {
+      d.classList.add('out');
+      setTimeout(() => d.remove(), 300);
+    };
+    d.onclick = close;
+    box.prepend(d);
+    while (box.children.length > 3) box.lastElementChild?.remove();
+    setTimeout(close, 7000);
+  }
+
   /** Umumkan teks ke pembaca layar (wilayah aria-live tersembunyi). */
   announce(msg: string): void {
     const a = document.getElementById('announce');

@@ -2,10 +2,10 @@
  * Memutar daftar GameEvent sebagai animasi, berurutan, di atas state tampilan.
  * State akhir dari mesin/Host selalu menang di akhir pemutaran.
  */
-import { cityOf } from '../engine/board';
+import { CARD_BY_ID, cityOf } from '../engine/board';
 import { cloneState } from '../engine/engine';
-import type { GameEvent, GameState } from '../engine/types';
-import { sleep } from '../ui/dom';
+import type { CardKind, GameEvent, GameState } from '../engine/types';
+import { esc, sleep } from '../ui/dom';
 import type { Hud } from '../ui/hud';
 import { chanceLine, messageFor, monopolyLine } from '../ui/messages';
 import type { GameView } from '../view/scene';
@@ -27,12 +27,15 @@ export interface PresenterDeps {
 const FX_TIMEOUT_MS = 15000;
 /** modal kartu di mode jaringan: pemilik kartu dan pemain lain */
 const CARD_OWNER_MS = 10000;
-const CARD_OTHER_MS = 3500;
+/** jeda di layar pemain lain (notifikasi pojok) supaya animasi sesudahnya tetap kira-kira serempak */
+const CARD_OTHER_MS = 2000;
 
 export class Presenter {
   /** state yang sedang ditampilkan (bisa di tengah pemutaran) */
   disp: GameState | null = null;
   playing = false;
+  /** pemilik tiap kartu/musibah cuaca yang diputar (untuk tes) */
+  readonly cardLog: number[] = [];
 
   constructor(private readonly d: PresenterDeps) {}
 
@@ -110,7 +113,13 @@ export class Presenter {
         applyEvent(s, ev);
         const tag =
           ev.tag === 'baik' ? 'Nasib baik' : ev.tag === 'buruk' ? 'Nasib buruk' : 'Bencana alam';
-        await this.cardModal(hud.cardById(ev.card, tag, ev.kind), ev.pid);
+        const card = CARD_BY_ID[ev.card];
+        await this.cardModal(hud.cardById(ev.card, tag, ev.kind), ev.pid, {
+          kind: ev.kind,
+          tag,
+          text: card?.x ?? '',
+          icon: esc(card?.em ?? ''),
+        });
         this.renderAll();
         return;
       }
@@ -118,7 +127,12 @@ export class Presenter {
         log();
         applyEvent(s, ev);
         const icon = ev.kind === 'banjir' ? '🌊' : ev.kind === 'petir' ? '⚡' : '🔥';
-        await this.cardModal(hud.cardHTML('BENCANA', ev.text, icon, 'Musibah cuaca'), ev.pid);
+        await this.cardModal(hud.cardHTML('BENCANA', ev.text, icon, 'Musibah cuaca'), ev.pid, {
+          kind: 'BENCANA',
+          tag: 'Musibah cuaca',
+          text: ev.text,
+          icon,
+        });
         return;
       }
       case 'BencanaFx':
@@ -190,17 +204,30 @@ export class Presenter {
    * Modal kartu. Pemilik kartu (atau semua di hot-seat) menutup dengan klik;
    * layar pemain lain menutup sendiri supaya animasi di semua layar tetap sinkron.
    */
-  private async cardModal(html: string, pid: number): Promise<void> {
+  /**
+   * Kartu yang diambil pemain. Pengambil kartu (atau semua orang di hot-seat) melihat modal di
+   * tengah; pemain lain hanya melihat notifikasi kecil di pojok kanan atas.
+   */
+  private async cardModal(
+    html: string,
+    pid: number,
+    note: { kind: CardKind; tag: string; text: string; icon: string },
+  ): Promise<void> {
     const { hud, fast } = this.d;
-    if (fast) return;
     const me = this.d.me();
+    this.cardLog.push(pid);
+    if (me !== null && me !== pid) {
+      hud.cornerCard({ ...note, who: this.disp?.players[pid]?.name ?? '' });
+      await sleep(CARD_OTHER_MS, fast);
+      return;
+    }
+    if (fast) return;
     const btn = [{ label: 'Terima nasib', cls: 'pri' }];
     if (me === null) {
       await hud.ask(html, btn);
       return;
     }
-    const wait = me === pid ? CARD_OWNER_MS : CARD_OTHER_MS;
-    await Promise.race([hud.ask(html, btn), new Promise((r) => setTimeout(r, wait))]);
+    await Promise.race([hud.ask(html, btn), new Promise((r) => setTimeout(r, CARD_OWNER_MS))]);
     hud.closeModal();
   }
 }

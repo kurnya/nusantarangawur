@@ -113,6 +113,32 @@ test('3 tab: buat ruangan, gabung dengan kode, main beberapa giliran, state kons
   expect(await snap(a)).toBe(s0);
   expect(await snap(b)).toBe(s0);
 
+  // kartu: pemain lain hanya dapat notifikasi pojok, pengambil kartu tidak
+  for (const p of pages) {
+    const r = await p.evaluate(() => {
+      const me = window.__nn!.online!.me;
+      const log = window.__nn!.presenter.cardLog;
+      return { others: log.filter((x) => x !== me).length, corner: window.__nn!.hud.cornerCount };
+    });
+    expect(r.corner).toBe(r.others);
+  }
+
+  // Uji animasi tidak tampil untuk pemain
+  await expect(host.locator('#camFx')).toBeHidden();
+  // cuaca: hanya Host yang punya tombol, berlaku untuk semua layar
+  await expect(a.locator('#camWeather')).toBeHidden();
+  await expect(host.locator('#camWeather')).toHaveText('Cuaca: hidup');
+  await host.click('#camWeather');
+  await expect(host.locator('#camWeather')).toHaveText('Cuaca: mati');
+  for (const p of pages)
+    await p.waitForFunction(() => window.__nn!.view!.weatherVisible === false, null, {
+      timeout: 10_000,
+    });
+  await host.click('#camWeather');
+  await a.waitForFunction(() => window.__nn!.view!.weatherVisible === true, null, {
+    timeout: 10_000,
+  });
+
   // sambung ulang: tab B dimuat ulang, kembali ke bidak yang sama
   const bPid = await b.evaluate(() => window.__nn!.online!.me);
   await b.reload();

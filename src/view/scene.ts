@@ -12,6 +12,7 @@ import { Pawns } from './pawns';
 import { Ships } from './ships';
 import { Sky } from './sky';
 import { Tiles } from './tiles';
+import { DynamicResolution, type QualityProfile } from './quality';
 import { clamp, makeLcg } from './util';
 import { FOGC, buildWorld, type World } from './world';
 
@@ -19,7 +20,9 @@ export interface ViewOpts {
   stage: HTMLElement;
   getState: () => GameState | null;
   onTileClick: (tile: number) => void;
-  lowQuality?: boolean;
+  quality: QualityProfile;
+  /** sesuaikan resolusi render dari FPS (mode kualitas otomatis) */
+  dynamicResolution?: boolean;
   /** lewati animasi besar (?fast=1) */
   fast?: boolean;
   /** prefers-reduced-motion: tanpa guncangan kamera, kilatan diredam */
@@ -39,6 +42,8 @@ export class GameView {
   readonly pawns: Pawns;
   private readonly fx: Fx;
   private clock = 0;
+  private readonly dynRes: DynamicResolution | null;
+  private resize: () => void = () => {};
   private last = performance.now();
   /** mode layar pembuka: kamera berputar pelan */
   intro = true;
@@ -47,12 +52,17 @@ export class GameView {
   constructor(private readonly o: ViewOpts) {
     const stage = o.stage;
     this.renderer = new THREE.WebGLRenderer({
-      antialias: !o.lowQuality,
+      antialias: o.quality.antialias,
       alpha: true,
       powerPreference: 'high-performance',
     });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, o.lowQuality ? 1 : 1.75));
-    this.renderer.shadowMap.enabled = !o.lowQuality;
+    const q = o.quality;
+    const startRatio = Math.min(window.devicePixelRatio || 1, q.maxPixelRatio);
+    this.renderer.setPixelRatio(startRatio);
+    this.dynRes = o.dynamicResolution
+      ? new DynamicResolution(Math.min(q.minPixelRatio, startRatio), startRatio, startRatio)
+      : null;
+    this.renderer.shadowMap.enabled = q.shadowMap > 0;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     const cv = this.renderer.domElement;
     cv.id = 'gl';
@@ -61,12 +71,13 @@ export class GameView {
     this.scene.add(this.root);
 
     const rnd = makeLcg();
-    this.world = buildWorld({ scene: this.scene, rnd, lowQuality: o.lowQuality });
+    this.world = buildWorld({ scene: this.scene, rnd, quality: q });
     this.tiles = new Tiles({
       root: this.root,
       rnd,
       maxAniso: this.renderer.capabilities.getMaxAnisotropy(),
       getState: o.getState,
+      labelSize: q.labelSize,
     });
     this.ships = new Ships(this.root, rnd);
     let flash: (op: number, col?: string) => void = () => {};
@@ -78,7 +89,7 @@ export class GameView {
       cam: this.cam,
       waterMat: this.world.waterMat,
       flash: (op, col) => flash(op, col),
-      lowQuality: o.lowQuality,
+      rainDrops: q.rainDrops,
     });
     this.pawns = new Pawns(this.root);
     this.fx = new Fx({
@@ -96,13 +107,13 @@ export class GameView {
     flash = this.fx.flash;
 
     this.bindControls(cv);
-    const resize = () => {
+    const resize = (this.resize = () => {
       const w = Math.max(2, stage.clientWidth);
       const h = Math.max(2, stage.clientHeight);
       this.renderer.setSize(w, h, false);
       this.camera.aspect = w / h;
       this.camera.updateProjectionMatrix();
-    };
+    });
     window.addEventListener('resize', resize);
     if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
     resize();
@@ -203,6 +214,16 @@ export class GameView {
   zoom(f: number): void {
     this.cam.dist = clamp(this.cam.dist * f, 700, 36000);
   }
+  /** Hidupkan/matikan tampilan cuaca (diatur Host di mode online). */
+  setWeatherVisible(on: boolean): void {
+    if (this.cam.weather === on) return;
+    this.cam.weather = on;
+    this.sky.refreshOverlay();
+  }
+  get weatherVisible(): boolean {
+    return this.cam.weather;
+  }
+
   toggleWeather(): boolean {
     this.cam.weather = !this.cam.weather;
     this.sky.refreshOverlay();
@@ -325,8 +346,18 @@ export class GameView {
 
   private readonly frame = (now: number): void => {
     requestAnimationFrame(this.frame);
-    const dt = Math.min(0.05, (now - this.last) / 1000);
+    // batas FPS: lewati frame jika terlalu cepat (toleransi 2 ms)
+    if (now - this.last < 1000 / this.o.quality.maxFps - 2) return;
+    const raw = Math.max(0, (now - this.last) / 1000);
+    const dt = Math.min(0.05, raw);
     this.last = now;
+    if (this.dynRes && raw < 1) {
+      const r = this.dynRes.tick(raw);
+      if (r !== null) {
+        this.renderer.setPixelRatio(r);
+        this.resize();
+      }
+    }
     this.clock += dt;
     const cam = this.cam;
     if (this.intro) {

@@ -115,6 +115,8 @@ export interface TilesOpts {
   root: THREE.Group;
   rnd: () => number;
   maxAniso: number;
+  /** ukuran kanvas label petak (px); koordinat gambar tetap 256 */
+  labelSize: number;
   getState: () => GameState | null;
 }
 
@@ -128,6 +130,8 @@ export class Tiles {
   readonly marks: (THREE.Group | null)[] = [];
   /** pemilik:level yang sedang digambar per petak */
   private readonly markKey: string[] = [];
+  private readonly labelKeys: string[] = [];
+  private labelSize = 512;
   private readonly atl: Record<string, HTMLImageElement> = {};
   private readonly specIm: Record<string, HTMLImageElement> = {};
   private readonly root: THREE.Group;
@@ -151,6 +155,7 @@ export class Tiles {
         d: LATS.map((t, k) => sk * t + (k === 0 || k === 4 ? 0 : (o.rnd() - 0.5) * 0.14 * PITCH)),
       });
     }
+    this.labelSize = o.labelSize;
     this.makeTiles(o.maxAniso);
     this.addLabels();
   }
@@ -186,13 +191,28 @@ export class Tiles {
     return poly;
   }
 
-  private drawLabel(i: number): void {
+  /** Kunci isi label: label hanya digambar ulang (dan diunggah ke GPU) jika kuncinya berubah. */
+  private labelKey(i: number): string {
+    const T = TILES[i]!;
+    if (T.t !== 'city') return `sp:${this.specIm[T.k]?.naturalWidth ? 1 : 0}`;
+    const s = this.getState();
+    const o = s?.owners[i] ?? null;
+    const ic = cityIcon(T.p, T.ci);
+    const atlas = ic ? (this.atl[ic.L]?.naturalWidth ? 1 : 0) : 2;
+    return o && s ? `${o.p}:${o.lv}:${rentOf(s, i)}:${atlas}` : `-:${atlas}`;
+  }
+
+  private drawLabel(i: number, force = false): void {
     const T = TILES[i]!;
     const L0 = this.labels[i];
     if (!L0) return;
+    const key = this.labelKey(i);
+    if (!force && this.labelKeys[i] === key) return;
+    this.labelKeys[i] = key;
     const ctx = L0.cv.getContext('2d');
     if (!ctx) return;
-    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    const k = this.labelSize / 256;
+    ctx.setTransform(k, 0, 0, k, 0, 0);
     ctx.clearRect(0, 0, 256, 256);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -238,8 +258,9 @@ export class Tiles {
     L0.tex.needsUpdate = true;
   }
 
+  /** Gambar ulang semua label (font atau atlas selesai dimuat). */
   relabel(): void {
-    TILES.forEach((_, i) => this.drawLabel(i));
+    TILES.forEach((_, i) => this.drawLabel(i, true));
   }
 
   private makeTiles(maxAniso: number): void {
@@ -302,7 +323,7 @@ export class Tiles {
       g.add(im);
       this.root.add(g);
       this.pickables.push(om, im);
-      const { c: cvs } = canvas2d(512);
+      const { c: cvs } = canvas2d(this.labelSize);
       const tex = new THREE.CanvasTexture(cvs);
       tex.anisotropy = Math.min(8, maxAniso);
       const lm = new THREE.Mesh(

@@ -3,6 +3,7 @@
  * Urutan pemakaian `rnd` sengaja sama dengan prototipe supaya tampilannya identik.
  */
 import * as THREE from 'three';
+import type { QualityProfile } from './quality';
 import { BOUNDS, G, MID, PATH } from './layout';
 import { MANIFEST, TAU, canvas2d, clamp, fbm, imgTex, mix3, type RGB } from './util';
 
@@ -100,8 +101,7 @@ function buildTerrain(scene: THREE.Scene, I: Island, seg: number, size: number):
 export interface WorldOpts {
   scene: THREE.Scene;
   rnd: () => number;
-  /** kurangi pohon untuk perangkat lemah */
-  lowQuality?: boolean;
+  quality: QualityProfile;
 }
 
 export interface World {
@@ -112,13 +112,13 @@ export interface World {
   treeDim: { value: number };
 }
 
-export function buildWorld({ scene, rnd, lowQuality }: WorldOpts): World {
+export function buildWorld({ scene, rnd, quality }: WorldOpts): World {
   /* ---- cahaya ---- */
   const hemi = new THREE.HemisphereLight(0xd6ecff, 0x6b5a40, 0.78);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff1d2, 1.05);
-  sun.castShadow = !lowQuality;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.castShadow = quality.shadowMap > 0;
+  sun.shadow.mapSize.set(quality.shadowMap || 512, quality.shadowMap || 512);
   const sc = sun.shadow.camera;
   sc.left = -3400;
   sc.right = 3400;
@@ -268,7 +268,7 @@ export function buildWorld({ scene, rnd, lowQuality }: WorldOpts): World {
     fragmentShader: WATER_FS,
   });
   const water = new THREE.Mesh(
-    new THREE.PlaneGeometry(WW, HH, lowQuality ? 160 : 320, lowQuality ? 115 : 230),
+    new THREE.PlaneGeometry(WW, HH, quality.waterSeg[0], quality.waterSeg[1]),
     waterMat,
   );
   water.rotation.x = -Math.PI / 2;
@@ -278,11 +278,11 @@ export function buildWorld({ scene, rnd, lowQuality }: WorldOpts): World {
   buildLandRibbon(scene);
 
   /* ---- pulau gunung dan pulau kecil ---- */
-  buildTerrain(scene, ISL, 190, ISL.R * 2.3);
-  ISLETS.forEach((I) => buildTerrain(scene, I, 70, I.R * 2.3));
+  buildTerrain(scene, ISL, quality.terrainSeg[0], ISL.R * 2.3);
+  ISLETS.forEach((I) => buildTerrain(scene, I, quality.terrainSeg[1], I.R * 2.3));
 
   const treeDim = { value: 1 };
-  buildTrees(scene, rnd, [ISL, ...ISLETS], treeDim, lowQuality ? 0.35 : 1);
+  buildTrees(scene, rnd, [ISL, ...ISLETS], treeDim, quality.treeDensity);
 
   return { hemi, sun, waterMat, ISLETS, treeDim };
 }

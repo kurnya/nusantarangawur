@@ -6,6 +6,13 @@ import * as C from '../engine/config';
 import { fmtMoney } from '../engine/rules';
 import type { LobbyInfo } from '../net/client';
 import { NAME_MAX } from '../net/names';
+import {
+  autoLevel,
+  deviceHints,
+  loadQualityPref,
+  saveQualityPref,
+  type QualityPref,
+} from '../view/quality';
 import { $, esc, tkImg } from './dom';
 
 export interface MenuActions {
@@ -28,6 +35,17 @@ export interface LobbyActions {
 /** pilihan batas waktu giliran (detik); 0 = tanpa batas */
 export const TURN_LIMITS = [0, 60, 90, 120, 180];
 export const limitText = (s: number) => (s ? `${s} detik` : 'Tanpa batas');
+
+const QUALITY_OPTS: [QualityPref, string][] = [
+  ['auto', `Otomatis (${autoLabel()})`],
+  ['high', 'Tinggi'],
+  ['medium', 'Sedang'],
+  ['low', 'Rendah'],
+];
+function autoLabel(): string {
+  const l = autoLevel(deviceHints());
+  return l === 'high' ? 'tinggi' : l === 'medium' ? 'sedang' : 'rendah';
+}
 
 const NAME_KEY = 'nn.name';
 export function savedName(): string {
@@ -58,7 +76,11 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
       <button class="btn gold big" id="mJoin">Gabung</button>
     </div>
     <p class="err" id="mErr" role="alert"></p>
-    <div class="row"><button class="btn" id="mLocal">Main di satu perangkat (bergantian)</button></div>`;
+    <div class="row"><button class="btn" id="mLocal">Main di satu perangkat (bergantian)</button></div>
+    <label class="fld">Kualitas grafis <select id="mQuality">${QUALITY_OPTS.map(
+      ([v, l]) => `<option value="${v}" ${loadQualityPref() === v ? 'selected' : ''}>${l}</option>`,
+    ).join('')}</select></label>
+    <p class="netstat">Otomatis menyesuaikan perangkat dan menurunkan resolusi bila terasa berat. Pilih Rendah jika HP panas atau patah-patah.</p>`;
   const nameI = $('#mName') as HTMLInputElement;
   const codeI = $('#mCode') as HTMLInputElement;
   nameI.value = savedName();
@@ -83,6 +105,11 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
     if (e.key === 'Enter') $('#mJoin').click();
   };
   $('#mLocal').onclick = () => a.local();
+  const qs = $('#mQuality') as HTMLSelectElement;
+  qs.onchange = () => {
+    saveQualityPref(qs.value as QualityPref);
+    location.reload();
+  };
   $('#menu').classList.remove('hidden');
   (opts.code ? $('#mJoin') : nameI).focus();
 }

@@ -61,6 +61,8 @@ export interface RoomSettings {
   startMoney: number;
   /** batas waktu giliran (detik), 0 = tanpa batas */
   turnLimit: number;
+  /** tampilan cuaca (awan, hujan, kabut) di semua layar; aturan cuaca tetap berlaku */
+  weatherFx: boolean;
 }
 
 export type HostMsg =
@@ -112,7 +114,11 @@ const HostMsgShape = z.discriminatedUnion('t', [
         gone: z.boolean().optional(),
       }),
     ),
-    settings: z.object({ startMoney: z.number(), turnLimit: z.number() }),
+    settings: z.object({
+      startMoney: z.number(),
+      turnLimit: z.number(),
+      weatherFx: z.boolean(),
+    }),
     hostId: z.number().int(),
     started: z.boolean(),
   }),

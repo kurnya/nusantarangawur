@@ -221,7 +221,7 @@ export interface SkyDeps {
   cam: Cam;
   waterMat: THREE.ShaderMaterial;
   flash: (op: number, col?: string) => void;
-  lowQuality?: boolean;
+  rainDrops: number;
 }
 
 const KEYS = [
@@ -439,7 +439,7 @@ export class Sky {
     this.RN = 2600;
     for (let k = 0; k < this.RN; k++)
       this.rdr.push({ x: rnd() - 0.5, z: rnd() - 0.5, y: rnd(), v: 0.75 + rnd() * 0.5 });
-    if (d.lowQuality) this.RN = 900;
+    this.RN = Math.min(this.RN, d.rainDrops);
     this.rpos = new Float32Array(this.RN * 6);
     this.rgeo = new THREE.BufferGeometry();
     this.rgeo.setAttribute('position', new THREE.BufferAttribute(this.rpos, 3));

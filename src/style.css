@@ -1349,3 +1349,74 @@ details ul {
   font-size: 11.5px;
   text-align: center;
 }
+
+/* ---- notifikasi kartu pemain lain (pojok kanan atas) ---- */
+.cardnotes {
+  position: absolute;
+  right: 12px;
+  top: 112px;
+  z-index: 6;
+  width: min(260px, calc(100% - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+.cnote {
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 11px;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: 0 8px 22px #0008;
+  animation: cnin 0.3s ease-out;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.cnote.out {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.cnote .cnh {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  font-family: var(--font-d);
+  font-size: 12px;
+}
+.cnote .cnh small {
+  font-family: var(--font-b);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.cnote .cnb {
+  padding: 7px 10px 9px;
+  background: #0006;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.cnote .cnb .em {
+  font-size: 15px;
+}
+@keyframes cnin {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@media (max-width: 700px) {
+  .cardnotes {
+    top: 96px;
+    width: min(220px, calc(100% - 20px));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cnote {
+    animation: none;
+  }
+}

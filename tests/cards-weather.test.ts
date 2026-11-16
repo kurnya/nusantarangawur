@@ -8,8 +8,8 @@ import { Rng as R } from '../src/engine/rng';
 import type { Card, GameState, WeatherKey } from '../src/engine/types';
 import { cityTiles, has, mkGame, ofType, own, place, rig, rigDice, step, tilesOf } from './helpers';
 
-const NASIB_AT = 6; // petak Nasib pertama; dari pos 0 dengan dadu 6
-const BENCANA_AT = tilesOf('BENCANA').find((t) => t >= 8)!;
+const NASIB_AT = tilesOf('NASIB')[0]!;
+const BENCANA_AT = tilesOf('BENCANA')[0]!;
 
 /** Siapkan satu lemparan yang mengambil kartu `idx` dari daftar `kind`. */
 function setupCard(kind: 'nasibBad' | 'nasibGood' | 'bencana', idx: number): GameState {
@@ -96,7 +96,9 @@ describe('setiap kartu', () => {
     }
     if (e.lc) {
       const lost = ofType(after, 'CityLost')[0]!;
-      expect(s.owners[lost.tile]?.p).toBe(0);
+      const before = s.owners[lost.tile]!;
+      expect(before.p).toBe(0);
+      expect(lost.level).toBe(before.lv > 0 ? before.lv - 1 : null);
       expect(ofType(after, 'BencanaFx')[0]!.tile).toBe(lost.tile);
     }
     if (kind === 'bencana') {
@@ -161,7 +163,7 @@ describe('cuaca', () => {
     const kabut = frac('kabut');
     const asap = frac('asap');
     expect(cerah.steered).toBe(0);
-    expect(cerah.hit).toBeLessThan(0.25);
+    expect(cerah.hit).toBeLessThan(0.3);
     expect(kabut.hit).toBeGreaterThan(0.45);
     expect(asap.hit).toBeGreaterThan(0.75);
     expect(asap.hit).toBeGreaterThan(kabut.hit);

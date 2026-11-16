@@ -287,7 +287,8 @@ export class GameView {
         fz: cam.fz,
         cm,
         p0: groundAt(cm, e),
-        rot: e.shiftKey || e.button === 2,
+        // Di layar sentuh tidak ada klik kanan: geser satu jari memutar kamera.
+        rot: e.pointerType === 'touch' || e.shiftKey || e.button === 2,
       };
       moved = 0;
     });

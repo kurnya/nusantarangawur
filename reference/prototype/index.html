@@ -360,10 +360,12 @@ const SPECIAL={
  NASIB:{ic:"🎲",lb:"NASIB"}, BENCANA:{ic:"🌋",lb:"BENCANA"}, PAJAK:{ic:"💸",lb:"PPN 12%"}
 };
 const TILES=[];
+let cityCount=0,cardGap=0;
+const CARD_GAPS=[N_,N_,B_];
 PORDER.forEach((code,g)=>{
-  GAPS[g].forEach(k=>TILES.push({t:"sp",k}));
+  GAPS[g].filter(k=>k!==N_&&k!==B_).forEach(k=>TILES.push({t:"sp",k}));
   const pr=PROV[code];pr.idx=g;pr.hue=Math.round((g*137.5)%360);pr.tiles=[];
-  pr.cities.forEach((c,ci)=>{pr.tiles.push(TILES.length);TILES.push({t:"city",p:pr,ci,c})});
+  pr.cities.forEach((c,ci)=>{pr.tiles.push(TILES.length);TILES.push({t:"city",p:pr,ci,c});if(++cityCount%3===0)TILES.push({t:"sp",k:CARD_GAPS[cardGap++%CARD_GAPS.length]})});
 });
 const JAIL_TILES=TILES.map((T,i)=>T.t==="sp"&&T.k==="JAIL"?i:-1).filter(i=>i>=0);
 const jailNear=pos=>JAIL_TILES.reduce((b,i)=>{const d=Math.abs(i-pos),dd=Math.min(d,TILES.length-d),bd=Math.abs(b-pos);return dd<Math.min(bd,TILES.length-bd)?i:b},JAIL_TILES[0]);

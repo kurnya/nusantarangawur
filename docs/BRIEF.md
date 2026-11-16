@@ -145,7 +145,7 @@ Ambil angka dan rumus dari `reference/prototype/index.html` (fungsi `rentFor`, `
 
 **Uang.** Satuan uang dalam juta rupiah. Uang awal Rp15 M (15.000). Gaji lewat Titik Nol Sabang: Rp2 M (2.000). Denda keluar penjara: Rp500 jt.
 
-**Papan: 244 petak.** Titik Nol Sabang (mulai) 1, kota 190, Nasib 28, Bencana 13, Razia 4, Penjara (Nusakambangan) 4, PPN 12% sebanyak 3, Warung Kopi (parkir gratis, dapat Rp100 jt) 1. Urutan provinsi (`PORDER`): ACH, SUT, SMB, RIA, KEP, JAM, SSL, BBL, BKL, LPG, BTN, DKI, JBR, JTG, DIY, JTM, BAL, NTB, NTT, KBR, KTG, KSL, KTM, KTR, SLU, GRT, STG, SLB, SLS, STR, MLK, MLU, PPA, PPB, PBD, PPT, PPG, PPS. Pemain berjalan **ke kanan** dari Titik Nol. Tata letak petak (`GAPS`) ada di prototipe: pindahkan ke `data/`.
+**Papan: 266 petak.** Titik Nol Sabang (mulai) 1, kota 190, lalu 1 petak Nasib atau Bencana setiap 3 kota (42 Nasib, 21 Bencana), Razia 4, Penjara (Nusakambangan) 4, PPN 12% sebanyak 3, Warung Kopi (parkir gratis, dapat Rp100 jt) 1. Urutan provinsi (`PORDER`): ACH, SUT, SMB, RIA, KEP, JAM, SSL, BBL, BKL, LPG, BTN, DKI, JBR, JTG, DIY, JTM, BAL, NTB, NTT, KBR, KTG, KSL, KTM, KTR, SLU, GRT, STG, SLB, SLS, STR, MLK, MLU, PPA, PPB, PBD, PPT, PPG, PPS. Pemain berjalan **ke kanan** dari Titik Nol. Tata letak petak (`GAPS`) ada di prototipe: pindahkan ke `data/`.
 
 **Harga dan sewa.**
 

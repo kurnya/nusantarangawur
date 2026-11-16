@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { N_TILES } from '../src/engine/board';
 import { createGame } from '../src/engine/engine';
 import { ANG, POS, PITCH, pawnXY } from '../src/view/layout';
 import { cityInitials } from '../src/view/util';
 
 describe('tata letak papan', () => {
-  it('244 posisi petak, berjarak tetap sepanjang jalur', () => {
-    expect(POS).toHaveLength(244);
-    expect(ANG).toHaveLength(244);
+  it('posisi semua petak berjarak tetap sepanjang jalur', () => {
+    expect(POS).toHaveLength(N_TILES);
+    expect(ANG).toHaveLength(N_TILES);
     for (let i = 1; i < POS.length; i++) {
       const d = Math.hypot(POS[i]![0] - POS[i - 1]![0], POS[i]![1] - POS[i - 1]![1]);
       expect(d).toBeGreaterThan(PITCH * 0.8);

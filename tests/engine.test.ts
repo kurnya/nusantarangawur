@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PROV, TILES, cityOf } from '../src/engine/board';
+import { N_TILES, PROV, TILES, cityOf } from '../src/engine/board';
 import * as C from '../src/engine/config';
 import { applyIntent, createGame } from '../src/engine/engine';
 import { stateHash } from '../src/engine/hash';
@@ -22,7 +22,7 @@ describe('pembuatan dan penolakan', () => {
     expect(s.players.map((p) => p.money)).toEqual([15000, 15000, 15000]);
     expect(s.phase).toBe('roll');
     expect(s.rev).toBe(0);
-    expect(s.owners).toHaveLength(244);
+    expect(s.owners).toHaveLength(N_TILES);
   });
   it('jumlah pemain tidak sah ditolak', () => {
     const mk = (n: number) =>
@@ -103,6 +103,7 @@ describe('gerak, beli, sewa', () => {
     s.players[0]!.money = 10;
     expect(applyIntent(s, { t: 'buy', pid: 0 }).ok).toBe(false);
   });
+
   it('menguasai kelima kota menandai monopoli dan sewa dasar dobel', () => {
     const prov = PROV.SUT!;
     let s = mkGame(3);
@@ -142,7 +143,7 @@ describe('gerak, beli, sewa', () => {
   });
   it('melewati Titik Nol memberi gaji', () => {
     const s = mkGame(3);
-    place(s, 0, 240);
+    place(s, 0, N_TILES - 4);
     const r = step(rigDice(s, 3, 4), { t: 'roll', pid: 0 });
     expect(r.state.players[0]!.pos).toBe(3);
     expect(ofType(r.events, 'PassedStart')).toHaveLength(1);

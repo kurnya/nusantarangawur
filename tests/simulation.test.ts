@@ -4,13 +4,13 @@ import { stateHash } from '../src/engine/hash';
 import { violations } from './helpers';
 
 describe('simulasi permainan penuh dengan bot', () => {
-  it('500 permainan (3-8 pemain): tanpa crash, tanpa state tidak sah, selalu berakhir', () => {
+  it('500 permainan (2-8 pemain): tanpa crash, tanpa state tidak sah, selalu berakhir', () => {
     const N = 500;
     let natural = 0;
     let steps = 0;
     const bad: string[] = [];
     for (let g = 0; g < N; g++) {
-      const n = 3 + (g % 6);
+      const n = 2 + (g % 7);
       const res = simulate(n, 1000 + g, 20000, (s) => {
         if (bad.length < 5) {
           const v = violations(s);

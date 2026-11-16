@@ -67,10 +67,23 @@ test('3 tab: buat ruangan, gabung dengan kode, main beberapa giliran, state kons
   await a.click('#lbReady');
   await b.click('#lbReady');
   await expect(host.locator('#lbStart')).toBeEnabled();
+  await host.selectOption('#lbLimit', '120');
+  await expect(a.locator('.netstat', { hasText: 'Batas waktu giliran: 120 detik' })).toBeVisible();
   await host.click('#lbStart');
   for (const p of pages) await expect(p.locator('#menu')).toHaveClass(/hidden/);
   await expect(host.locator('#players .pc')).toHaveCount(3);
   await expect(a.locator('#players .pc.me b')).toContainText('Ani');
+  // hitung mundur giliran tampil di semua layar
+  await expect(host.locator('#tmr')).toContainText(/Sisa waktu giliranmu|Waktu /, {
+    timeout: 10_000,
+  });
+  await expect(a.locator('#tmr')).toContainText(/\d:\d\d/);
+  // panel diagnosis koneksi
+  await a.click('#camNet');
+  await expect(a.locator('.netpanel')).toContainText('Tersambung');
+  await expect(a.locator('.netpanel')).toContainText('antar tab');
+  await a.click('#camNet');
+  await expect(host.locator('#camNet')).toBeVisible();
 
   // main: hanya pemain giliran yang punya tombol aksi
   for (let k = 0; k < 24; k++) {
@@ -118,6 +131,21 @@ test('3 tab: buat ruangan, gabung dengan kode, main beberapa giliran, state kons
   for (const p of pages)
     await expect(p.locator('#dlg h3')).toContainText('menang', { timeout: 15_000 });
   expect(errors).toEqual([]);
+});
+
+test('2 pemain cukup untuk mulai', async ({ context }) => {
+  test.setTimeout(240_000);
+  const host = await context.newPage();
+  const guest = await context.newPage();
+  await host.goto(Q, { waitUntil: 'domcontentloaded' });
+  await host.fill('#mName', 'Host');
+  await host.click('#mCreate');
+  const code = (await host.locator('#lbCode').textContent())!.trim();
+  await lobbyJoin(guest, code, 'Tamu');
+  await guest.click('#lbReady');
+  await expect(host.locator('#lbStart')).toBeEnabled({ timeout: 15_000 });
+  await host.click('#lbStart');
+  await expect(guest.locator('#players .pc')).toHaveCount(2, { timeout: 20_000 });
 });
 
 test('kode salah: pesan jelas, kembali ke menu', async ({ page }) => {

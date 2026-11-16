@@ -3,3 +3,4 @@ reference
 public
 node_modules
 package-lock.json
+docs/BRIEF.md

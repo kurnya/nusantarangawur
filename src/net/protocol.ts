@@ -54,6 +54,8 @@ export interface LobbyPlayer {
   ready: boolean;
   connected: boolean;
   host: boolean;
+  /** dikeluarkan Host saat bermain */
+  gone?: boolean;
 }
 export interface RoomSettings {
   startMoney: number;
@@ -83,7 +85,9 @@ export type HostMsg =
     }
   | { v: 1; t: 'reject'; seq: number; reason: string }
   | { v: 1; t: 'pong'; ts: number }
-  | { v: 1; t: 'kick' | 'end'; reason: string };
+  | { v: 1; t: 'kick' | 'end'; reason: string }
+  /** sisa waktu giliran pemain `pid` (ms); pid -1 = tanpa batas */
+  | { v: 1; t: 'timer'; pid: number; ms: number; mode: 'gone' | 'away' | 'limit' };
 
 /* Validasi pesan dari host: struktur dangkal saja (host dipercaya untuk isi state). */
 const HostMsgShape = z.discriminatedUnion('t', [
@@ -105,6 +109,7 @@ const HostMsgShape = z.discriminatedUnion('t', [
         ready: z.boolean(),
         connected: z.boolean(),
         host: z.boolean(),
+        gone: z.boolean().optional(),
       }),
     ),
     settings: z.object({ startMoney: z.number(), turnLimit: z.number() }),
@@ -129,6 +134,13 @@ const HostMsgShape = z.discriminatedUnion('t', [
   z.object({ v: z.literal(1), t: z.literal('pong'), ts: z.number() }),
   z.object({ v: z.literal(1), t: z.literal('kick'), reason: z.string() }),
   z.object({ v: z.literal(1), t: z.literal('end'), reason: z.string() }),
+  z.object({
+    v: z.literal(1),
+    t: z.literal('timer'),
+    pid: z.number().int(),
+    ms: z.number().min(0),
+    mode: z.enum(['gone', 'away', 'limit']),
+  }),
 ]);
 
 export function encode(msg: ClientMsg | HostMsg): string {

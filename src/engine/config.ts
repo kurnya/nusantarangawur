@@ -13,7 +13,8 @@ export const NO_CITY_FINE = 300;
 /** Kartu yang menggerakkan pemain ke Nasib/Bencana lagi tidak berefek di kedalaman ini. */
 export const CARD_DEPTH_LIMIT = 2;
 
-export const MIN_PLAYERS = 3;
+/** minimal pemain (keputusan pemilik: 2, brief awal 3) */
+export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 8;
 
 export const CITY_PRICE_RATE = 0.28;

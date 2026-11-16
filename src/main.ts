@@ -20,8 +20,6 @@ const fast = params.get('fast') === '1';
 const lowQuality = params.get('low') === '1';
 /** ?net=tab: transport antar tab (tes/pengembangan); bawaan PeerJS */
 const netTab = params.get('net') === 'tab';
-/** ?min=2: izinkan mulai dengan 2 pemain (khusus uji) */
-const minPlayers = Number(params.get('min')) >= 2 ? Number(params.get('min')) : undefined;
 const reducedMotion = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /** Permainan yang sedang aktif: satu perangkat atau online. */
@@ -143,7 +141,7 @@ async function makeOnline(): Promise<OnlineGame> {
       ? import('./net/bc').then((m) => new m.TabTransport())
       : import('./net/peer').then((m) => new m.PeerTransport()),
   ]);
-  const o = new OnlineGame({ hud, view, presenter, transport, toMenu, minPlayers });
+  const o = new OnlineGame({ hud, view, presenter, transport, toMenu });
   online = o;
   game = o;
   return o;

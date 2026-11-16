@@ -9,6 +9,8 @@ export interface Link {
   close(): void;
   onMessage(cb: (data: string) => void): void;
   onClose(cb: () => void): void;
+  /** jalur koneksi untuk layar diagnosis (opsional) */
+  route?(): Promise<string | null>;
 }
 
 export interface HostEndpoint {

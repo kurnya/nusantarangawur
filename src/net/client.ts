@@ -41,6 +41,15 @@ export interface ClientCallbacks {
   onPing?(ms: number): void;
   /** client meminta snapshot karena tidak sinkron (untuk diagnosis) */
   onResync?(why: 'rev' | 'hash' | 'invalid'): void;
+  /** batas waktu giliran berubah */
+  onTimer?(timer: TurnTimer | null): void;
+}
+
+/** Tenggat giliran menurut jam lokal (performance.now). */
+export interface TurnTimer {
+  pid: number;
+  until: number;
+  mode: 'gone' | 'away' | 'limit';
 }
 
 export interface Hello {
@@ -57,6 +66,7 @@ export class ClientSession {
   state: GameState | null = null;
   status: ClientStatus = 'connecting';
   ping = -1;
+  timer: TurnTimer | null = null;
   private seq = 0;
   private syncing = false;
   private pingTimer: ReturnType<typeof setInterval> | null = null;
@@ -106,6 +116,10 @@ export class ClientSession {
   stopPing(): void {
     if (this.pingTimer) clearInterval(this.pingTimer);
     this.pingTimer = null;
+  }
+  /** jalur koneksi ke Host (untuk diagnosis) */
+  route(): Promise<string | null> {
+    return this.link.route?.() ?? Promise.resolve(null);
   }
   close(): void {
     this.status = 'ended';
@@ -175,6 +189,11 @@ export class ClientSession {
       case 'pong':
         this.ping = Math.max(0, Math.round(performance.now() - msg.ts));
         this.cb.onPing?.(this.ping);
+        return;
+      case 'timer':
+        this.timer =
+          msg.pid < 0 ? null : { pid: msg.pid, until: performance.now() + msg.ms, mode: msg.mode };
+        this.cb.onTimer?.(this.timer);
         return;
       case 'kick':
       case 'end':

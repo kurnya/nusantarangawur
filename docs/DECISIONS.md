@@ -42,3 +42,7 @@
 - **F4** Modul online (PeerJS, zod, lobi) dimuat dinamis; bundel utama tetap sekitar 188 kB gzip.
 - **F4** `?min=2` hanya untuk uji; aturan resmi minimal 3 pemain.
 - **F4** Playwright memakai satu pekerja karena WebGL perangkat lunak berat.
+- **F5** Minimal pemain diubah menjadi **2** atas permintaan pemilik (brief awal 3). Berlaku untuk mode satu perangkat dan online (`MIN_PLAYERS` di `config.ts`).
+- **F5** Batas waktu giliran berbasis tenggat per giliran ditambah perkiraan lama animasi tiap aksi; Host menyiarkan sisa waktu (`timer`). Waktu habis = giliran otomatis tanpa membeli kota.
+- **F5** Kick saat bermain tidak membuat pemain bangkrut (aturan tidak berubah); gilirannya dimainkan otomatis dan tokennya diganti sehingga tidak bisa masuk lagi.
+- **F5** Panel diagnosis membaca jalur WebRTC dari `getStats()` (pasangan kandidat terpilih: host, srflx/prflx, atau relay).

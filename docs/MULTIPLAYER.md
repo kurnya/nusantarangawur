@@ -6,7 +6,7 @@ Nusantara Ngawur berjalan tanpa server game. Satu pemain menjadi **Host**; mesin
 
 1. Host menekan **Buat ruangan**. Dibuat kode 5 karakter (huruf besar dan angka tanpa `0 O 1 I`), id PeerJS `nusantara-ngawur-KODE`, dan tautan `…/#/join/KODE`.
 2. Pemain lain mengetik kode atau membuka tautan (langsung mencoba bergabung).
-3. Di lobi: nama (maks 14 karakter), pilih karakter bidak (tidak boleh kembar), tekan **Siap**. Host menekan **Mulai** jika minimal 3 pemain dan semua siap.
+3. Di lobi: nama (maks 14 karakter), pilih karakter bidak (tidak boleh kembar), tekan **Siap**. Host menekan **Mulai** jika minimal 2 pemain dan semua siap.
 4. Selama bermain, client mengirim **niat**; Host memvalidasi, menjalankan mesin, dan menyiarkan hasil.
 
 Host juga pemain: halaman Host menjalankan `HostSession` dan bermain lewat client _loopback_ (link dalam memori), jadi jalurnya identik dengan pemain lain.
@@ -49,9 +49,10 @@ Host ke Client:
 { v:1, t:"reject", seq, reason }
 { v:1, t:"pong", ts }
 { v:1, t:"kick" | "end", reason }
+{ v:1, t:"timer", pid, ms, mode }      // sisa waktu giliran; mode limit | away | gone; pid -1 = tanpa batas
 ```
 
-Tambahan dibanding brief: `welcome` (memberi `pid` dan `token`), `profile`, `sync`, dan field `intent` di `events`.
+Tambahan dibanding brief: `welcome` (memberi `pid` dan `token`), `profile`, `sync`, `timer`, dan field `intent` di `events`.
 
 ### Sinkronisasi
 
@@ -67,12 +68,20 @@ Tambahan dibanding brief: `welcome` (memberi `pid` dan `token`), `profile`, `syn
 - Nama dibersihkan dari karakter kontrol, maksimal 14 karakter, dan selalu di-escape sebelum masuk HTML.
 - Hanya Host yang bisa mulai, mengeluarkan pemain, dan mengakhiri permainan.
 
+## Batas waktu giliran
+
+Host memilih di lobi: tanpa batas (bawaan), 60, 90, 120, atau 180 detik. Tenggat dihitung **per giliran** (bukan per aksi). Setiap aksi menambah tenggat sebesar perkiraan lama animasinya (`src/game/timing.ts`), supaya waktu tidak termakan animasi di layar pemain. Host menyiarkan sisa waktu lewat pesan `timer`; semua layar menampilkan hitung mundur di kartu kontrol. Jika waktu habis, Host memainkan giliran otomatis (lempar dadu bila perlu, lalu akhiri giliran; kota tidak dibeli).
+
+## Diagnosis koneksi
+
+Tombol **Koneksi** (hanya mode online) membuka panel berisi status (tersambung, menyambung, terputus), ping ke Host, jalur WebRTC (langsung lewat jaringan lokal, langsung lewat internet, atau lewat server TURN), daftar pemain beserta status, dan saran bila bermasalah. Tombol berwarna merah jika ada masalah.
+
 ## Putus dan menyambung ulang
 
 - Token sesi disimpan di `sessionStorage` (`nn.token.KODE`). Refresh tab = kembali ke bidak yang sama.
 - Client yang putus mencoba menyambung ulang tiap 3 detik (15 kali).
 - Bidak pemain terputus ditandai "Terputus". Jika gilirannya, Host menunggu **45 detik** lalu memainkan giliran otomatis (lempar dadu bila perlu, lalu akhiri giliran).
-- Host bisa **Kick** pemain dari lobi.
+- Host bisa **Kick** pemain dari lobi. Saat bermain, Kick ada di panel **Koneksi**: pemain itu tidak bisa masuk lagi dan gilirannya dimainkan otomatis 1,5 detik setelah tiba.
 - **Host putus**: client menampilkan "Host terputus". Host menyimpan snapshot terakhir di `localStorage` (`nn.host.KODE`). Jika Host memuat ulang halamannya (URL `#/host/KODE`), ruangan dipulihkan dengan kode yang sama dan pemain bisa menyambung lagi lewat tautan undangan. Migrasi host ke pemain lain belum ada; bentuk snapshot sudah cukup untuk itu.
 
 ## ICE, STUN, dan TURN
@@ -103,5 +112,5 @@ npm run dev
 
 - **Antar tab tanpa internet**: buka `http://localhost:5173/?net=tab` di beberapa tab satu browser. Buat ruangan di tab pertama, lalu buka `http://localhost:5173/?net=tab#/join/KODE` di tab lain.
 - **WebRTC sungguhan**: buka `http://localhost:5173/` di dua browser atau perangkat (perlu internet untuk broker PeerJS). Untuk perangkat lain di jaringan yang sama: `npm run dev -- --host`, lalu buka alamat IP komputer.
-- Parameter uji: `?fast=1` (tanpa animasi), `?low=1` (kualitas rendah), `?min=2` (boleh mulai dengan 2 pemain, khusus uji).
+- Parameter uji: `?fast=1` (tanpa animasi), `?low=1` (kualitas rendah).
 - Tes otomatis: `npm test` (termasuk `tests/net.test.ts` dengan transport dalam memori), `npm run test:e2e` (3 tab Playwright), dan `node scripts/peer-smoke.mjs` (PeerJS sungguhan, butuh `npx vite --port 4173` menyala).

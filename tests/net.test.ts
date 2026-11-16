@@ -4,6 +4,7 @@ import { stateHash } from '../src/engine/hash';
 import { ClientSession } from '../src/net/client';
 import {
   DISCONNECT_GRACE_MS,
+  GONE_MS,
   HostSession,
   RATE_CAP,
   loadHostSave,
@@ -122,16 +123,17 @@ describe('lobi', () => {
     expect(p.name).toBe('<b>Aku</b> pan');
     expect(p.pawn).toBe(3);
   });
-  it('mulai hanya jika minimal 3 pemain dan semua siap', async () => {
-    const t = await setup(2);
-    t.clients.forEach((r) => r.c.setReady(true));
+  it('mulai hanya jika minimal 2 pemain dan semua siap', async () => {
+    const t = await setup(1);
+    t.clients[0]!.c.setReady(true);
     await flush();
-    expect(t.host.start().ok).toBe(false);
-    const c = await t.join('C', 2);
+    expect(t.host.start()).toEqual({ ok: false, reason: 'Butuh minimal 2 pemain.' });
+    const c = await t.join('B', 1);
     expect(t.host.start().ok).toBe(false);
     c.c.setReady(true);
     await flush();
     expect(t.host.start().ok).toBe(true);
+    expect(t.host.state!.players).toHaveLength(2);
   });
   it('ruangan penuh menolak pemain ke-9', async () => {
     const t = await setup(8);
@@ -319,4 +321,80 @@ describe('permainan', () => {
     expect(sameAsHost(t)).toBe(true);
     expect(t.clients.every((r) => r.resyncs.length === 0)).toBe(true);
   }, 60_000);
+  it('permainan penuh 8 pemain lewat jaringan tetap konsisten', async () => {
+    const t = await started(8);
+    let guard = 0;
+    while (t.host.state!.phase !== 'over' && guard++ < 3000) {
+      const s = t.host.state!;
+      const { pid: _p, ...ci } = botIntent(s) as { pid: number; t: string };
+      void _p;
+      t.clients[s.turn]!.c.intent(ci as ClientIntent);
+      await micro();
+    }
+    if (t.host.state!.phase !== 'over') t.host.endGame();
+    await flush();
+    expect(sameAsHost(t)).toBe(true);
+    expect(t.clients.every((r) => r.resyncs.length === 0)).toBe(true);
+  }, 60_000);
+});
+
+describe('batas waktu giliran', () => {
+  it('Host menyiarkan sisa waktu; habis waktu = giliran otomatis', async () => {
+    vi.useFakeTimers();
+    const p = started(3, { settings: { turnLimit: 60 } });
+    await vi.advanceTimersByTimeAsync(50);
+    const t = await p;
+    const pid = t.host.state!.turn;
+    expect(t.clients[1]!.c.timer?.pid).toBe(pid);
+    expect(t.clients[1]!.c.timer?.mode).toBe('limit');
+    expect(t.host.timeLeft).toBeGreaterThan(59_000);
+    await vi.advanceTimersByTimeAsync(55_000);
+    expect(t.host.state!.turn).toBe(pid);
+    await vi.advanceTimersByTimeAsync(6_000);
+    expect(t.host.state!.turn).not.toBe(pid);
+  });
+  it('tenggat dihitung per giliran: aksi di giliran yang sama hanya menambah lama animasi', async () => {
+    vi.useFakeTimers();
+    const p = started(3, { settings: { turnLimit: 60 } });
+    await vi.advanceTimersByTimeAsync(50);
+    const t = await p;
+    await vi.advanceTimersByTimeAsync(20_000);
+    const before = t.host.timeLeft!;
+    // lempar dadu tanpa mengakhiri giliran (jika tidak kembar, fase act)
+    turnClient(t).c.intent({ t: 'roll' });
+    await vi.advanceTimersByTimeAsync(5);
+    if (t.host.state!.turn === t.clients.indexOf(turnClient(t))) {
+      const after = t.host.timeLeft!;
+      expect(after).toBeGreaterThan(before - 100);
+      expect(after).toBeLessThan(before + 60_000);
+    }
+  });
+  it('tanpa batas waktu: tidak ada timer untuk pemain tersambung', async () => {
+    const t = await started(3);
+    expect(t.host.timeLeft).toBeNull();
+    expect(t.clients[0]!.c.timer).toBeNull();
+  });
+  it('kick saat bermain: giliran pemain itu dimainkan otomatis segera', async () => {
+    vi.useFakeTimers();
+    const p = started(3);
+    await vi.advanceTimersByTimeAsync(50);
+    const t = await p;
+    const pid = t.host.state!.turn === 0 ? 1 : t.host.state!.turn;
+    t.host.kick(pid);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(t.clients[pid]!.ends[0]).toMatch(/dikeluarkan/);
+    expect(t.host.players[pid]!.gone).toBe(true);
+    // mainkan sampai giliran pemain yang dikeluarkan
+    for (let k = 0; k < 40 && t.host.state!.turn !== pid; k++) {
+      const s = t.host.state!;
+      t.clients[s.turn]!.c.intent(
+        s.phase === 'roll' || s.dbl > 0 ? { t: 'roll' } : { t: 'endTurn' },
+      );
+      await vi.advanceTimersByTimeAsync(5);
+    }
+    if (t.host.state!.turn === pid) {
+      await vi.advanceTimersByTimeAsync(GONE_MS + 50);
+      expect(t.host.state!.turn).not.toBe(pid);
+    }
+  });
 });

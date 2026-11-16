@@ -227,7 +227,7 @@ export class Hud {
     this.applyLog(v.pov, s.phase);
     const tok = PAWNS[p.pawn];
     const mine = v.pov === s.turn;
-    t.innerHTML = `<div class="who" style="--c:${tok?.color ?? '#888'}"><div class="tk">${tkImg(p.pawn)}</div><div><h2>${esc(p.name)}</h2><p>${esc(tok?.name ?? '')} · di ${esc(tileName(p.pos))}</p><span class="pv">${mine ? 'Giliran kamu' : 'Giliran ' + esc(p.name)}</span></div></div><div class="dr">Dadu terakhir <b id="dv">${s.last || '-'}</b></div><div id="acts"></div>`;
+    t.innerHTML = `<div class="who" style="--c:${tok?.color ?? '#888'}"><div class="tk">${tkImg(p.pawn)}</div><div><h2>${esc(p.name)}</h2><p>${esc(tok?.name ?? '')} · di ${esc(tileName(p.pos))}</p><span class="pv">${mine ? 'Giliran kamu' : 'Giliran ' + esc(p.name)}</span></div></div><div class="dr">Dadu terakhir <b id="dv">${s.last || '-'}</b></div><div class="tmr" id="tmr"></div><div id="acts"></div>`;
     const a = $('#acts');
     if (s.phase === 'over') return;
     if (!mine) {

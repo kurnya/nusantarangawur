@@ -81,6 +81,34 @@ class PeerLink implements Link {
   onClose(cb: () => void): void {
     this.cls.on(cb);
   }
+  /** Jenis jalur WebRTC terpilih: langsung (host/srflx) atau lewat server TURN (relay). */
+  async route(): Promise<string | null> {
+    const pc = this.conn.peerConnection;
+    if (!pc) return null;
+    try {
+      const stats = await pc.getStats();
+      let pairLocal: string | null = null;
+      stats.forEach((r: RTCStats & Record<string, unknown>) => {
+        if (r.type === 'candidate-pair' && r.state === 'succeeded' && (r.nominated || r.selected))
+          pairLocal = String(r.localCandidateId);
+      });
+      if (!pairLocal) return null;
+      const cand = stats.get(pairLocal) as (RTCStats & { candidateType?: string }) | undefined;
+      switch (cand?.candidateType) {
+        case 'host':
+          return 'langsung (jaringan lokal)';
+        case 'srflx':
+        case 'prflx':
+          return 'langsung (lewat internet)';
+        case 'relay':
+          return 'lewat server TURN';
+        default:
+          return null;
+      }
+    } catch {
+      return null;
+    }
+  }
 }
 
 export class PeerTransport implements Transport {

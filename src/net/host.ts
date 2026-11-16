@@ -6,7 +6,8 @@
 import * as C from '../engine/config';
 import { applyIntent, createGame } from '../engine/engine';
 import { stateHash } from '../engine/hash';
-import type { GameState, Intent, IntentOk } from '../engine/types';
+import type { GameEvent, GameState, Intent, IntentOk } from '../engine/types';
+import { estimateAnimMs } from '../game/timing';
 import { nextWeatherDelayMs } from '../engine/weather';
 import {
   decodeClient,
@@ -20,6 +21,8 @@ import { makeToken } from './room';
 import type { HostEndpoint, Link } from './transport';
 
 export const DISCONNECT_GRACE_MS = 45_000;
+/** jeda sebelum giliran pemain yang dikeluarkan dimainkan otomatis */
+export const GONE_MS = 1500;
 export const HELLO_TIMEOUT_MS = 10_000;
 /** batas laju: kapasitas ember dan isi ulang per detik */
 export const RATE_CAP = 20;
@@ -33,6 +36,8 @@ interface Seat {
   ready: boolean;
   connected: boolean;
   host: boolean;
+  /** dikeluarkan Host saat bermain: gilirannya dimainkan otomatis segera */
+  gone?: boolean;
   link: Link | null;
   bucket: { tokens: number; t: number };
 }
@@ -71,6 +76,7 @@ export class HostSession {
   state: GameState | null = null;
   private readonly links = new Set<Link>();
   private turnTimer: ReturnType<typeof setTimeout> | null = null;
+  private timer: { pid: number; mode: 'gone' | 'away' | 'limit'; deadline: number } | null = null;
   private wxTimer: ReturnType<typeof setTimeout> | null = null;
   private closed = false;
   private readonly o: HostOptions;
@@ -112,6 +118,7 @@ export class HostSession {
       ready: s.ready || s.host,
       connected: s.connected,
       host: s.host,
+      gone: !!s.gone,
     }));
   }
   get hostId(): number {
@@ -317,6 +324,7 @@ export class HostSession {
     if (this.started && this.state && !this.state.players[id]?.bankrupt) {
       // pemain yang dikeluarkan saat bermain: giliran otomatis tetap berjalan
       s.connected = false;
+      s.gone = true;
       s.link = null;
       s.token = makeToken();
     } else this.seats = this.seats.filter((x) => x !== s);
@@ -382,26 +390,78 @@ export class HostSession {
     this.persist();
     if (r.state.phase === 'over') {
       this.clearTimers();
+      this.timer = null;
+      this.broadcastTimer();
       return;
     }
-    this.armTurnTimer();
+    this.armTurnTimer(r.events);
   }
 
-  /** Timer giliran: 45 detik untuk pemain terputus, atau batas waktu giliran jika diatur. */
-  private armTurnTimer(): void {
+  /**
+   * Timer giliran berbasis tenggat. Mode: 'gone' (dikeluarkan, 1,5 detik), 'away' (terputus,
+   * 45 detik), atau 'limit' (batas waktu giliran dari pengaturan). Tenggat dihitung per giliran;
+   * lama animasi tiap aksi ditambahkan supaya waktu tidak termakan animasi di layar pemain.
+   */
+  private armTurnTimer(events?: readonly GameEvent[]): void {
     if (this.turnTimer) clearTimeout(this.turnTimer);
     this.turnTimer = null;
     const s = this.state;
-    if (!s || s.phase === 'over' || this.closed) return;
+    if (!s || s.phase === 'over' || this.closed) {
+      this.timer = null;
+      return;
+    }
     const pid = s.turn;
-    const rev = s.rev;
     const seat = this.seats.find((x) => x.id === pid);
-    const ms = !seat || !seat.connected ? DISCONNECT_GRACE_MS : this.settings.turnLimit * 1000;
-    if (!ms) return;
-    this.turnTimer = setTimeout(() => {
-      if (this.state && this.state.rev === rev) this.autoPlay(pid);
-      else this.armTurnTimer();
-    }, ms);
+    const mode: 'gone' | 'away' | 'limit' =
+      !seat || seat.gone ? 'gone' : !seat.connected ? 'away' : 'limit';
+    const base =
+      mode === 'gone'
+        ? GONE_MS
+        : mode === 'away'
+          ? DISCONNECT_GRACE_MS
+          : this.settings.turnLimit * 1000;
+    if (!base) {
+      if (this.timer) {
+        this.timer = null;
+        this.broadcastTimer();
+      }
+      return;
+    }
+    const anim = events ? estimateAnimMs(events) : 0;
+    const now = this.now();
+    const prev = this.timer;
+    const newTurn =
+      !prev ||
+      prev.pid !== pid ||
+      prev.mode !== mode ||
+      !!events?.some((e) => e.e === 'TurnStarted');
+    const deadline = newTurn ? now + base + anim : prev.deadline + anim;
+    this.timer = { pid, mode, deadline };
+    this.broadcastTimer();
+    this.turnTimer = setTimeout(
+      () => {
+        const st = this.state;
+        if (st && st.turn === pid && st.phase !== 'over') {
+          this.timer = null;
+          this.autoPlay(pid);
+        }
+      },
+      Math.max(0, deadline - now),
+    );
+  }
+
+  /** sisa waktu giliran saat ini (ms), atau null jika tanpa batas */
+  get timeLeft(): number | null {
+    return this.timer ? Math.max(0, this.timer.deadline - this.now()) : null;
+  }
+
+  private broadcastTimer(): void {
+    const msg = encode(
+      this.timer
+        ? { v: 1, t: 'timer', pid: this.timer.pid, ms: this.timeLeft ?? 0, mode: this.timer.mode }
+        : { v: 1, t: 'timer', pid: -1, ms: 0, mode: 'limit' },
+    );
+    for (const s of this.seats) s.link?.send(msg);
   }
 
   /** Mainkan giliran otomatis: lempar dadu bila perlu, lalu akhiri giliran. */

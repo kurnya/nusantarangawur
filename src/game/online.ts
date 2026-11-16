@@ -10,10 +10,11 @@ import { HostSession, loadHostSave } from '../net/host';
 import { linkPair } from '../net/memory';
 import { NetError } from '../net/peer';
 import type { ClientIntent } from '../net/protocol';
-import { inviteUrl, isRoomCode, makeRoomCode, normalizeCode } from '../net/room';
+import { inviteUrl, isRoomCode, makeRoomCode, normalizeCode, parseIceServers } from '../net/room';
 import type { Link, Transport } from '../net/transport';
 import { confirmEndGame, showWinner } from '../ui/endgame';
 import type { Hud } from '../ui/hud';
+import { setupNetPanel, type NetInfo } from '../ui/netpanel';
 import { hideMenu, menuBusy, renderLobby, setLobbyStatus, type LobbyActions } from '../ui/lobby';
 import type { GameView } from '../view/scene';
 import type { Presenter } from './presenter';
@@ -25,7 +26,6 @@ export interface OnlineDeps {
   transport: Transport;
   /** kembali ke menu dengan pesan */
   toMenu: (error?: string, code?: string) => void;
-  minPlayers?: number;
 }
 
 const RECONNECT_TRIES = 15;
@@ -112,7 +112,6 @@ export class OnlineGame {
       endpoint,
       storage: ls(),
       restore: save ?? undefined,
-      minPlayers: this.d.minPlayers,
     });
     this.host.onChange = () => this.renderLobby();
     history.replaceState(null, '', `#/host/${code}`);
@@ -163,6 +162,7 @@ export class OnlineGame {
         onSnapshot: (s) => this.enqueue(async () => this.applySnapshot(s)),
         onEvents: (prev, events, s) => this.enqueue(() => this.playEvents(prev, events, s)),
         onReject: (reason) => hud.toast(reason),
+        onTimer: () => this.tickTimer(),
         onEnd: (reason) => void this.ended(reason),
         onLost: () => void this.lost(),
         onPing: (ms) => {
@@ -194,6 +194,7 @@ export class OnlineGame {
     },
     kick: (id) => this.host?.kick(id),
     setStartMoney: (v) => this.host?.setSettings({ startMoney: v }),
+    setTurnLimit: (s) => this.host?.setSettings({ turnLimit: s }),
     leave: () => this.leave(),
   };
 
@@ -247,8 +248,60 @@ export class OnlineGame {
   waitNote(): string | undefined {
     const s = this.state;
     const lp = this.client?.lobby?.players.find((p) => p.id === s?.turn);
-    if (lp && !lp.connected) return '(terputus, giliran otomatis setelah 45 detik)';
+    if (lp?.gone) return '(dikeluarkan, dimainkan otomatis)';
+    if (lp && !lp.connected) return '(terputus)';
     return undefined;
+  }
+
+  /** Perbarui hitung mundur giliran di kartu kontrol. */
+  private tickTimer(): void {
+    const el = document.getElementById('tmr');
+    if (!el) return;
+    const s = this.state;
+    const tm = this.client?.timer;
+    if (!s || s.phase === 'over' || !tm || tm.pid !== s.turn) {
+      el.textContent = '';
+      return;
+    }
+    const left = Math.max(0, Math.ceil((tm.until - performance.now()) / 1000));
+    const mm = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    const name = s.players[s.turn]?.name ?? '';
+    el.textContent =
+      tm.mode === 'away'
+        ? `${name} terputus · giliran otomatis dalam ${mm}`
+        : tm.mode === 'gone'
+          ? `${name} dimainkan otomatis`
+          : s.turn === this.me
+            ? `Sisa waktu giliranmu ${mm}`
+            : `Waktu ${name}: ${mm}`;
+    el.classList.toggle('low', tm.mode === 'limit' && left <= 10);
+  }
+
+  private async netInfo(): Promise<NetInfo> {
+    const c = this.client;
+    const st = c?.status;
+    return {
+      status:
+        st === 'lost' || this.reconnecting ? 'lost' : st === 'connecting' ? 'connecting' : 'ok',
+      ping: c?.ping ?? -1,
+      route: this.isHost ? null : ((await c?.route()) ?? null),
+      isHost: this.isHost,
+      turn: parseIceServers(import.meta.env.VITE_ICE_SERVERS).some((s) =>
+        [s.urls].flat().some((u) => /^turns?:/.test(u)),
+      ),
+      me: this.me,
+      players: c?.lobby?.players ?? [],
+    };
+  }
+
+  private async kickInGame(id: number): Promise<void> {
+    const p = this.client?.lobby?.players.find((x) => x.id === id);
+    if (!this.host || !p) return;
+    const k = await this.d.hud.ask(
+      `<h3>Keluarkan ${escText(p.name)}?</h3><p style="margin:0">Gilirannya akan dimainkan otomatis sampai permainan selesai. Ia tidak bisa masuk lagi.</p>`,
+      [{ label: 'Batal' }, { label: 'Keluarkan', cls: 'pri' }],
+    );
+    if (k === 1) this.host.kick(id);
   }
 
   private syncEndButton(): void {
@@ -281,6 +334,11 @@ export class OnlineGame {
     const { hud, view, presenter } = this.d;
     if (!this.started) {
       this.started = true;
+      setupNetPanel(
+        () => this.netInfo(),
+        (id) => void this.kickInGame(id),
+      );
+      window.setInterval(() => this.tickTimer(), 500);
       hideMenu();
       this.syncEndButton();
       view?.start(s);

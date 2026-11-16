@@ -21,8 +21,13 @@ export interface LobbyActions {
   start(): void;
   kick(id: number): void;
   setStartMoney(v: number): void;
+  setTurnLimit(sec: number): void;
   leave(): void;
 }
+
+/** pilihan batas waktu giliran (detik); 0 = tanpa batas */
+export const TURN_LIMITS = [0, 60, 90, 120, 180];
+export const limitText = (s: number) => (s ? `${s} detik` : 'Tanpa batas');
 
 const NAME_KEY = 'nn.name';
 export function savedName(): string {
@@ -45,7 +50,7 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
   const box = $('#menuBox');
   box.innerHTML = `
     <h1 class="brand">Nusantara<br>Ngawur<small>Sabang sampai Merauke</small></h1>
-    <p>Keliling 38 provinsi bareng teman, 3 sampai 8 pemain, tiap orang di HP atau laptopnya sendiri.</p>
+    <p>Keliling 38 provinsi bareng teman, 2 sampai 8 pemain, tiap orang di HP atau laptopnya sendiri.</p>
     <label class="fld">Nama kamu<input id="mName" maxlength="${NAME_MAX}" autocomplete="nickname"></label>
     <div class="row"><button class="btn pri big" id="mCreate">Buat ruangan</button></div>
     <div class="joinrow">
@@ -141,8 +146,12 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
               (m) =>
                 `<option value="${m}" ${v.lobby?.settings.startMoney === m ? 'selected' : ''}>${fmtMoney(m)}</option>`,
             )
-            .join('')}</select></label>`
-        : `<p class="netstat">Uang awal: ${fmtMoney(v.lobby?.settings.startMoney ?? C.START_MONEY)}</p>`
+            .join('')}</select></label>
+          <label class="fld">Batas waktu giliran <select id="lbLimit">${TURN_LIMITS.map(
+            (s) =>
+              `<option value="${s}" ${(v.lobby?.settings.turnLimit ?? 0) === s ? 'selected' : ''}>${limitText(s)}</option>`,
+          ).join('')}</select></label>`
+        : `<p class="netstat">Uang awal: ${fmtMoney(v.lobby?.settings.startMoney ?? C.START_MONEY)} · Batas waktu giliran: ${limitText(v.lobby?.settings.turnLimit ?? 0)}</p>`
     }
     <div class="row">
       ${
@@ -182,6 +191,8 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
   });
   const money = document.getElementById('lbMoney') as HTMLSelectElement | null;
   if (money) money.onchange = () => a.setStartMoney(Number(money.value));
+  const limit = document.getElementById('lbLimit') as HTMLSelectElement | null;
+  if (limit) limit.onchange = () => a.setTurnLimit(Number(limit.value));
   const start = document.getElementById('lbStart');
   if (start) start.onclick = () => a.start();
   const ready = document.getElementById('lbReady');

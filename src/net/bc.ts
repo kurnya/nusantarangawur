@@ -48,6 +48,9 @@ class BcLink implements Link {
   onClose(cb: () => void): void {
     this.cls.on(cb);
   }
+  async route(): Promise<string> {
+    return 'antar tab (uji lokal)';
+  }
 }
 
 export class TabTransport implements Transport {

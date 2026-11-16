@@ -57,24 +57,3 @@ export const DEFAULT_ICE: RTCIceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:global.stun.twilio.com:3478' },
 ];
-
-/**
- * Daftar ICE server dari VITE_ICE_SERVERS (JSON array RTCIceServer).
- * Jika kosong atau tidak sah, pakai STUN publik bawaan.
- */
-export function parseIceServers(raw: string | undefined): RTCIceServer[] {
-  if (!raw || !raw.trim()) return DEFAULT_ICE;
-  try {
-    const v: unknown = JSON.parse(raw);
-    if (!Array.isArray(v)) return DEFAULT_ICE;
-    const ok = v.filter(
-      (s): s is RTCIceServer =>
-        !!s &&
-        typeof s === 'object' &&
-        (typeof (s as RTCIceServer).urls === 'string' || Array.isArray((s as RTCIceServer).urls)),
-    );
-    return ok.length ? ok : DEFAULT_ICE;
-  } catch {
-    return DEFAULT_ICE;
-  }
-}

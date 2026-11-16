@@ -4,7 +4,8 @@
  */
 import Peer, { type DataConnection } from 'peerjs';
 import { Emitter, type HostEndpoint, type Link, type Transport } from './transport';
-import { parseIceServers, peerIdFor } from './room';
+import { sessionIce } from './ice';
+import { peerIdFor } from './room';
 
 export const CONNECT_TIMEOUT_MS = 15_000;
 
@@ -112,14 +113,21 @@ class PeerLink implements Link {
 }
 
 export class PeerTransport implements Transport {
-  private readonly config: RTCConfiguration;
-  constructor(iceRaw: string | undefined = import.meta.env.VITE_ICE_SERVERS) {
-    this.config = { iceServers: parseIceServers(iceRaw) };
+  /** `relayOnly`: paksa lewat TURN (uji `?relay=1`) */
+  constructor(private readonly relayOnly = false) {}
+
+  private async config(): Promise<RTCConfiguration> {
+    const ice = await sessionIce();
+    return {
+      iceServers: ice.servers,
+      ...(this.relayOnly ? { iceTransportPolicy: 'relay' as RTCIceTransportPolicy } : {}),
+    };
   }
 
-  host(code: string): Promise<HostEndpoint> {
+  async host(code: string): Promise<HostEndpoint> {
+    const config = await this.config();
     return new Promise((resolve, reject) => {
-      const peer = new Peer(peerIdFor(code), { config: this.config, debug: 0 });
+      const peer = new Peer(peerIdFor(code), { config, debug: 0 });
       const em = new Emitter<[Link]>();
       let opened = false;
       const timer = setTimeout(() => {
@@ -151,9 +159,10 @@ export class PeerTransport implements Transport {
     });
   }
 
-  join(code: string): Promise<Link> {
+  async join(code: string): Promise<Link> {
+    const config = await this.config();
     return new Promise((resolve, reject) => {
-      const peer = new Peer({ config: this.config, debug: 0 });
+      const peer = new Peer({ config, debug: 0 });
       let done = false;
       const fail = (e: NetError) => {
         if (done) return;

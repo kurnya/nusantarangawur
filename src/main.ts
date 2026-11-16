@@ -139,7 +139,7 @@ async function makeOnline(): Promise<OnlineGame> {
     import('./game/online'),
     netTab
       ? import('./net/bc').then((m) => new m.TabTransport())
-      : import('./net/peer').then((m) => new m.PeerTransport()),
+      : import('./net/peer').then((m) => new m.PeerTransport(params.get('relay') === '1')),
   ]);
   const o = new OnlineGame({ hud, view, presenter, transport, toMenu });
   online = o;

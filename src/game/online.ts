@@ -10,7 +10,8 @@ import { HostSession, loadHostSave } from '../net/host';
 import { linkPair } from '../net/memory';
 import { NetError } from '../net/peer';
 import type { ClientIntent } from '../net/protocol';
-import { inviteUrl, isRoomCode, makeRoomCode, normalizeCode, parseIceServers } from '../net/room';
+import { probeTurn, sessionIce } from '../net/ice';
+import { inviteUrl, isRoomCode, makeRoomCode, normalizeCode } from '../net/room';
 import type { Link, Transport } from '../net/transport';
 import { confirmEndGame, showWinner } from '../ui/endgame';
 import type { Hud } from '../ui/hud';
@@ -286,12 +287,21 @@ export class OnlineGame {
       ping: c?.ping ?? -1,
       route: this.isHost ? null : ((await c?.route()) ?? null),
       isHost: this.isHost,
-      turn: parseIceServers(import.meta.env.VITE_ICE_SERVERS).some((s) =>
-        [s.urls].flat().some((u) => /^turns?:/.test(u)),
-      ),
+      turn: (await sessionIce()).turn,
       me: this.me,
       players: c?.lobby?.players ?? [],
     };
+  }
+
+  /** Uji TURN dari perangkat ini: apakah server TURN memberi jalur relay. */
+  async testTurn(): Promise<string> {
+    const ice = await sessionIce();
+    if (!ice.turn)
+      return ice.warning ?? 'TURN belum diatur. Hanya jalur langsung (STUN) yang tersedia.';
+    const n = await probeTurn(ice.servers);
+    return n > 0
+      ? `TURN berfungsi (${n} jalur relay${ice.source === 'url' ? ', kredensial dari URL' : ''}).`
+      : 'TURN tidak menjawab. Periksa kredensial atau kuota layanan TURN.';
   }
 
   private async kickInGame(id: number): Promise<void> {
@@ -337,6 +347,7 @@ export class OnlineGame {
       setupNetPanel(
         () => this.netInfo(),
         (id) => void this.kickInGame(id),
+        () => this.testTurn(),
       );
       window.setInterval(() => this.tickTimer(), 500);
       hideMenu();

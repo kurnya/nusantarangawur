@@ -86,23 +86,24 @@ Tombol **Koneksi** (hanya mode online) membuka panel berisi status (tersambung, 
 
 ## ICE, STUN, dan TURN
 
-Bawaannya hanya STUN publik. Sebagian jaringan (NAT simetris, Wi-Fi kantor atau kampus, sebagian operator seluler) butuh **TURN**.
+**Keputusan saat ini: tanpa TURN.** Permainan hanya memakai STUN publik (gratis, tanpa akun). Ini cukup untuk kebanyakan Wi-Fi rumah dan data seluler. Di sebagian jaringan (NAT simetris, Wi-Fi kantor atau kampus, sebagian operator seluler) koneksi bisa gagal; sarannya pakai jaringan lain atau hotspot HP salah satu pemain. Panel **Koneksi** menampilkan saran ini otomatis.
 
-Atur lewat variabel lingkungan Vite `VITE_ICE_SERVERS` berisi JSON array `RTCIceServer`:
+Server TURN publik gratis bersama (Metered Open Relay, kredensial `openrelayproject`) sudah diuji pada 16-11-2026 dan **tidak memberi jalur relay lagi**, jadi tidak dipakai.
 
-```json
-[
-  { "urls": "stun:stun.l.google.com:19302" },
-  { "urls": "turn:NAMA-SERVER:443?transport=tcp", "username": "USERNAME", "credential": "PASSWORD" }
-]
-```
+### Jika nanti butuh TURN (tanpa ubah kode)
 
-- **Metered Open Relay** (gratis): daftar di metered.ca, buat aplikasi TURN, salin daftar `iceServers` yang diberikan.
-- **Cloudflare Calls TURN**: buat TURN key di dasbor Cloudflare. Kredensialnya berumur pendek, jadi lebih cocok jika nanti ada fungsi pembuat kredensial.
-- Untuk GitHub Pages, isi di **Settings > Secrets and variables > Actions > Variables** dengan nama `VITE_ICE_SERVERS` (lihat `docs/DEPLOY.md`). **Jangan commit kredensial ke repo.** Kredensial TURN yang ikut di build bisa dibaca siapa pun yang membuka situs, jadi pakai layanan gratis atau berkuota.
-- Nilai yang rusak atau kosong otomatis kembali ke STUN bawaan.
+Dukungan TURN sudah ada di kode (`src/net/ice.ts`) dan **tidak aktif** selama variabel di bawah kosong.
 
-Jika tidak bisa tersambung: coba jaringan lain, atau nyalakan hotspot HP salah satu pemain.
+1. Cara termudah: daftar paket gratis **Metered** (metered.ca), buat aplikasi TURN, salin URL API kredensialnya, bentuknya `https://NAMA.metered.live/api/v1/turn/credentials?apiKey=KUNCI`.
+2. Isi variabel `VITE_ICE_SERVERS_URL` dengan URL itu:
+   - lokal: di berkas `.env.local` (tidak ikut di-commit);
+   - GitHub Pages: **Settings > Secrets and variables > Actions > Variables** (lihat `docs/DEPLOY.md`).
+3. Periksa dari komputer sendiri: `node scripts/turn-check.mjs` (harus menulis "TURN berfungsi").
+4. Di dalam permainan: panel **Koneksi > Uji TURN**. Untuk membuktikan jalur benar-benar lewat TURN: buka dengan `?relay=1` (memaksa relay), lalu panel Koneksi menampilkan jalur "lewat server TURN".
+
+Alternatif: `VITE_ICE_SERVERS` berisi JSON array `RTCIceServer` statis. Kredensial di variabel ini ikut terbaca di situs publik, jadi hanya untuk layanan gratis atau berkuota. URL Metered lebih aman karena kredensialnya berumur pendek. Daftar dari URL didahulukan; jika URL gagal atau lebih dari 4 detik, permainan tetap jalan dengan STUN.
+
+Cloudflare TURN butuh server kecil untuk membuat kredensial, jadi tidak cocok untuk situs statis tanpa backend.
 
 ## Menguji di komputer sendiri
 
@@ -112,5 +113,5 @@ npm run dev
 
 - **Antar tab tanpa internet**: buka `http://localhost:5173/?net=tab` di beberapa tab satu browser. Buat ruangan di tab pertama, lalu buka `http://localhost:5173/?net=tab#/join/KODE` di tab lain.
 - **WebRTC sungguhan**: buka `http://localhost:5173/` di dua browser atau perangkat (perlu internet untuk broker PeerJS). Untuk perangkat lain di jaringan yang sama: `npm run dev -- --host`, lalu buka alamat IP komputer.
-- Parameter uji: `?fast=1` (tanpa animasi), `?low=1` (kualitas rendah).
+- Parameter uji: `?fast=1` (tanpa animasi), `?low=1` (kualitas rendah), `?relay=1` (paksa lewat TURN).
 - Tes otomatis: `npm test` (termasuk `tests/net.test.ts` dengan transport dalam memori), `npm run test:e2e` (3 tab Playwright), dan `node scripts/peer-smoke.mjs` (PeerJS sungguhan, butuh `npx vite --port 4173` menyala).

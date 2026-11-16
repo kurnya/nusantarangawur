@@ -12,13 +12,7 @@ import {
 } from '../src/net/host';
 import { encode, type ClientIntent } from '../src/net/protocol';
 import { MemoryNetwork, linkPair } from '../src/net/memory';
-import {
-  codeFromHash,
-  isRoomCode,
-  makeRoomCode,
-  parseIceServers,
-  DEFAULT_ICE,
-} from '../src/net/room';
+import { codeFromHash, isRoomCode, makeRoomCode } from '../src/net/room';
 
 const CODE = 'ABCDE';
 /** transport memori memakai microtask: cukup kosongkan antrean microtask */
@@ -93,13 +87,6 @@ describe('ruangan', () => {
     expect(codeFromHash('#/join/ab2cd')).toBe('AB2CD');
     expect(codeFromHash('#/join/AB0CD')).toBeNull();
     expect(codeFromHash('#/lain')).toBeNull();
-  });
-  it('ICE server dari env, cadangan STUN bila kosong atau rusak', () => {
-    expect(parseIceServers(undefined)).toEqual(DEFAULT_ICE);
-    expect(parseIceServers('bukan json')).toEqual(DEFAULT_ICE);
-    expect(parseIceServers('[{"urls":"turn:x.org:3478","username":"u","credential":"p"}]')).toEqual(
-      [{ urls: 'turn:x.org:3478', username: 'u', credential: 'p' }],
-    );
   });
 });
 

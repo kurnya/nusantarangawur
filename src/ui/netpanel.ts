@@ -40,7 +40,11 @@ export function netAdvice(i: NetInfo): string[] {
 const statusText = (s: NetInfo['status']) =>
   s === 'ok' ? 'Tersambung' : s === 'lost' ? 'Terputus' : 'Menyambung...';
 
-export function setupNetPanel(info: () => Promise<NetInfo>, onKick: (id: number) => void): void {
+export function setupNetPanel(
+  info: () => Promise<NetInfo>,
+  onKick: (id: number) => void,
+  testTurn?: () => Promise<string>,
+): void {
   const stage = $('#stage');
   const btn = $('#camNet');
   const pn = el('div', 'fxpanel netpanel');
@@ -48,6 +52,8 @@ export function setupNetPanel(info: () => Promise<NetInfo>, onKick: (id: number)
   pn.setAttribute('aria-label', 'Diagnosis koneksi');
   stage.appendChild(pn);
   let timer = 0;
+  let turnMsg = '';
+  let testing = false;
   const render = async () => {
     const i = await info();
     const rows = [
@@ -72,7 +78,16 @@ export function setupNetPanel(info: () => Promise<NetInfo>, onKick: (id: number)
         return `<li style="--oc:${PAWNS[p.pawn]?.color ?? '#888'}"><span class="dot ${p.connected ? 'on' : ''}"></span><span>${esc(p.name)}${p.id === i.me ? ' (kamu)' : ''}<small>${st}</small></span>${kick}</li>`;
       })
       .join('');
-    pn.innerHTML = `<h4>Koneksi</h4><div class="nrows">${rows.map((r) => `<div>${r}</div>`).join('')}</div>${adv}<ul class="nlist">${list}</ul>`;
+    pn.innerHTML = `<h4>Koneksi</h4><div class="nrows">${rows.map((r) => `<div>${r}</div>`).join('')}<div><b>TURN</b> ${i.turn ? 'diatur' : 'belum diatur'}</div></div>${adv}<ul class="nlist">${list}</ul>${testTurn ? `<button class="btn" id="netTurn" ${testing ? 'disabled' : ''}>${testing ? 'Menguji TURN...' : 'Uji TURN'}</button><p class="adv" id="netTurnMsg">${esc(turnMsg)}</p>` : ''}`;
+    const tb = pn.querySelector<HTMLButtonElement>('#netTurn');
+    if (tb && testTurn)
+      tb.onclick = async () => {
+        testing = true;
+        void render();
+        turnMsg = await testTurn();
+        testing = false;
+        void render();
+      };
     pn.querySelectorAll<HTMLButtonElement>('[data-kick]').forEach((b) => {
       b.onclick = () => onKick(Number(b.dataset.kick));
     });

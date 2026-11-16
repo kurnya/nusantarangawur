@@ -82,6 +82,16 @@ export function applyEvent(s: GameState, ev: GameEvent): void {
       s.owners[ev.tile] = null;
       break;
     }
+    case 'CityMortgaged': {
+      const o = s.owners[ev.tile];
+      if (o) o.m = true;
+      break;
+    }
+    case 'CityRedeemed': {
+      const o = s.owners[ev.tile];
+      if (o) delete o.m;
+      break;
+    }
     case 'CityLost':
       if (ev.level === null) s.owners[ev.tile] = null;
       else {

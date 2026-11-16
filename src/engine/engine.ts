@@ -8,12 +8,14 @@ import { CARDS, N_TILES, TILES, cityOf, jailNear } from './board';
 import { Rng } from './rng';
 import {
   alive,
-  assetValue,
   buildCost,
   canBuild,
   cityPrice,
   ownedCount,
+  mortgageValue,
+  redeemCost,
   rentOf,
+  saleValue,
   wealth,
 } from './rules';
 import { goodChance, nextWeather } from './weather';
@@ -95,6 +97,25 @@ export function validate(s: GameState, i: Intent): string | null {
   if (i.t === 'weather' || i.t === 'endGame') return null;
   const p = s.players[i.pid];
   if (!p || p.bankrupt) return 'Pemain tidak dikenal.';
+  // kelola aset: boleh kapan saja oleh pemiliknya, tidak harus di gilirannya
+  if (i.t === 'build' || i.t === 'mortgage' || i.t === 'redeem' || i.t === 'sell') {
+    if (!Number.isInteger(i.tile) || i.tile < 0 || i.tile >= N_TILES) return 'Petak tidak sah.';
+    const o = s.owners[i.tile];
+    if (!o || o.p !== i.pid) return 'Kota ini bukan milikmu.';
+    switch (i.t) {
+      case 'build':
+        if (o.m) return 'Tebus dulu kota ini sebelum membangun.';
+        if (!canBuild(s, i.pid, i.tile)) return 'Kota ini sudah Metropolitan.';
+        return p.money < buildCost(s, i.tile, i.pid) ? 'Uang tidak cukup.' : null;
+      case 'mortgage':
+        return o.m ? 'Kota ini sudah digadaikan.' : null;
+      case 'redeem':
+        if (!o.m) return 'Kota ini tidak sedang digadaikan.';
+        return p.money < redeemCost(s, i.tile) ? 'Uang tidak cukup untuk menebus.' : null;
+      case 'sell':
+        return null;
+    }
+  }
   if (i.pid !== s.turn) return 'Bukan giliranmu.';
   switch (i.t) {
     case 'roll':
@@ -109,11 +130,6 @@ export function validate(s: GameState, i: Intent): string | null {
       const T = TILES[s.pending];
       if (!T || T.t !== 'city') return 'Petak tidak sah.';
       return p.money < cityPrice(cityOf(s.pending)!.prov) ? 'Uang tidak cukup.' : null;
-    }
-    case 'build': {
-      if (!Number.isInteger(i.tile) || i.tile < 0 || i.tile >= N_TILES) return 'Petak tidak sah.';
-      if (!canBuild(s, i.pid, i.tile)) return 'Kota ini tidak bisa dibangun.';
-      return p.money < buildCost(s, i.tile, i.pid) ? 'Uang tidak cukup.' : null;
     }
     case 'endTurn':
       return s.phase === 'act' ? null : 'Belum bisa mengakhiri giliran.';
@@ -165,7 +181,13 @@ class Game {
       case 'buy':
         return this.doBuy();
       case 'build':
-        return this.doBuild(i.tile);
+        return this.doBuild(i.pid, i.tile);
+      case 'mortgage':
+        return this.doMortgage(i.pid, i.tile);
+      case 'redeem':
+        return this.doRedeem(i.pid, i.tile);
+      case 'sell':
+        return this.doSell(i.pid, i.tile);
       case 'endTurn':
         return this.endTurn();
       case 'weather':
@@ -195,13 +217,15 @@ class Game {
     while (p.money < 0) {
       const mine = this.mine(p.id);
       if (!mine.length) break;
+      // kota yang tidak tergadai dijual lebih dulu, termurah dulu
       const price = (t: number) => cityPrice(cityOf(t)!.prov);
-      mine.sort((a, b) => price(a) - price(b) || a - b);
+      const mort = (t: number) => (this.s.owners[t]?.m ? 1 : 0);
+      mine.sort((a, b) => mort(a) - mort(b) || price(a) - price(b) || a - b);
       const k = mine[0] as number;
-      const v = assetValue(this.s, k);
+      const v = saleValue(this.s, k);
       p.money += v;
       this.s.owners[k] = null;
-      this.emit({ e: 'CitySold', pid: p.id, tile: k, value: v });
+      this.emit({ e: 'CitySold', pid: p.id, tile: k, value: v, forced: true });
     }
     if (p.money < 0) this.bankrupt(p);
   }
@@ -328,7 +352,9 @@ class Game {
         this.emit({ e: 'Landed', pid: p.id, tile: i, buyable: false });
         if (o.p !== p.id) {
           const q = this.player(o.p);
-          if (p.free > 0) {
+          if (o.m) {
+            this.emit({ e: 'RentWaived', pid: p.id, tile: i });
+          } else if (p.free > 0) {
             p.free--;
             this.emit({ e: 'TicketUsed', pid: p.id, tile: i });
           } else {
@@ -499,8 +525,34 @@ class Game {
     this.emit({ e: 'CityBought', pid: p.id, tile: i, price, monopoly });
   }
 
-  private doBuild(tile: number): void {
-    const p = this.cur;
+  private doMortgage(pid: number, tile: number): void {
+    const p = this.player(pid);
+    const v = mortgageValue(this.s, tile);
+    p.money += v;
+    this.s.owners[tile]!.m = true;
+    this.emit({ e: 'MoneyChanged', pid, amount: v, reason: 'mortgage' });
+    this.emit({ e: 'CityMortgaged', pid, tile, value: v });
+  }
+
+  private doRedeem(pid: number, tile: number): void {
+    const p = this.player(pid);
+    const cost = redeemCost(this.s, tile);
+    p.money -= cost;
+    delete this.s.owners[tile]!.m;
+    this.emit({ e: 'MoneyChanged', pid, amount: -cost, reason: 'redeem' });
+    this.emit({ e: 'CityRedeemed', pid, tile, cost });
+  }
+
+  private doSell(pid: number, tile: number): void {
+    const p = this.player(pid);
+    const v = saleValue(this.s, tile);
+    p.money += v;
+    this.s.owners[tile] = null;
+    this.emit({ e: 'CitySold', pid, tile, value: v, forced: false });
+  }
+
+  private doBuild(pid: number, tile: number): void {
+    const p = this.player(pid);
     const cost = buildCost(this.s, tile, p.id);
     p.money -= cost;
     p.disc = false;

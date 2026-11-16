@@ -42,12 +42,20 @@ describe('setiap kartu', () => {
     ...CARDS.nasibGood.map((c, i) => ['nasibGood', i, c] as ['nasibGood', number, Card]),
     ...CARDS.bencana.map((c, i) => ['bencana', i, c] as ['bencana', number, Card]),
   ];
-  it('jumlah kartu sesuai brief', () => {
+  it('jumlah kartu: Nasib baru dari pemilik (80 buruk, 20 baik), Bencana 12', () => {
     expect([CARDS.nasibBad.length, CARDS.nasibGood.length, CARDS.bencana.length]).toEqual([
-      20, 16, 12,
+      80, 20, 12,
     ]);
   });
-  it('Bencana selalu merugikan, Nasib buruk 20 kartu', () => {
+  it('Nasib buruk selalu merugikan, Nasib baik selalu menguntungkan', () => {
+    for (const c of CARDS.nasibBad)
+      expect((c.e.m ?? 0) <= 0 && (c.e.mv ?? 0) <= 0 && !c.e.free && !c.e.disc, c.x).toBe(true);
+    for (const c of CARDS.nasibGood)
+      expect((c.e.m ?? 0) >= 0 && (c.e.mv ?? 0) >= 0 && !c.e.skip && !c.e.jail, c.x).toBe(true);
+    const ids = new Set([...CARDS.nasibBad, ...CARDS.nasibGood].map((c) => c.id));
+    expect(ids.size).toBe(100);
+  });
+  it('Bencana selalu merugikan', () => {
     for (const c of CARDS.bencana) {
       const e = c.e;
       expect((e.m ?? 0) <= 0 && (e.mv ?? 0) <= 0 && !e.free && !e.disc).toBe(true);

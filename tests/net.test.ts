@@ -325,6 +325,44 @@ describe('permainan', () => {
   }, 60_000);
 });
 
+describe('kelola aset lewat jaringan', () => {
+  it('pemain yang bukan giliran bisa gadai, tebus, jual; semua layar sinkron', async () => {
+    const t = await started(3);
+    const other = t.clients.find((r) => r.c.pid !== t.host.state!.turn)!;
+    const pid = other.c.pid!;
+    // beri kota ke pemain itu di Host, lalu semua client minta snapshot
+    const tile = 7;
+    t.host.state!.owners[tile] = { p: pid, lv: 1 };
+    t.clients.forEach((r) => r.c.requestSync());
+    await flush();
+    expect(sameAsHost(t)).toBe(true);
+    const m0 = t.host.state!.players[pid]!.money;
+    other.c.intent({ t: 'mortgage', tile });
+    await flush();
+    expect(other.rejects).toEqual([]);
+    expect(t.host.state!.owners[tile]).toEqual({ p: pid, lv: 1, m: true });
+    expect(t.host.state!.players[pid]!.money).toBeGreaterThan(m0);
+    other.c.intent({ t: 'redeem', tile });
+    await flush();
+    expect(t.host.state!.owners[tile]!.m).toBeUndefined();
+    other.c.intent({ t: 'sell', tile });
+    await flush();
+    expect(t.host.state!.owners[tile]).toBeNull();
+    expect(sameAsHost(t)).toBe(true);
+    expect(t.clients.every((r) => r.resyncs.length === 0)).toBe(true);
+  });
+  it('tidak bisa mengelola kota milik orang lain', async () => {
+    const t = await started(3);
+    t.host.state!.owners[7] = { p: 0, lv: 0 };
+    t.clients.forEach((r) => r.c.requestSync());
+    await flush();
+    t.clients[1]!.c.intent({ t: 'sell', tile: 7 });
+    await flush();
+    expect(t.clients[1]!.rejects).toEqual(['Kota ini bukan milikmu.']);
+    expect(t.host.state!.owners[7]).toEqual({ p: 0, lv: 0 });
+  });
+});
+
 describe('batas waktu giliran', () => {
   it('Host menyiarkan sisa waktu; habis waktu = giliran otomatis', async () => {
     vi.useFakeTimers();

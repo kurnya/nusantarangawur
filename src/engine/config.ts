@@ -27,6 +27,10 @@ export const MAX_LEVEL = 3;
 export const BUILD_RATE = 0.6;
 export const ASSET_BASE = 0.5;
 export const ASSET_PER_LEVEL = 0.3;
+/** gadai: uang yang diterima = proporsi nilai aset */
+export const MORTGAGE_RATE = 0.6;
+/** tebus: nilai gadai + bunga */
+export const REDEEM_INTEREST = 0.1;
 
 export const GOOD_BASE = 0.2;
 export const GOOD_MIN = 0.02;

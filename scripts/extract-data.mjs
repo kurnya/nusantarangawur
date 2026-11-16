@@ -1,6 +1,7 @@
 // Ekstrak data statis dari reference/prototype/index.html ke src/engine/data/*.json
 // Jalankan: node scripts/extract-data.mjs
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { NASIB_BAD, NASIB_GOOD } from './data/nasib.mjs';
 
 const src = readFileSync('reference/prototype/index.html', 'utf8');
 const cut = (from, to) => {
@@ -55,8 +56,9 @@ w(
 );
 const card = (kind) => (c, i) => ({ id: `${kind}-${i}`, x: c.x, e: c.e, em: c.em, fx: fxKey(c.x) });
 w('cards', {
-  nasibBad: D.NASIB_BAD.map(card('nb')),
-  nasibGood: D.NASIB_GOOD.map(card('ng')),
+  // Nasib: daftar baru dari pemilik (scripts/data/nasib.mjs); Bencana: dari prototipe
+  nasibBad: NASIB_BAD.map(card('nb')),
+  nasibGood: NASIB_GOOD.map(card('ng')),
   bencana: D.BENCANA.map(card('bc')),
 });
 console.log('tiles', D.TILES.length, 'provinsi', D.PORDER.length);

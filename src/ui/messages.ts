@@ -105,9 +105,29 @@ export function messageFor(ev: GameEvent, s: GameState): LogLine | null {
     case 'NoCityFine':
       return { msg: `${nm(ev.pid)} tidak punya kota, jadi hanya kena denda.`, cls: 'bad' };
     case 'CitySold':
+      return ev.forced
+        ? {
+            msg: `${nm(ev.pid)} terpaksa menjual ${city(ev.tile)?.name ?? '?'} (${fmtMoney(ev.value)}).`,
+            cls: 'bad',
+          }
+        : {
+            msg: `${nm(ev.pid)} menjual ${city(ev.tile)?.name ?? '?'} ke bank (${fmtMoney(ev.value)}).`,
+            cls: '',
+          };
+    case 'CityMortgaged':
       return {
-        msg: `${nm(ev.pid)} terpaksa menjual ${city(ev.tile)?.name ?? '?'} (${fmtMoney(ev.value)}).`,
-        cls: 'bad',
+        msg: `${nm(ev.pid)} menggadaikan ${city(ev.tile)?.name ?? '?'} ke bank (+${fmtMoney(ev.value)}).`,
+        cls: '',
+      };
+    case 'CityRedeemed':
+      return {
+        msg: `${nm(ev.pid)} menebus ${city(ev.tile)?.name ?? '?'} (${fmtMoney(ev.cost)}).`,
+        cls: 'good',
+      };
+    case 'RentWaived':
+      return {
+        msg: `${city(ev.tile)?.name ?? '?'} sedang tergadai. ${nm(ev.pid)} bebas sewa.`,
+        cls: 'good',
       };
     case 'CityBought': {
       const c = city(ev.tile)!;

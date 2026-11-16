@@ -6,6 +6,7 @@ import { Presenter } from './game/presenter';
 import type { ClientIntent } from './net/protocol';
 import { codeFromHash, isRoomCode, normalizeCode } from './net/room';
 import { $, el } from './ui/dom';
+import { AssetPanel } from './ui/assets';
 import { setupFxPanel } from './ui/fxpanel';
 import { Hud } from './ui/hud';
 import { hideMenu, savedName, showMenu } from './ui/lobby';
@@ -47,12 +48,20 @@ const hud = new Hud(
     build: (tile) => game?.act({ t: 'build', tile }),
     endTurn: () => game?.act({ t: 'endTurn' }),
     payJail: () => game?.act({ t: 'payJail' }),
+    assets: () => assetPanel.toggle(),
   },
   reducedMotion,
 );
 
 // diisi setelah view dibuat; view memanggil getState() saat membangun petak
 const ref: { presenter?: Presenter } = {};
+const assetPanel = new AssetPanel({
+  state: () => game?.state ?? null,
+  pov,
+  act: (i) => game?.act(i),
+  // mode satu perangkat: aksi menunggu animasi selesai; online: kapan saja
+  blocked: () => (!online && game?.playing ? 'Tunggu animasi selesai.' : null),
+});
 const getState = () => ref.presenter?.disp ?? game?.state ?? null;
 
 function onTile(i: number): void {
@@ -126,6 +135,7 @@ if (view) {
   };
 }
 $('#camLog').onclick = () => hud.toggleLog(pov());
+$('#camAssets').onclick = () => assetPanel.toggle();
 $('#logClose').onclick = () => hud.toggleLog(pov());
 $('#endGame').onclick = () => void game?.askEndGame();
 hud.renderWx('cerah');

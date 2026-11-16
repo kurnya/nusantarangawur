@@ -45,7 +45,7 @@ export async function openTile(
   const pc = provColor(pr.hue);
   const ownerP = o ? s.players[o.p] : null;
   const owner = ownerP
-    ? `<span style="display:inline-block;width:20px;height:20px;vertical-align:middle">${tkImg(ownerP.pawn)}</span> ${esc(ownerP.name)}${o && o.lv ? ' · ' + C.LV_NAMES[o.lv] : ''}`
+    ? `<span style="display:inline-block;width:20px;height:20px;vertical-align:middle">${tkImg(ownerP.pawn)}</span> ${esc(ownerP.name)}${o && o.lv ? ' · ' + C.LV_NAMES[o.lv] : ''}${o?.m ? ' · <b style="color:#ff9aa8">Tergadai</b>' : ''}`
     : 'Belum ada pemilik';
   const city = pr.cities[T.ci]!;
   let h = `<h3>${ciImg(pr.code, T.ci, 40)} ${esc(city.n)} <span class="chip" style="--rc:${pc}">${esc(pr.name)}</span></h3>

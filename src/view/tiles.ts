@@ -69,6 +69,7 @@ const SPC: Record<SpecialKind, [number, number]> = {
   RAZIA: [0x1f3f8c, 0x3d6ccc],
 };
 const CREAM = new THREE.Color(0xf4ead0);
+const GRAYED = new THREE.Color(0x8a8f99);
 
 function wrapText(ctx: CanvasRenderingContext2D, txt: string, maxW: number, maxLines: number) {
   const words = txt.split(' ');
@@ -199,7 +200,7 @@ export class Tiles {
     const o = s?.owners[i] ?? null;
     const ic = cityIcon(T.p, T.ci);
     const atlas = ic ? (this.atl[ic.L]?.naturalWidth ? 1 : 0) : 2;
-    return o && s ? `${o.p}:${o.lv}:${rentOf(s, i)}:${atlas}` : `-:${atlas}`;
+    return o && s ? `${o.p}:${o.lv}:${o.m ? 'g' : rentOf(s, i)}:${atlas}` : `-:${atlas}`;
   }
 
   private drawLabel(i: number, force = false): void {
@@ -233,10 +234,15 @@ export class Tiles {
       ctx.font = `800 26px ${BODY_FONT}`;
       const lines = wrapText(ctx, info.name, 206, 2);
       lines.forEach((l, k) => ctx.fillText(l, 128, (lines.length > 1 ? 156 : 168) + k * 29));
-      ctx.fillStyle = o ? '#1d2338' : '#6a4f12';
       ctx.font = `800 27px ${BODY_FONT}`;
-      const amount = o && s ? rentOf(s, i) : cityPrice(info.prov);
-      ctx.fillText((o ? 'Sewa ' : '') + fmtMoney(amount), 128, 232);
+      if (o?.m) {
+        ctx.fillStyle = '#b3263a';
+        ctx.fillText('TERGADAI', 128, 232);
+      } else {
+        ctx.fillStyle = o ? '#1d2338' : '#6a4f12';
+        const amount = o && s ? rentOf(s, i) : cityPrice(info.prov);
+        ctx.fillText((o ? 'Sewa ' : '') + fmtMoney(amount), 128, 232);
+      }
     } else {
       const sp = SPECIAL.find((x) => x.k === T.k)!;
       ctx.fillStyle = '#fff';
@@ -488,7 +494,7 @@ export class Tiles {
     const s = this.getState();
     const o = s?.owners[i] ?? null;
     const pawn = o && s ? (s.players[o.p]?.pawn ?? o.p) : -1;
-    const key = o ? `${pawn}:${o.lv}` : '';
+    const key = o ? `${pawn}:${o.lv}:${o.m ? 'g' : ''}` : '';
     if (this.markKey[i] === key) {
       this.drawLabel(i);
       return;
@@ -503,6 +509,8 @@ export class Tiles {
     if (o && s) {
       const oc = PAWNS[pawn]?.color ?? '#ffffff';
       tile.imat.color.copy(CREAM).lerp(new THREE.Color(oc), 0.55);
+      // kota tergadai: petak diredupkan
+      if (o.m) tile.imat.color.lerp(GRAYED, 0.6);
       const q = POS[i]!;
       const a = (ANG[i]! * Math.PI) / 180;
       let nx = -Math.sin(a);

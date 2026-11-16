@@ -29,7 +29,14 @@ export const ClientIntentSchema = z.discriminatedUnion('t', [
   z.object({ t: z.literal('build'), tile: z.number().int().min(0).max(1000) }),
   z.object({ t: z.literal('endTurn') }),
   z.object({ t: z.literal('payJail') }),
+  z.object({ t: z.literal('mortgage'), tile: z.number().int().min(0).max(1000) }),
+  z.object({ t: z.literal('redeem'), tile: z.number().int().min(0).max(1000) }),
+  z.object({ t: z.literal('sell'), tile: z.number().int().min(0).max(1000) }),
 ]);
+
+/** niat kelola aset: boleh dikirim kapan saja, tidak harus di giliran sendiri */
+export const isAssetIntent = (i: { t: string }) =>
+  i.t === 'build' || i.t === 'mortgage' || i.t === 'redeem' || i.t === 'sell';
 export type ClientIntent = z.infer<typeof ClientIntentSchema>;
 
 export const ClientMsgSchema = z.discriminatedUnion('t', [

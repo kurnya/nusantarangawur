@@ -23,7 +23,7 @@ export function ownedCount(s: GameState, pid: number, p: Province): number {
 
 export function rentOf(s: GameState, tile: number): number {
   const o = s.owners[tile];
-  if (!o) return 0;
+  if (!o || o.m) return 0;
   const p = prov(tile);
   return rentFor(p, ownedCount(s, o.p, p), o.lv);
 }
@@ -35,7 +35,7 @@ export function buildCost(s: GameState, tile: number, pid: number): number {
 
 export function canBuild(s: GameState, pid: number, tile: number): boolean {
   const o = s.owners[tile];
-  return !!o && o.p === pid && o.lv < C.MAX_LEVEL;
+  return !!o && o.p === pid && !o.m && o.lv < C.MAX_LEVEL;
 }
 
 export function assetValue(s: GameState, tile: number): number {
@@ -45,10 +45,28 @@ export function assetValue(s: GameState, tile: number): number {
   return Math.round(cp * C.ASSET_BASE + o.lv * cp * C.ASSET_PER_LEVEL);
 }
 
+/** uang yang diterima saat kota digadaikan */
+export function mortgageValue(s: GameState, tile: number): number {
+  return Math.round((assetValue(s, tile) * C.MORTGAGE_RATE) / 10) * 10;
+}
+
+/** biaya menebus kota tergadai (nilai gadai + bunga) */
+export function redeemCost(s: GameState, tile: number): number {
+  return Math.round((mortgageValue(s, tile) * (1 + C.REDEEM_INTEREST)) / 10) * 10;
+}
+
+/** uang yang diterima saat kota dijual ke bank; kota tergadai dipotong biaya tebus */
+export function saleValue(s: GameState, tile: number): number {
+  const o = s.owners[tile];
+  if (!o) return 0;
+  return Math.max(0, assetValue(s, tile) - (o.m ? redeemCost(s, tile) : 0));
+}
+
+/** kekayaan = uang + nilai jual semua kota (kota tergadai sudah dipotong biaya tebus) */
 export function wealth(s: GameState, pid: number): number {
   let w = s.players[pid]?.money ?? 0;
   s.owners.forEach((o, i) => {
-    if (o && o.p === pid) w += assetValue(s, i);
+    if (o && o.p === pid) w += saleValue(s, i);
   });
   return w;
 }

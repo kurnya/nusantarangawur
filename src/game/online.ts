@@ -9,7 +9,7 @@ import { ClientSession, type LobbyInfo } from '../net/client';
 import { HostSession, loadHostSave } from '../net/host';
 import { linkPair } from '../net/memory';
 import { NetError } from '../net/peer';
-import type { ClientIntent } from '../net/protocol';
+import { isAssetIntent, type ClientIntent } from '../net/protocol';
 import { probeTurn, sessionIce } from '../net/ice';
 import { inviteUrl, isRoomCode, makeRoomCode, normalizeCode } from '../net/room';
 import type { Link, Transport } from '../net/transport';
@@ -235,8 +235,11 @@ export class OnlineGame {
 
   act(i: ClientIntent): void {
     const s = this.state;
-    if (!s || !this.client || this.playing) return;
-    if (s.turn !== this.client.pid) return;
+    if (!s || !this.client || s.phase === 'over') return;
+    // kelola aset boleh kapan saja; aksi giliran hanya di giliran sendiri dan setelah animasi
+    if (!isAssetIntent(i)) {
+      if (this.playing || s.turn !== this.client.pid) return;
+    }
     this.client.intent(i);
   }
 

@@ -16,6 +16,8 @@ export interface HudActions {
   build(tile: number): void;
   endTurn(): void;
   payJail(): void;
+  /** buka panel Aset */
+  assets(): void;
 }
 
 export interface TurnView {
@@ -230,8 +232,18 @@ export class Hud {
     t.innerHTML = `<div class="who" style="--c:${tok?.color ?? '#888'}"><div class="tk">${tkImg(p.pawn)}</div><div><h2>${esc(p.name)}</h2><p>${esc(tok?.name ?? '')} · di ${esc(tileName(p.pos))}</p><span class="pv">${mine ? 'Giliran kamu' : 'Giliran ' + esc(p.name)}</span></div></div><div class="dr">Dadu terakhir <b id="dv">${s.last || '-'}</b></div><div class="tmr" id="tmr"></div><div id="acts"></div>`;
     const a = $('#acts');
     if (s.phase === 'over') return;
+    const me = s.players[v.pov];
+    const assetsBtn = () => {
+      if (!me || me.bankrupt) return;
+      const n = s.owners.filter((o) => o && o.p === v.pov).length;
+      const b = el('button', 'btn assetsbtn');
+      b.textContent = `Kelola aset (${n} kota)`;
+      b.onclick = this.actions.assets;
+      a.appendChild(b);
+    };
     if (!mine) {
       a.innerHTML = `<div class="wait">Menunggu ${esc(p.name)} bermain...${v.waitNote ? ' ' + esc(v.waitNote) : ''}</div>`;
+      assetsBtn();
       return;
     }
     const add = (label: string, cls: string, fn: () => void, dis = false) => {
@@ -273,6 +285,7 @@ export class Hud {
       if (s.dbl > 0 && !p.jail) add('Kembar! Lempar lagi', 'pri', this.actions.roll);
       else add('Akhiri giliran', '', this.actions.endTurn);
     }
+    assetsBtn();
   }
 
   /* ---------- dadu ---------- */

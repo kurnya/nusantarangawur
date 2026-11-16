@@ -57,6 +57,8 @@ export interface Player {
 export interface Ownership {
   p: number;
   lv: number;
+  /** tergadai ke bank: tidak menarik sewa, tidak bisa dibangun (hanya ada bila true) */
+  m?: true;
 }
 
 export type Phase = 'roll' | 'act' | 'over';
@@ -86,13 +88,28 @@ export type PlayerIntent =
   | { t: 'buy'; pid: number }
   | { t: 'build'; pid: number; tile: number }
   | { t: 'endTurn'; pid: number }
-  | { t: 'payJail'; pid: number };
+  | { t: 'payJail'; pid: number }
+  /** kelola aset: boleh kapan saja oleh pemiliknya */
+  | { t: 'mortgage'; pid: number; tile: number }
+  | { t: 'redeem'; pid: number; tile: number }
+  | { t: 'sell'; pid: number; tile: number };
 /** Niat sistem, hanya boleh dikirim Host. */
 export type SystemIntent = { t: 'weather' } | { t: 'endGame' };
 export type Intent = PlayerIntent | SystemIntent;
 
 export type MoneyReason =
-  'salary' | 'pajak' | 'park' | 'card' | 'jailfee' | 'fine' | 'flood' | 'buy' | 'build' | 'sell';
+  | 'salary'
+  | 'pajak'
+  | 'park'
+  | 'card'
+  | 'jailfee'
+  | 'fine'
+  | 'flood'
+  | 'buy'
+  | 'build'
+  | 'sell'
+  | 'mortgage'
+  | 'redeem';
 
 export type HazardKind = 'banjir' | 'petir' | 'kebakaran';
 
@@ -109,7 +126,12 @@ export type GameEvent =
   | { e: 'TicketUsed'; pid: number; tile: number }
   | { e: 'CityBought'; pid: number; tile: number; price: number; monopoly: boolean }
   | { e: 'CityBuilt'; pid: number; tile: number; level: number; cost: number }
-  | { e: 'CitySold'; pid: number; tile: number; value: number }
+  /** kota dijual ke bank; `forced` = jual paksa karena uang negatif */
+  | { e: 'CitySold'; pid: number; tile: number; value: number; forced: boolean }
+  | { e: 'CityMortgaged'; pid: number; tile: number; value: number }
+  | { e: 'CityRedeemed'; pid: number; tile: number; cost: number }
+  /** mendarat di kota lawan yang tergadai: bebas sewa */
+  | { e: 'RentWaived'; pid: number; tile: number }
   | { e: 'CityLost'; pid: number; tile: number; level: number | null }
   | { e: 'NoCityFine'; pid: number; amount: number }
   | { e: 'CardDrawn'; pid: number; kind: CardKind; tag: CardTag; card: string; chance?: number }

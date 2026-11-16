@@ -145,7 +145,9 @@ export class Presenter {
       case 'CityBought':
       case 'CityBuilt':
       case 'CityLost':
-      case 'CitySold': {
+      case 'CitySold':
+      case 'CityMortgaged':
+      case 'CityRedeemed': {
         log();
         applyEvent(s, ev);
         if (ev.e === 'CityBought') {

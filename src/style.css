@@ -1420,3 +1420,82 @@ details ul {
     animation: none;
   }
 }
+
+/* ---- panel Aset ---- */
+.overlay.assets {
+  z-index: 55;
+}
+.assets .dlg {
+  width: min(620px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+.assets .asum {
+  margin: 0;
+  color: var(--mute);
+  font-size: 13px;
+}
+.assets .asum b {
+  color: var(--gold);
+}
+.assets .alist {
+  margin-top: 10px;
+}
+.assets .arow {
+  grid-template-columns: 34px 1fr;
+  grid-template-areas: 'ic info' 'btn btn';
+  row-gap: 8px;
+}
+.assets .arow > i {
+  grid-area: ic;
+}
+.assets .ainfo {
+  grid-area: info;
+  min-width: 0;
+}
+.assets .arow.mort {
+  opacity: 0.85;
+  border-style: dashed;
+}
+.assets .tag.mort {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: #6b1f2b;
+  color: #ffd5dc;
+  font-weight: 800;
+  font-size: 10.5px;
+}
+.assets .abtns {
+  grid-area: btn;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.assets .abtns .btn {
+  flex: 1 1 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+.assets .abtns .btn small {
+  font-size: 11px;
+  font-weight: 800;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+.btn.danger {
+  background: #8f1e31;
+  border-color: var(--red);
+  color: #fff;
+}
+.hud #acts .btn.assetsbtn {
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.assets .abtns .btn.gold small {
+  color: #3a2c00;
+}

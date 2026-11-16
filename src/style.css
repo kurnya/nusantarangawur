@@ -1032,3 +1032,123 @@ details ul {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ---- Fase 3: tata letak HP dan layar pendek ---- */
+.pc.me .tk {
+  box-shadow: 0 0 0 2px #fff8;
+}
+.pc .you {
+  font-size: 10px;
+  color: var(--gold);
+  font-weight: 800;
+  margin-left: 4px;
+}
+@media (max-width: 700px) {
+  /* toolbar kamera: satu baris yang bisa digeser, tidak menutupi peta */
+  .cam {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .cam::-webkit-scrollbar {
+    display: none;
+  }
+  .cam button {
+    flex: none;
+    padding: 6px 9px;
+    font-size: 12.5px;
+  }
+  /* kotak cuaca di bawah toolbar, ringkas */
+  .wxchip {
+    top: 52px;
+    bottom: auto;
+    right: 10px;
+    max-width: 180px;
+  }
+  .hint {
+    display: none;
+  }
+  .side.left {
+    gap: 8px;
+    padding: 6px 8px;
+  }
+  .side.left .brand {
+    font-size: 12px;
+  }
+  .pc {
+    min-width: 132px;
+    padding: 5px 7px;
+    grid-template-columns: 28px 1fr;
+    gap: 6px;
+  }
+  .pc .tk {
+    width: 28px;
+    height: 28px;
+  }
+  .pc b,
+  .pc .m {
+    font-size: 13px;
+  }
+  .pc .s {
+    font-size: 10px;
+  }
+  .hud .turn {
+    padding: 9px 10px;
+  }
+  .hud .dr {
+    margin: 4px 0 0;
+  }
+  .hud .btn.pri.big {
+    padding: 13px 12px;
+    font-size: 16px;
+  }
+}
+/* layar pendek (HP lanskap): kartu kontrol ringkas, cuaca tanpa keterangan */
+@media (max-height: 520px) {
+  .wxchip {
+    top: 52px;
+    max-width: 200px;
+    padding: 5px 10px;
+  }
+  .wxchip .wd {
+    display: none;
+  }
+  .hint {
+    display: none;
+  }
+  .hud {
+    bottom: 8px;
+    right: 8px;
+  }
+  .hud .turn {
+    padding: 8px 10px;
+  }
+  .hud .turn .who .tk {
+    width: 30px;
+    height: 30px;
+  }
+  .hud .turn p {
+    display: none;
+  }
+  .hud .dr {
+    margin: 2px 0 0;
+  }
+  .hud #acts {
+    margin-top: 4px;
+    gap: 6px;
+  }
+  .hud .btn.big,
+  .hud .btn.pri.big {
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+  .tray {
+    bottom: 12px;
+    left: 38%;
+  }
+  .logd {
+    bottom: 8px;
+    height: calc(100% - 64px);
+  }
+}

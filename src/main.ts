@@ -13,21 +13,34 @@ const params = new URLSearchParams(location.search);
 const fast = params.get('fast') === '1';
 /** ?low=1 mode kualitas rendah */
 const lowQuality = params.get('low') === '1';
+const reducedMotion = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 let game: LocalGame | null = null;
 const pov = () => game?.state?.turn ?? 0;
 
-const hud = new Hud(fast, {
-  roll: () => game?.act({ t: 'roll' }),
-  buy: () => game?.act({ t: 'buy' }),
-  build: (tile) => game?.act({ t: 'build', tile }),
-  endTurn: () => game?.act({ t: 'endTurn' }),
-  payJail: () => game?.act({ t: 'payJail' }),
-});
+const hud = new Hud(
+  fast,
+  {
+    roll: () => game?.act({ t: 'roll' }),
+    buy: () => game?.act({ t: 'buy' }),
+    build: (tile) => game?.act({ t: 'build', tile }),
+    endTurn: () => game?.act({ t: 'endTurn' }),
+    payJail: () => game?.act({ t: 'payJail' }),
+  },
+  reducedMotion,
+);
 
 // diisi setelah view dibuat; view memanggil getState() saat membangun petak
 const ref: { presenter?: Presenter } = {};
 const getState = () => ref.presenter?.disp ?? game?.state ?? null;
+
+function onTile(i: number): void {
+  const s = getState();
+  if (!s || !game) return;
+  void openTile(hud, s, i, pov(), !game.playing).then((build) => {
+    if (build) game?.act({ t: 'build', tile: i });
+  });
+}
 
 let view: GameView | null = null;
 try {
@@ -36,13 +49,8 @@ try {
     getState,
     lowQuality,
     fast,
-    onTileClick: (i) => {
-      const s = getState();
-      if (!s || !game) return;
-      void openTile(hud, s, i, pov(), !game.playing).then((build) => {
-        if (build) game?.act({ t: 'build', tile: i });
-      });
-    },
+    reducedMotion,
+    onTileClick: (i) => onTile(i),
   });
 } catch (err) {
   console.error(err);
@@ -55,7 +63,7 @@ try {
   );
 }
 
-const presenter = new Presenter({ hud, view, fast, pov, cardWait: 'click' });
+const presenter = new Presenter({ hud, view, fast, pov, me: () => null });
 ref.presenter = presenter;
 game = new LocalGame({ hud, view, presenter, weatherScale: Number(params.get('wx') ?? 1) || 1 });
 
@@ -92,7 +100,7 @@ setupScreen((players) => game?.start(players));
 // kait untuk tes otomatis
 declare global {
   interface Window {
-    __nn?: { game: LocalGame | null; view: GameView | null };
+    __nn?: { game: LocalGame | null; view: GameView | null; openTile: (i: number) => void };
   }
 }
-window.__nn = { game, view };
+window.__nn = { game, view, openTile: onTile };

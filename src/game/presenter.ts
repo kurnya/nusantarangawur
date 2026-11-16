@@ -17,12 +17,15 @@ export interface PresenterDeps {
   fast: boolean;
   /** id pemain pemilik layar ini */
   pov: () => number;
-  /** apakah modal kartu menunggu klik (hot-seat) atau tutup sendiri */
-  cardWait: 'click' | 'auto';
+  /** id pemain pemilik layar, atau null di mode hot-seat (semua layar = pemain giliran) */
+  me: () => number | null;
 }
 
 /** batas waktu maksimum satu animasi besar supaya tidak macet */
 const FX_TIMEOUT_MS = 15000;
+/** modal kartu di mode jaringan: pemilik kartu dan pemain lain */
+const CARD_OWNER_MS = 10000;
+const CARD_OTHER_MS = 3500;
 
 export class Presenter {
   /** state yang sedang ditampilkan (bisa di tengah pemutaran) */
@@ -41,7 +44,7 @@ export class Presenter {
     const s = this.disp;
     if (!s) return;
     const { hud, view } = this.d;
-    hud.renderPlayers(s);
+    hud.renderPlayers(s, this.d.me());
     hud.renderTurn(s, { pov: this.d.pov(), busy: this.playing });
     view?.syncPawns(s);
   }
@@ -85,14 +88,14 @@ export class Presenter {
       case 'MoneyChanged':
         log();
         applyEvent(s, ev);
-        hud.renderPlayers(s);
+        hud.renderPlayers(s, this.d.me());
         hud.flash(ev.pid, ev.amount >= 0);
         hud.popAmt(ev.pid, ev.amount);
         return;
       case 'PaidRent':
         log();
         applyEvent(s, ev);
-        hud.renderPlayers(s);
+        hud.renderPlayers(s, this.d.me());
         hud.flash(ev.from, false);
         hud.flash(ev.to, true);
         hud.flyCoins(ev.from, ev.to, ev.amount);
@@ -105,7 +108,7 @@ export class Presenter {
         applyEvent(s, ev);
         const tag =
           ev.tag === 'baik' ? 'Nasib baik' : ev.tag === 'buruk' ? 'Nasib buruk' : 'Bencana alam';
-        await this.cardModal(hud.cardById(ev.card, tag, ev.kind));
+        await this.cardModal(hud.cardById(ev.card, tag, ev.kind), ev.pid);
         this.renderAll();
         return;
       }
@@ -113,7 +116,7 @@ export class Presenter {
         log();
         applyEvent(s, ev);
         const icon = ev.kind === 'banjir' ? '🌊' : ev.kind === 'petir' ? '⚡' : '🔥';
-        await this.cardModal(hud.cardHTML('BENCANA', ev.text, icon, 'Musibah cuaca'));
+        await this.cardModal(hud.cardHTML('BENCANA', ev.text, icon, 'Musibah cuaca'), ev.pid);
         return;
       }
       case 'BencanaFx':
@@ -163,6 +166,12 @@ export class Presenter {
       default:
         log();
         applyEvent(s, ev);
+        if (ev.e === 'TurnStarted') {
+          const p = s.players[ev.pid];
+          const mine = this.d.me() === null || this.d.me() === ev.pid;
+          view?.resumeFollow();
+          if (p) hud.announce(mine ? `Giliran ${p.name}. Lempar dadu.` : `Giliran ${p.name}.`);
+        }
         if (ev.e === 'TurnStarted' || ev.e === 'JailReleased' || ev.e === 'TicketUsed')
           this.renderAll();
         return;
@@ -175,17 +184,21 @@ export class Presenter {
     cityOf(tile)?.prov.tiles.forEach((i) => view?.updateTile(i));
   }
 
-  private async cardModal(html: string): Promise<void> {
-    const { hud, fast, cardWait } = this.d;
+  /**
+   * Modal kartu. Pemilik kartu (atau semua di hot-seat) menutup dengan klik;
+   * layar pemain lain menutup sendiri supaya animasi di semua layar tetap sinkron.
+   */
+  private async cardModal(html: string, pid: number): Promise<void> {
+    const { hud, fast } = this.d;
     if (fast) return;
-    if (cardWait === 'click') {
-      await hud.ask(html, [{ label: 'Terima nasib', cls: 'pri' }]);
+    const me = this.d.me();
+    const btn = [{ label: 'Terima nasib', cls: 'pri' }];
+    if (me === null) {
+      await hud.ask(html, btn);
       return;
     }
-    await Promise.race([
-      hud.ask(html, [{ label: 'Terima nasib', cls: 'pri' }]),
-      new Promise((r) => setTimeout(r, 3500)),
-    ]);
+    const wait = me === pid ? CARD_OWNER_MS : CARD_OTHER_MS;
+    await Promise.race([hud.ask(html, btn), new Promise((r) => setTimeout(r, wait))]);
     hud.closeModal();
   }
 }

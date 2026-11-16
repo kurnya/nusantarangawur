@@ -70,6 +70,8 @@ export interface FxDeps {
   hemi: THREE.HemisphereLight;
   sun: THREE.DirectionalLight;
   TC: V2[];
+  /** prefers-reduced-motion: redam kilatan layar */
+  reducedMotion?: boolean;
 }
 
 export const FX_KEYS = [
@@ -146,7 +148,7 @@ export class Fx {
 
   flash = (op: number, col?: string): void => {
     if (col) this.ov.style.background = col;
-    this.ovO = Math.max(this.ovO, op);
+    this.ovO = Math.max(this.ovO, this.d.reducedMotion ? Math.min(op, 0.12) : op);
   };
   private hold(op: number, col?: string): void {
     if (col) this.ov.style.background = col;

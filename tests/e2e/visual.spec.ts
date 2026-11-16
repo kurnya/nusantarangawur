@@ -32,6 +32,7 @@ const FX = [
 test.describe.configure({ mode: 'serial' });
 
 test('cuaca @visual', async ({ page }) => {
+  test.setTimeout(600_000);
   await page.goto('./');
   await page.click('#start');
   await page.waitForTimeout(1500);

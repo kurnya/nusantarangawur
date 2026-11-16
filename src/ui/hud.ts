@@ -48,30 +48,37 @@ export class Hud {
   private logUnread: Record<number, number> = {};
   private lastPov = 0;
   private toastTimer = 0;
+  private modalDone: ((k: number) => void) | null = null;
 
   constructor(
     readonly fast: boolean,
     private readonly actions: HudActions,
+    /** prefers-reduced-motion: koin terbang diganti angka mengambang */
+    private readonly reducedMotion = false,
   ) {
     this.buildDice();
   }
 
   /* ---------- panel pemain ---------- */
 
-  renderPlayers(s: GameState): void {
+  /** `me`: id pemain pemilik layar (null di mode hot-seat). */
+  renderPlayers(s: GameState, me: number | null = null): void {
     const w = $('#players');
     w.innerHTML = '';
     s.players.forEach((p, i) => {
       const mine = s.owners.filter((o) => o && o.p === i).length;
       const sets = PROVINCES.filter((pr) => ownedCount(s, i, pr) === 5).length;
       const on = i === s.turn && !p.bankrupt && s.phase !== 'over';
-      const d = el('div', 'pc' + (on ? ' on' : '') + (p.bankrupt ? ' out' : ''));
+      const d = el(
+        'div',
+        'pc' + (on ? ' on' : '') + (p.bankrupt ? ' out' : '') + (i === me ? ' me' : ''),
+      );
       d.style.setProperty('--c', PAWNS[p.pawn]?.color ?? '#888');
       d.id = `pc${i}`;
       const tags = p.bankrupt
         ? 'Bangkrut'
         : `${mine} kota · ${sets} provinsi penuh${p.jail ? ' · di penjara' : ''}${p.skip ? ' · lewat giliran' : ''}${p.free ? ' · tiket bebas sewa' : ''}${p.disc ? ' · kupon bangun' : ''}`;
-      d.innerHTML = `<div class="tk">${tkImg(p.pawn)}</div><div><b>${esc(p.name)}</b><div class="m">${fmtMoney(this.shown[i] ?? p.money)}</div><div class="s">${esc(tags)}</div></div>`;
+      d.innerHTML = `<div class="tk">${tkImg(p.pawn)}</div><div><b>${esc(p.name)}${i === me ? '<span class="you">kamu</span>' : ''}</b><div class="m">${fmtMoney(this.shown[i] ?? p.money)}</div><div class="s">${esc(tags)}</div></div>`;
       w.appendChild(d);
     });
     this.syncMoney(s);
@@ -168,6 +175,11 @@ export class Hud {
   /** Koin dan label nominal terbang dari kartu pembayar ke kartu penerima. */
   flyCoins(from: number, to: number, amt: number): void {
     if (this.fast) return;
+    if (this.reducedMotion) {
+      this.popAmt(from, -amt);
+      this.popAmt(to, amt);
+      return;
+    }
     const a = document.getElementById(`pc${from}`);
     const b = document.getElementById(`pc${to}`);
     if (!a || !b) return;
@@ -326,13 +338,18 @@ export class Hud {
     l.insertBefore(d, l.firstChild);
     while (l.childNodes.length > 80) l.removeChild(l.lastChild!);
     for (let i = 0; i < C.MAX_PLAYERS; i++)
-      if (!this.logOpen[i]) this.logUnread[i] = (this.logUnread[i] ?? 0) + 1;
+      if (!this.isLogOpen(i)) this.logUnread[i] = (this.logUnread[i] ?? 0) + 1;
     this.applyLog(this.lastPov, 'roll');
+  }
+
+  private isLogOpen(pov: number): boolean {
+    if (this.logOpen[pov] === undefined) this.logOpen[pov] = loadFlag(`nn.logOpen.${pov}`);
+    return this.logOpen[pov];
   }
 
   applyLog(pov: number, phase: string): void {
     this.lastPov = pov;
-    const open = !!this.logOpen[pov];
+    const open = this.isLogOpen(pov);
     const d = document.getElementById('logd');
     const bd = document.getElementById('logBd');
     if (!d) return;
@@ -346,38 +363,65 @@ export class Hud {
   }
 
   toggleLog(pov: number): void {
-    this.logOpen[pov] = !this.logOpen[pov];
+    this.logOpen[pov] = !this.isLogOpen(pov);
+    saveFlag(`nn.logOpen.${pov}`, this.logOpen[pov]);
     this.applyLog(pov, 'roll');
   }
 
   /* ---------- modal ---------- */
 
   /** Tampilkan dialog. Mengembalikan indeks tombol. `html` harus tepercaya. */
+  /**
+   * Tampilkan dialog. Mengembalikan indeks tombol, atau -1 jika ditutup dari luar.
+   * Escape memilih tombol terakhir (biasanya "Tutup"/"Terima nasib"). `html` harus tepercaya.
+   */
   ask(html: string, buttons: { label: string; cls?: string; dis?: boolean }[]): Promise<number> {
+    this.closeModal();
     return new Promise((res) => {
       const m = $('#modal');
       const d = $('#dlg');
+      const back = document.activeElement as HTMLElement | null;
       d.innerHTML = html;
       const row = el('div', 'row');
+      const done = (k: number) => {
+        if (this.modalDone !== done) return;
+        this.modalDone = null;
+        m.classList.add('hidden');
+        document.removeEventListener('keydown', onKey);
+        back?.focus?.();
+        res(k);
+      };
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          done(buttons.length - 1);
+        }
+      };
       buttons.forEach((b, k) => {
         const x = el('button', 'btn big ' + (b.cls ?? ''));
         x.textContent = b.label;
         x.disabled = !!b.dis;
-        x.onclick = () => {
-          m.classList.add('hidden');
-          res(k);
-        };
+        x.onclick = () => done(k);
         row.appendChild(x);
       });
       d.appendChild(row);
+      this.modalDone = done;
+      document.addEventListener('keydown', onKey);
       m.classList.remove('hidden');
       row.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
     });
   }
 
-  /** Tutup modal yang sedang terbuka (mis. saat mode cepat). */
+  /** Tutup modal yang sedang terbuka; janji dialognya selesai dengan -1. */
   closeModal(): void {
+    this.modalDone?.(-1);
     document.getElementById('modal')?.classList.add('hidden');
+  }
+
+  /** Umumkan teks ke pembaca layar (wilayah aria-live tersembunyi). */
+  announce(msg: string): void {
+    const a = document.getElementById('announce');
+    if (a) a.textContent = msg;
   }
 
   cardHTML(kind: CardKind, text: string, iconHtml: string, tag: string): string {
@@ -397,5 +441,20 @@ export class Hud {
     t.classList.add('on');
     clearTimeout(this.toastTimer);
     this.toastTimer = window.setTimeout(() => t.classList.remove('on'), 2200);
+  }
+}
+
+function loadFlag(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1';
+  } catch {
+    return false;
+  }
+}
+function saveFlag(key: string, v: boolean): void {
+  try {
+    localStorage.setItem(key, v ? '1' : '0');
+  } catch {
+    /* penyimpanan tidak tersedia: abaikan */
   }
 }

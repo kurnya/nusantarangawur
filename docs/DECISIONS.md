@@ -26,3 +26,10 @@
 - **F2** UI DOM prototipe (panel saldo + koin terbang, kartu kontrol, catatan per pemain, modal, dadu CSS) ikut diportir sekarang karena dibutuhkan untuk hot-seat setara prototipe; Fase 3 akan menyetel POV/HP.
 - **F2** Parameter URL: `?fast=1` (lewati animasi), `?low=1` (kualitas rendah: tanpa bayangan, pohon lebih sedikit, air lebih kasar, hujan lebih sedikit), `?wx=0.01` (percepat timer cuaca untuk uji).
 - **F2** Tes browser: Playwright dengan SwiftShader (`playwright.config.ts`). `npm run test:e2e` (fungsional), `npm run test:visual` (tangkapan layar ke `test-results/visual/` untuk diperiksa manual).
+- **F3** POV: `Presenter` menerima `me()` (id pemain layar ini; `null` = hot-seat). Kartu pemain sendiri ditandai "kamu"; tombol aksi hanya aktif bila `pov === turn`, selain itu tampil "Menunggu {nama} bermain...".
+- **F3** Modal kartu: hot-seat menunggu klik. Di mode jaringan pemilik kartu punya 10 detik, layar lain menutup sendiri setelah 3,5 detik supaya animasi tetap sinkron.
+- **F3** Status catatan buka/tutup disimpan per id pemain di `localStorage` (`nn.logOpen.{id}`), dengan cadangan aman bila penyimpanan diblokir.
+- **F3** Kamera kembali mengikuti bidak saat giliran berganti (sama dengan `endTurn` prototipe); pemain tetap bebas geser/putar/zoom kapan saja.
+- **F3** `prefers-reduced-motion`: tanpa guncangan kamera, kilatan layar dibatasi (aman untuk fotosensitif), koin terbang diganti angka mengambang. Animasi Bencana tetap diputar karena bagian dari isi permainan.
+- **F3** HP: toolbar kamera satu baris yang bisa digeser, kotak cuaca di bawah toolbar, petunjuk mouse disembunyikan, kartu pemain lebih ringkas; layar pendek (lanskap) memakai kartu kontrol ringkas.
+- **F3** Aksesibilitas: Escape menutup modal (memilih tombol terakhir) dan fokus kembali ke elemen sebelumnya; pergantian giliran diumumkan lewat wilayah `aria-live` tersembunyi.

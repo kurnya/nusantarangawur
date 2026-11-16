@@ -22,6 +22,8 @@ export interface ViewOpts {
   lowQuality?: boolean;
   /** lewati animasi besar (?fast=1) */
   fast?: boolean;
+  /** prefers-reduced-motion: tanpa guncangan kamera, kilatan diredam */
+  reducedMotion?: boolean;
 }
 
 export class GameView {
@@ -89,6 +91,7 @@ export class GameView {
       hemi: this.world.hemi,
       sun: this.world.sun,
       TC: this.tiles.TC,
+      reducedMotion: o.reducedMotion,
     });
     flash = this.fx.flash;
 
@@ -163,6 +166,11 @@ export class GameView {
   /** Ikuti bidak pemain tertentu (saat ia berjalan). */
   follow(pos: number): void {
     if (this.cam.follow) focusOn(this.cam, pos);
+  }
+
+  /** Kembali mengikuti bidak (dipanggil saat giliran berganti, seperti prototipe). */
+  resumeFollow(): void {
+    this.cam.follow = true;
   }
 
   hop(pid: number): void {
@@ -331,6 +339,7 @@ export class GameView {
       cam.fz = cam.tz;
     }
     this.fx.update(dt);
+    if (this.o.reducedMotion) cam.shake = 0;
     updateCamera(cam, this.camera, dt);
     this.world.sun.position.set(cam.fx - 2200, 3700, cam.fz + 1700);
     this.world.sun.target.position.set(cam.fx, 0, cam.fz);

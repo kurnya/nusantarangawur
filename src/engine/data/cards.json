@@ -1,0 +1,445 @@
+{
+  "nasibBad": [
+    {
+      "id": "nb-0",
+      "x": "Sinyal hilang tepat saat mau bayar. Kamu melewatkan giliran berikutnya.",
+      "e": {
+        "skip": 1
+      },
+      "em": "📵",
+      "fx": "nosignal"
+    },
+    {
+      "id": "nb-1",
+      "x": "Kena tilang elektronik, padahal motornya sudah dijual dua tahun lalu. Bayar Rp300 jt.",
+      "e": {
+        "m": -300
+      },
+      "em": "📸",
+      "fx": "tilang"
+    },
+    {
+      "id": "nb-2",
+      "x": "Terjebak macet Cipularang. Mundur 3 petak.",
+      "e": {
+        "mv": -3
+      },
+      "em": "🚗",
+      "fx": "macet"
+    },
+    {
+      "id": "nb-3",
+      "x": "Harga cabai naik lagi. Belanja bulanan bengkak Rp250 jt.",
+      "e": {
+        "m": -250
+      },
+      "em": "🌶️",
+      "fx": "cabai"
+    },
+    {
+      "id": "nb-4",
+      "x": "Diundang 4 nikahan dalam sebulan. Amplop habis Rp400 jt.",
+      "e": {
+        "m": -400
+      },
+      "em": "💌",
+      "fx": "nikahan"
+    },
+    {
+      "id": "nb-5",
+      "x": "Ojol salah alamat, kamu malah disuruh jemput dia. Mundur 2 petak.",
+      "e": {
+        "mv": -2
+      },
+      "em": "🛵",
+      "fx": "ojol"
+    },
+    {
+      "id": "nb-6",
+      "x": "Token listrik habis tengah malam. Bayar Rp150 jt.",
+      "e": {
+        "m": -150
+      },
+      "em": "🔌",
+      "fx": "token"
+    },
+    {
+      "id": "nb-7",
+      "x": "Teman pinjam uang, katanya besok diganti. Rp500 jt melayang.",
+      "e": {
+        "m": -500
+      },
+      "em": "🤝",
+      "fx": "pinjam"
+    },
+    {
+      "id": "nb-8",
+      "x": "Salah paham di warung, kamu diamankan petugas. Masuk Nusakambangan.",
+      "e": {
+        "jail": 1
+      },
+      "em": "🚨",
+      "fx": "razia"
+    },
+    {
+      "id": "nb-9",
+      "x": "Meteor kecil nyasar jatuh di halaman. Cuma gosong, tapi perbaikan Rp350 jt.",
+      "e": {
+        "m": -350
+      },
+      "em": "☄️",
+      "fx": "meteor"
+    },
+    {
+      "id": "nb-10",
+      "x": "Kuota habis di tengah rapat daring. Paket darurat Rp200 jt.",
+      "e": {
+        "m": -200
+      },
+      "em": "📶",
+      "fx": "nosignal"
+    },
+    {
+      "id": "nb-11",
+      "x": "Mobil mogok di tol Cikampek. Mundur 3 petak dan derek Rp100 jt.",
+      "e": {
+        "mv": -3,
+        "m": -100
+      },
+      "em": "🛻",
+      "fx": "macet"
+    },
+    {
+      "id": "nb-12",
+      "x": "Tagihan listrik meledak gara-gara AC menyala seminggu. Rp300 jt.",
+      "e": {
+        "m": -300
+      },
+      "em": "🧊",
+      "fx": "token"
+    },
+    {
+      "id": "nb-13",
+      "x": "Harga ayam goreng naik, porsinya menyusut. Rp150 jt.",
+      "e": {
+        "m": -150
+      },
+      "em": "🍗",
+      "fx": "cabai"
+    },
+    {
+      "id": "nb-14",
+      "x": "Salah kirim chat curhat ke grup keluarga. Malu setengah mati, lewati 1 giliran.",
+      "e": {
+        "skip": 1
+      },
+      "em": "😳",
+      "fx": "malu"
+    },
+    {
+      "id": "nb-15",
+      "x": "Dompet disambar copet di pasar. Rp400 jt raib.",
+      "e": {
+        "m": -400
+      },
+      "em": "🏃",
+      "fx": "copet"
+    },
+    {
+      "id": "nb-16",
+      "x": "Arisan dibawa kabur bendahara. Rp450 jt lenyap.",
+      "e": {
+        "m": -450
+      },
+      "em": "🏃",
+      "fx": "copet"
+    },
+    {
+      "id": "nb-17",
+      "x": "Dicegat Pak Ogah di putaran balik. Bayar Rp50 jt dan mundur 1 petak.",
+      "e": {
+        "m": -50,
+        "mv": -1
+      },
+      "em": "🧑‍✈️",
+      "fx": "tilang"
+    },
+    {
+      "id": "nb-18",
+      "x": "Genteng bocor tepat musim hujan. Perbaikan Rp200 jt.",
+      "e": {
+        "m": -200
+      },
+      "em": "☔",
+      "fx": "banjir"
+    },
+    {
+      "id": "nb-19",
+      "x": "SIM kedaluwarsa kena razia mendadak. Masuk Nusakambangan.",
+      "e": {
+        "jail": 1
+      },
+      "em": "🚔",
+      "fx": "razia"
+    }
+  ],
+  "nasibGood": [
+    {
+      "id": "ng-0",
+      "x": "Menang kuis TV tengah malam. Dapat Rp1 M.",
+      "e": {
+        "m": 1000
+      },
+      "em": "📺",
+      "fx": "kuis"
+    },
+    {
+      "id": "ng-1",
+      "x": "Nemu uang di saku jaket lama. Rp100 jt.",
+      "e": {
+        "m": 100
+      },
+      "em": "🧥",
+      "fx": "jaket"
+    },
+    {
+      "id": "ng-2",
+      "x": "THR dobel tahun ini. Rp800 jt masuk rekening.",
+      "e": {
+        "m": 800
+      },
+      "em": "🎁",
+      "fx": "thr"
+    },
+    {
+      "id": "ng-3",
+      "x": "Ditraktir mie ayam sama teman. Kenyang, maju 2 petak.",
+      "e": {
+        "mv": 2
+      },
+      "em": "🍜",
+      "fx": "miayam"
+    },
+    {
+      "id": "ng-4",
+      "x": "Gajian tepat waktu bulan ini. Rp300 jt cair.",
+      "e": {
+        "m": 300
+      },
+      "em": "💰",
+      "fx": "gaji"
+    },
+    {
+      "id": "ng-5",
+      "x": "Warung langganan kasih diskon. Hemat Rp200 jt.",
+      "e": {
+        "m": 200
+      },
+      "em": "🏪",
+      "fx": "diskon"
+    },
+    {
+      "id": "ng-6",
+      "x": "Hujan reda pas jam pulang. Maju 2 petak.",
+      "e": {
+        "mv": 2
+      },
+      "em": "🌤️",
+      "fx": "reda"
+    },
+    {
+      "id": "ng-7",
+      "x": "Dapat tiket gratis lewat tol. Bebas bayar sewa satu kali.",
+      "e": {
+        "free": 1
+      },
+      "em": "🎫",
+      "fx": "tol"
+    },
+    {
+      "id": "ng-8",
+      "x": "Ada kupon renovasi. Bangun kota berikutnya setengah harga.",
+      "e": {
+        "disc": 1
+      },
+      "em": "🏷️",
+      "fx": "kupon"
+    },
+    {
+      "id": "ng-9",
+      "x": "Dapat kerjaan sampingan. Rp400 jt.",
+      "e": {
+        "m": 400
+      },
+      "em": "💼",
+      "fx": "kerja"
+    },
+    {
+      "id": "ng-10",
+      "x": "Jalan tol baru dibuka. Maju 4 petak.",
+      "e": {
+        "mv": 4
+      },
+      "em": "🛣️",
+      "fx": "tolbaru"
+    },
+    {
+      "id": "ng-11",
+      "x": "Panen raya tahun ini bagus. Bonus Rp250 jt.",
+      "e": {
+        "m": 250
+      },
+      "em": "🌾",
+      "fx": "panen"
+    },
+    {
+      "id": "ng-12",
+      "x": "Tetangga bagi rendang. Hemat belanja Rp100 jt.",
+      "e": {
+        "m": 100
+      },
+      "em": "🍛",
+      "fx": "rendang"
+    },
+    {
+      "id": "ng-13",
+      "x": "Dibekali ibu bawa pulang rendang sekoper. Hemat Rp300 jt.",
+      "e": {
+        "m": 300
+      },
+      "em": "🍱",
+      "fx": "rendang"
+    },
+    {
+      "id": "ng-14",
+      "x": "Menang lomba panjat pinang kantor. Hadiah Rp600 jt.",
+      "e": {
+        "m": 600
+      },
+      "em": "🏆",
+      "fx": "kuis"
+    },
+    {
+      "id": "ng-15",
+      "x": "Tetangga yang ajak patungan kripto ternyata balik modal. Rp700 jt.",
+      "e": {
+        "m": 700
+      },
+      "em": "📈",
+      "fx": "gaji"
+    }
+  ],
+  "bencana": [
+    {
+      "id": "bc-0",
+      "x": "Banjir! Rumahmu terendam. Ongkos bersih-bersih Rp600 jt.",
+      "e": {
+        "m": -600
+      },
+      "em": "🌊",
+      "fx": "banjir"
+    },
+    {
+      "id": "bc-1",
+      "x": "Banjir rob menggenangi gudangmu. Rugi Rp350 jt.",
+      "e": {
+        "m": -350
+      },
+      "em": "🌧️",
+      "fx": "rob"
+    },
+    {
+      "id": "bc-2",
+      "x": "Gunung meletus! Batu pijar menimpamu dan bajumu gosong. Mundur 3 petak dan bayar biaya rumah sakit Rp400 jt.",
+      "e": {
+        "mv": -3,
+        "m": -400
+      },
+      "em": "🌋",
+      "fx": "merapi"
+    },
+    {
+      "id": "bc-3",
+      "x": "Gempa bumi mengguncang! Kamu mengungsi dan melewatkan 1 giliran.",
+      "e": {
+        "skip": 1
+      },
+      "em": "🏚️",
+      "fx": "gempa"
+    },
+    {
+      "id": "bc-4",
+      "x": "Tsunami menerjang pesisir! Mundur 5 petak dan bayar Rp400 jt.",
+      "e": {
+        "mv": -5,
+        "m": -400
+      },
+      "em": "🌊",
+      "fx": "tsunami"
+    },
+    {
+      "id": "bc-5",
+      "x": "Kebakaran hutan! Asap tebal, beli masker Rp300 jt dan lewati 1 giliran.",
+      "e": {
+        "skip": 1,
+        "m": -300
+      },
+      "em": "🔥",
+      "fx": "kebakaran"
+    },
+    {
+      "id": "bc-6",
+      "x": "Tanah longsor memutus jalan. Mundur 4 petak.",
+      "e": {
+        "mv": -4
+      },
+      "em": "⛰️",
+      "fx": "longsor"
+    },
+    {
+      "id": "bc-7",
+      "x": "Kekeringan panjang, gagal panen. Rugi Rp500 jt.",
+      "e": {
+        "m": -500
+      },
+      "em": "🏜️",
+      "fx": "kering"
+    },
+    {
+      "id": "bc-8",
+      "x": "Angin puting beliung menerbangkan genteng. Perbaikan Rp200 jt.",
+      "e": {
+        "m": -200
+      },
+      "em": "🌪️",
+      "fx": "puting"
+    },
+    {
+      "id": "bc-9",
+      "x": "Meteor menghantam pesisir! Mundur 5 petak.",
+      "e": {
+        "mv": -5
+      },
+      "em": "☄️",
+      "fx": "meteor"
+    },
+    {
+      "id": "bc-10",
+      "x": "Hujan meteor menerjang kotamu! Satu kotamu hancur lebur.",
+      "e": {
+        "lc": 1
+      },
+      "em": "☄️",
+      "fx": "meteorstorm"
+    },
+    {
+      "id": "bc-11",
+      "x": "Petir menyambar bidakmu. Gosong! Lewati 1 giliran.",
+      "e": {
+        "skip": 1
+      },
+      "em": "⚡",
+      "fx": "petir"
+    }
+  ]
+}

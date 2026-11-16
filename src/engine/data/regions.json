@@ -1,0 +1,37 @@
+[
+  {
+    "code": "SMT",
+    "name": "Sumatera",
+    "color": "#e8672f"
+  },
+  {
+    "code": "JWA",
+    "name": "Jawa",
+    "color": "#d92d4a"
+  },
+  {
+    "code": "BNT",
+    "name": "Bali dan Nusa Tenggara",
+    "color": "#e0a21b"
+  },
+  {
+    "code": "KLM",
+    "name": "Kalimantan",
+    "color": "#2f9a5d"
+  },
+  {
+    "code": "SLW",
+    "name": "Sulawesi",
+    "color": "#2a93b8"
+  },
+  {
+    "code": "MLK",
+    "name": "Maluku",
+    "color": "#7e58c8"
+  },
+  {
+    "code": "PPA",
+    "name": "Papua",
+    "color": "#c9528f"
+  }
+]

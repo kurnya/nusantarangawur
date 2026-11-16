@@ -1,0 +1,37 @@
+[
+  {
+    "k": "START",
+    "label": "TITIK NOL",
+    "emoji": "📍"
+  },
+  {
+    "k": "JAIL",
+    "label": "NUSAKAMBANGAN",
+    "emoji": "⛓️"
+  },
+  {
+    "k": "PARK",
+    "label": "WARUNG KOPI",
+    "emoji": "☕"
+  },
+  {
+    "k": "RAZIA",
+    "label": "RAZIA",
+    "emoji": "🚓"
+  },
+  {
+    "k": "NASIB",
+    "label": "NASIB",
+    "emoji": "🎲"
+  },
+  {
+    "k": "BENCANA",
+    "label": "BENCANA",
+    "emoji": "🌋"
+  },
+  {
+    "k": "PAJAK",
+    "label": "PPN 12%",
+    "emoji": "💸"
+  }
+]

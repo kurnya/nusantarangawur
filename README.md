@@ -19,7 +19,7 @@ Uji sub-path Pages: `VITE_BASE=/nusantara-ngawur/ npm run build && npm run previ
 
 ## Status
 
-Fase 0 (fondasi) selesai. Berikutnya: Fase 1 (mesin murni).
+Fase 0 (fondasi) dan Fase 1 (mesin murni, `src/engine/`) selesai. Berikutnya: Fase 2 (tampilan 3D).
 
 ## Masalah diketahui / langkah berikut
 

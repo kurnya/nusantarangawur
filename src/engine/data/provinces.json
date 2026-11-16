@@ -1,0 +1,1332 @@
+[
+  {
+    "code": "ACH",
+    "idx": 0,
+    "name": "Aceh",
+    "reg": "SMT",
+    "price": 600,
+    "hue": 0,
+    "cities": [
+      {
+        "n": "Banda Aceh",
+        "e": "🕌",
+        "t": "Masjid Raya Baiturrahman"
+      },
+      {
+        "n": "Sabang",
+        "e": "📍",
+        "t": "Tugu Nol Kilometer"
+      },
+      {
+        "n": "Lhokseumawe",
+        "e": "🏭",
+        "t": "Kilang gas Arun"
+      },
+      {
+        "n": "Langsa",
+        "e": "🌴",
+        "t": "Hutan mangrove"
+      },
+      {
+        "n": "Takengon",
+        "e": "☕",
+        "t": "Kopi Gayo"
+      }
+    ]
+  },
+  {
+    "code": "SUT",
+    "idx": 1,
+    "name": "Sumatera Utara",
+    "reg": "SMT",
+    "price": 800,
+    "hue": 138,
+    "cities": [
+      {
+        "n": "Medan",
+        "e": "🏛️",
+        "t": "Istana Maimun"
+      },
+      {
+        "n": "Parapat",
+        "e": "🏞️",
+        "t": "Danau Toba"
+      },
+      {
+        "n": "Berastagi",
+        "e": "🍊",
+        "t": "Jeruk dan Sibayak"
+      },
+      {
+        "n": "Sibolga",
+        "e": "🐟",
+        "t": "Teluk Tapian Nauli"
+      },
+      {
+        "n": "Pematangsiantar",
+        "e": "🍞",
+        "t": "Roti ganda"
+      }
+    ]
+  },
+  {
+    "code": "SMB",
+    "idx": 2,
+    "name": "Sumatera Barat",
+    "reg": "SMT",
+    "price": 700,
+    "hue": 275,
+    "cities": [
+      {
+        "n": "Padang",
+        "e": "🍛",
+        "t": "Nasi Padang"
+      },
+      {
+        "n": "Bukittinggi",
+        "e": "⏰",
+        "t": "Jam Gadang"
+      },
+      {
+        "n": "Payakumbuh",
+        "e": "🥘",
+        "t": "Rendang"
+      },
+      {
+        "n": "Sawahlunto",
+        "e": "⛏️",
+        "t": "Tambang Ombilin"
+      },
+      {
+        "n": "Batusangkar",
+        "e": "🏯",
+        "t": "Istana Pagaruyung"
+      }
+    ]
+  },
+  {
+    "code": "RIA",
+    "idx": 3,
+    "name": "Riau",
+    "reg": "SMT",
+    "price": 1000,
+    "hue": 53,
+    "cities": [
+      {
+        "n": "Pekanbaru",
+        "e": "🛢️",
+        "t": "Minyak bumi"
+      },
+      {
+        "n": "Dumai",
+        "e": "⚓",
+        "t": "Pelabuhan Dumai"
+      },
+      {
+        "n": "Siak",
+        "e": "🏰",
+        "t": "Istana Siak"
+      },
+      {
+        "n": "Bengkalis",
+        "e": "🐟",
+        "t": "Ikan terubuk"
+      },
+      {
+        "n": "Bagansiapiapi",
+        "e": "🔥",
+        "t": "Bakar Tongkang"
+      }
+    ]
+  },
+  {
+    "code": "KEP",
+    "idx": 4,
+    "name": "Kepulauan Riau",
+    "reg": "SMT",
+    "price": 1200,
+    "hue": 190,
+    "cities": [
+      {
+        "n": "Batam",
+        "e": "🏭",
+        "t": "Kawasan industri"
+      },
+      {
+        "n": "Tanjungpinang",
+        "e": "🕌",
+        "t": "Pulau Penyengat"
+      },
+      {
+        "n": "Bintan",
+        "e": "🏖️",
+        "t": "Pantai Lagoi"
+      },
+      {
+        "n": "Karimun",
+        "e": "🚢",
+        "t": "Pelabuhan Tanjung Balai"
+      },
+      {
+        "n": "Anambas",
+        "e": "🏝️",
+        "t": "Gugus pulau Anambas"
+      }
+    ]
+  },
+  {
+    "code": "JAM",
+    "idx": 5,
+    "name": "Jambi",
+    "reg": "SMT",
+    "price": 600,
+    "hue": 328,
+    "cities": [
+      {
+        "n": "Jambi",
+        "e": "🌉",
+        "t": "Jembatan Gentala Arasy"
+      },
+      {
+        "n": "Muaro Jambi",
+        "e": "🛕",
+        "t": "Candi Muaro Jambi"
+      },
+      {
+        "n": "Kerinci",
+        "e": "🍵",
+        "t": "Teh Kayu Aro"
+      },
+      {
+        "n": "Sungai Penuh",
+        "e": "🏔️",
+        "t": "Gunung Kerinci"
+      },
+      {
+        "n": "Bangko",
+        "e": "🌳",
+        "t": "Hutan Bukit Duabelas"
+      }
+    ]
+  },
+  {
+    "code": "SSL",
+    "idx": 6,
+    "name": "Sumatera Selatan",
+    "reg": "SMT",
+    "price": 800,
+    "hue": 105,
+    "cities": [
+      {
+        "n": "Palembang",
+        "e": "🌉",
+        "t": "Jembatan Ampera"
+      },
+      {
+        "n": "Pagaralam",
+        "e": "🍵",
+        "t": "Gunung Dempo"
+      },
+      {
+        "n": "Lubuklinggau",
+        "e": "🚂",
+        "t": "Kota persimpangan"
+      },
+      {
+        "n": "Prabumulih",
+        "e": "🍍",
+        "t": "Nanas Prabumulih"
+      },
+      {
+        "n": "Lahat",
+        "e": "🗿",
+        "t": "Megalit Pasemah"
+      }
+    ]
+  },
+  {
+    "code": "BBL",
+    "idx": 7,
+    "name": "Kep. Bangka Belitung",
+    "reg": "SMT",
+    "price": 700,
+    "hue": 243,
+    "cities": [
+      {
+        "n": "Pangkalpinang",
+        "e": "⛏️",
+        "t": "Tambang timah"
+      },
+      {
+        "n": "Tanjung Pandan",
+        "e": "🪨",
+        "t": "Batu granit Belitung"
+      },
+      {
+        "n": "Muntok",
+        "e": "🕯️",
+        "t": "Pesanggrahan Menumbing"
+      },
+      {
+        "n": "Sungailiat",
+        "e": "🏖️",
+        "t": "Pantai Parai Tenggiri"
+      },
+      {
+        "n": "Manggar",
+        "e": "🍜",
+        "t": "Mie Belitung"
+      }
+    ]
+  },
+  {
+    "code": "BKL",
+    "idx": 8,
+    "name": "Bengkulu",
+    "reg": "SMT",
+    "price": 500,
+    "hue": 20,
+    "cities": [
+      {
+        "n": "Bengkulu",
+        "e": "🏰",
+        "t": "Benteng Marlborough"
+      },
+      {
+        "n": "Kepahiang",
+        "e": "🌸",
+        "t": "Bunga Rafflesia"
+      },
+      {
+        "n": "Curup",
+        "e": "🌄",
+        "t": "Bukit Kaba"
+      },
+      {
+        "n": "Mukomuko",
+        "e": "🌊",
+        "t": "Pantai Mukomuko"
+      },
+      {
+        "n": "Manna",
+        "e": "🌴",
+        "t": "Pantai Manna"
+      }
+    ]
+  },
+  {
+    "code": "LPG",
+    "idx": 9,
+    "name": "Lampung",
+    "reg": "SMT",
+    "price": 700,
+    "hue": 158,
+    "cities": [
+      {
+        "n": "Bandar Lampung",
+        "e": "🗼",
+        "t": "Menara Siger"
+      },
+      {
+        "n": "Metro",
+        "e": "🚲",
+        "t": "Kota pendidikan"
+      },
+      {
+        "n": "Krui",
+        "e": "🏄",
+        "t": "Selancar Krui"
+      },
+      {
+        "n": "Way Kambas",
+        "e": "🐘",
+        "t": "Gajah Sumatera"
+      },
+      {
+        "n": "Pesawaran",
+        "e": "🏝️",
+        "t": "Pulau Pahawang"
+      }
+    ]
+  },
+  {
+    "code": "BTN",
+    "idx": 10,
+    "name": "Banten",
+    "reg": "JWA",
+    "price": 1400,
+    "hue": 295,
+    "cities": [
+      {
+        "n": "Serang",
+        "e": "🕌",
+        "t": "Masjid Agung Banten"
+      },
+      {
+        "n": "Tangerang",
+        "e": "✈️",
+        "t": "Bandara Soekarno-Hatta"
+      },
+      {
+        "n": "Cilegon",
+        "e": "🏭",
+        "t": "Krakatau Steel"
+      },
+      {
+        "n": "Pandeglang",
+        "e": "🌋",
+        "t": "Anak Krakatau"
+      },
+      {
+        "n": "Lebak",
+        "e": "🧶",
+        "t": "Suku Baduy"
+      }
+    ]
+  },
+  {
+    "code": "DKI",
+    "idx": 11,
+    "name": "DKI Jakarta",
+    "reg": "JWA",
+    "price": 4000,
+    "hue": 73,
+    "cities": [
+      {
+        "n": "Jakarta Pusat",
+        "e": "🗼",
+        "t": "Monas"
+      },
+      {
+        "n": "Jakarta Utara",
+        "e": "🎡",
+        "t": "Ancol"
+      },
+      {
+        "n": "Jakarta Selatan",
+        "e": "🏢",
+        "t": "SCBD"
+      },
+      {
+        "n": "Jakarta Barat",
+        "e": "🏘️",
+        "t": "Kota Tua"
+      },
+      {
+        "n": "Jakarta Timur",
+        "e": "🎠",
+        "t": "Taman Mini"
+      }
+    ]
+  },
+  {
+    "code": "JBR",
+    "idx": 12,
+    "name": "Jawa Barat",
+    "reg": "JWA",
+    "price": 2200,
+    "hue": 210,
+    "cities": [
+      {
+        "n": "Bandung",
+        "e": "🌋",
+        "t": "Tangkuban Parahu"
+      },
+      {
+        "n": "Bogor",
+        "e": "🌿",
+        "t": "Kebun Raya"
+      },
+      {
+        "n": "Cirebon",
+        "e": "🏯",
+        "t": "Keraton Kasepuhan"
+      },
+      {
+        "n": "Cianjur",
+        "e": "🍚",
+        "t": "Beras pandanwangi"
+      },
+      {
+        "n": "Pangandaran",
+        "e": "🏖️",
+        "t": "Pantai Pangandaran"
+      }
+    ]
+  },
+  {
+    "code": "JTG",
+    "idx": 13,
+    "name": "Jawa Tengah",
+    "reg": "JWA",
+    "price": 1800,
+    "hue": 348,
+    "cities": [
+      {
+        "n": "Semarang",
+        "e": "🏛️",
+        "t": "Lawang Sewu"
+      },
+      {
+        "n": "Magelang",
+        "e": "🛕",
+        "t": "Candi Borobudur"
+      },
+      {
+        "n": "Solo",
+        "e": "🎭",
+        "t": "Batik keraton"
+      },
+      {
+        "n": "Dieng",
+        "e": "🌫️",
+        "t": "Dataran Tinggi Dieng"
+      },
+      {
+        "n": "Jepara",
+        "e": "🪵",
+        "t": "Ukiran kayu"
+      }
+    ]
+  },
+  {
+    "code": "DIY",
+    "idx": 14,
+    "name": "DI Yogyakarta",
+    "reg": "JWA",
+    "price": 1600,
+    "hue": 125,
+    "cities": [
+      {
+        "n": "Yogyakarta",
+        "e": "👑",
+        "t": "Keraton"
+      },
+      {
+        "n": "Sleman",
+        "e": "🌋",
+        "t": "Gunung Merapi"
+      },
+      {
+        "n": "Bantul",
+        "e": "🏖️",
+        "t": "Parangtritis"
+      },
+      {
+        "n": "Gunungkidul",
+        "e": "🕳️",
+        "t": "Goa Pindul"
+      },
+      {
+        "n": "Kulon Progo",
+        "e": "🛫",
+        "t": "Bandara YIA"
+      }
+    ]
+  },
+  {
+    "code": "JTM",
+    "idx": 15,
+    "name": "Jawa Timur",
+    "reg": "JWA",
+    "price": 2400,
+    "hue": 263,
+    "cities": [
+      {
+        "n": "Surabaya",
+        "e": "🦈",
+        "t": "Patung Suro dan Boyo"
+      },
+      {
+        "n": "Malang",
+        "e": "🍎",
+        "t": "Kota apel"
+      },
+      {
+        "n": "Probolinggo",
+        "e": "🌋",
+        "t": "Gunung Bromo"
+      },
+      {
+        "n": "Banyuwangi",
+        "e": "🔥",
+        "t": "Kawah Ijen"
+      },
+      {
+        "n": "Pamekasan",
+        "e": "🐂",
+        "t": "Karapan sapi"
+      }
+    ]
+  },
+  {
+    "code": "BAL",
+    "idx": 16,
+    "name": "Bali",
+    "reg": "BNT",
+    "price": 3000,
+    "hue": 40,
+    "cities": [
+      {
+        "n": "Denpasar",
+        "e": "🏙️",
+        "t": "Pusat kota Bali"
+      },
+      {
+        "n": "Ubud",
+        "e": "🎨",
+        "t": "Seni dan sawah"
+      },
+      {
+        "n": "Kuta",
+        "e": "🏄",
+        "t": "Pantai Kuta"
+      },
+      {
+        "n": "Singaraja",
+        "e": "🐬",
+        "t": "Lumba-lumba Lovina"
+      },
+      {
+        "n": "Nusa Penida",
+        "e": "🦖",
+        "t": "Tebing Kelingking"
+      }
+    ]
+  },
+  {
+    "code": "NTB",
+    "idx": 17,
+    "name": "Nusa Tenggara Barat",
+    "reg": "BNT",
+    "price": 900,
+    "hue": 178,
+    "cities": [
+      {
+        "n": "Mataram",
+        "e": "🏯",
+        "t": "Taman Mayura"
+      },
+      {
+        "n": "Senaru",
+        "e": "🌋",
+        "t": "Gunung Rinjani"
+      },
+      {
+        "n": "Gili Trawangan",
+        "e": "🐢",
+        "t": "Penyu dan snorkeling"
+      },
+      {
+        "n": "Sumbawa Besar",
+        "e": "🐎",
+        "t": "Pacuan kuda"
+      },
+      {
+        "n": "Mandalika",
+        "e": "🏍️",
+        "t": "Sirkuit Mandalika"
+      }
+    ]
+  },
+  {
+    "code": "NTT",
+    "idx": 18,
+    "name": "Nusa Tenggara Timur",
+    "reg": "BNT",
+    "price": 600,
+    "hue": 315,
+    "cities": [
+      {
+        "n": "Kupang",
+        "e": "🏝️",
+        "t": "Pantai Lasiana"
+      },
+      {
+        "n": "Labuan Bajo",
+        "e": "🦎",
+        "t": "Komodo"
+      },
+      {
+        "n": "Ende",
+        "e": "🌈",
+        "t": "Danau Kelimutu"
+      },
+      {
+        "n": "Maumere",
+        "e": "🧵",
+        "t": "Tenun ikat"
+      },
+      {
+        "n": "Waingapu",
+        "e": "🐴",
+        "t": "Pasola Sumba"
+      }
+    ]
+  },
+  {
+    "code": "KBR",
+    "idx": 19,
+    "name": "Kalimantan Barat",
+    "reg": "KLM",
+    "price": 800,
+    "hue": 93,
+    "cities": [
+      {
+        "n": "Pontianak",
+        "e": "🌐",
+        "t": "Tugu Khatulistiwa"
+      },
+      {
+        "n": "Singkawang",
+        "e": "🏮",
+        "t": "Cap Go Meh"
+      },
+      {
+        "n": "Sambas",
+        "e": "🧣",
+        "t": "Kain tenun Sambas"
+      },
+      {
+        "n": "Ketapang",
+        "e": "🦧",
+        "t": "Orangutan"
+      },
+      {
+        "n": "Putussibau",
+        "e": "🌿",
+        "t": "Danau Sentarum"
+      }
+    ]
+  },
+  {
+    "code": "KTG",
+    "idx": 20,
+    "name": "Kalimantan Tengah",
+    "reg": "KLM",
+    "price": 700,
+    "hue": 230,
+    "cities": [
+      {
+        "n": "Palangka Raya",
+        "e": "🌳",
+        "t": "Kota di tengah hutan"
+      },
+      {
+        "n": "Pangkalan Bun",
+        "e": "🦧",
+        "t": "Tanjung Puting"
+      },
+      {
+        "n": "Sampit",
+        "e": "🐊",
+        "t": "Sungai Mentaya"
+      },
+      {
+        "n": "Kuala Kapuas",
+        "e": "🌊",
+        "t": "Sungai Kapuas"
+      },
+      {
+        "n": "Muara Teweh",
+        "e": "⛏️",
+        "t": "Tambang batu bara"
+      }
+    ]
+  },
+  {
+    "code": "KSL",
+    "idx": 21,
+    "name": "Kalimantan Selatan",
+    "reg": "KLM",
+    "price": 900,
+    "hue": 8,
+    "cities": [
+      {
+        "n": "Banjarmasin",
+        "e": "🛶",
+        "t": "Pasar terapung"
+      },
+      {
+        "n": "Banjarbaru",
+        "e": "⛰️",
+        "t": "Pegunungan Meratus"
+      },
+      {
+        "n": "Martapura",
+        "e": "💎",
+        "t": "Intan Martapura"
+      },
+      {
+        "n": "Kandangan",
+        "e": "🍲",
+        "t": "Ketupat Kandangan"
+      },
+      {
+        "n": "Batulicin",
+        "e": "🏝️",
+        "t": "Pulau Laut"
+      }
+    ]
+  },
+  {
+    "code": "KTM",
+    "idx": 22,
+    "name": "Kalimantan Timur",
+    "reg": "KLM",
+    "price": 2000,
+    "hue": 145,
+    "cities": [
+      {
+        "n": "Samarinda",
+        "e": "🕌",
+        "t": "Islamic Center"
+      },
+      {
+        "n": "Balikpapan",
+        "e": "🛢️",
+        "t": "Kilang minyak"
+      },
+      {
+        "n": "Bontang",
+        "e": "🏭",
+        "t": "Kilang LNG"
+      },
+      {
+        "n": "Tenggarong",
+        "e": "👑",
+        "t": "Kutai Kartanegara"
+      },
+      {
+        "n": "IKN Nusantara",
+        "e": "🏗️",
+        "t": "Ibu kota baru"
+      }
+    ]
+  },
+  {
+    "code": "KTR",
+    "idx": 23,
+    "name": "Kalimantan Utara",
+    "reg": "KLM",
+    "price": 800,
+    "hue": 283,
+    "cities": [
+      {
+        "n": "Tarakan",
+        "e": "🦀",
+        "t": "Kepiting soka"
+      },
+      {
+        "n": "Tanjung Selor",
+        "e": "🌉",
+        "t": "Ibu kota provinsi"
+      },
+      {
+        "n": "Malinau",
+        "e": "🌲",
+        "t": "Hutan Kayan Mentarang"
+      },
+      {
+        "n": "Nunukan",
+        "e": "🚤",
+        "t": "Pintu perbatasan"
+      },
+      {
+        "n": "Bulungan",
+        "e": "🏰",
+        "t": "Kesultanan Bulungan"
+      }
+    ]
+  },
+  {
+    "code": "SLU",
+    "idx": 24,
+    "name": "Sulawesi Utara",
+    "reg": "SLW",
+    "price": 1000,
+    "hue": 60,
+    "cities": [
+      {
+        "n": "Manado",
+        "e": "🐠",
+        "t": "Taman laut Bunaken"
+      },
+      {
+        "n": "Bitung",
+        "e": "🐒",
+        "t": "Tangkoko"
+      },
+      {
+        "n": "Tomohon",
+        "e": "🌺",
+        "t": "Festival bunga"
+      },
+      {
+        "n": "Tondano",
+        "e": "🏞️",
+        "t": "Danau Tondano"
+      },
+      {
+        "n": "Kotamobagu",
+        "e": "🥁",
+        "t": "Budaya Bolaang Mongondow"
+      }
+    ]
+  },
+  {
+    "code": "GRT",
+    "idx": 25,
+    "name": "Gorontalo",
+    "reg": "SLW",
+    "price": 600,
+    "hue": 198,
+    "cities": [
+      {
+        "n": "Gorontalo",
+        "e": "🐋",
+        "t": "Hiu paus Botubarani"
+      },
+      {
+        "n": "Limboto",
+        "e": "🏞️",
+        "t": "Danau Limboto"
+      },
+      {
+        "n": "Suwawa",
+        "e": "♨️",
+        "t": "Pemandian air panas"
+      },
+      {
+        "n": "Marisa",
+        "e": "🌴",
+        "t": "Kebun kelapa"
+      },
+      {
+        "n": "Kwandang",
+        "e": "🏖️",
+        "t": "Pantai Kwandang"
+      }
+    ]
+  },
+  {
+    "code": "STG",
+    "idx": 26,
+    "name": "Sulawesi Tengah",
+    "reg": "SLW",
+    "price": 800,
+    "hue": 335,
+    "cities": [
+      {
+        "n": "Palu",
+        "e": "🌉",
+        "t": "Jembatan Kuning"
+      },
+      {
+        "n": "Poso",
+        "e": "🏞️",
+        "t": "Danau Poso"
+      },
+      {
+        "n": "Togean",
+        "e": "🏝️",
+        "t": "Kepulauan Togean"
+      },
+      {
+        "n": "Luwuk",
+        "e": "🌅",
+        "t": "Matahari terbit Banggai"
+      },
+      {
+        "n": "Donggala",
+        "e": "🏖️",
+        "t": "Pantai Tanjung Karang"
+      }
+    ]
+  },
+  {
+    "code": "SLB",
+    "idx": 27,
+    "name": "Sulawesi Barat",
+    "reg": "SLW",
+    "price": 500,
+    "hue": 113,
+    "cities": [
+      {
+        "n": "Mamuju",
+        "e": "🏖️",
+        "t": "Pantai Manakarra"
+      },
+      {
+        "n": "Majene",
+        "e": "🌊",
+        "t": "Pantai Barane"
+      },
+      {
+        "n": "Polewali",
+        "e": "🐟",
+        "t": "Ikan sandeq"
+      },
+      {
+        "n": "Mamasa",
+        "e": "🛖",
+        "t": "Rumah adat Mamasa"
+      },
+      {
+        "n": "Pasangkayu",
+        "e": "🌴",
+        "t": "Kebun sawit"
+      }
+    ]
+  },
+  {
+    "code": "SLS",
+    "idx": 28,
+    "name": "Sulawesi Selatan",
+    "reg": "SLW",
+    "price": 1500,
+    "hue": 250,
+    "cities": [
+      {
+        "n": "Makassar",
+        "e": "🍨",
+        "t": "Coto dan pisang epe"
+      },
+      {
+        "n": "Toraja",
+        "e": "🪦",
+        "t": "Rambu Solo"
+      },
+      {
+        "n": "Bulukumba",
+        "e": "🚢",
+        "t": "Kapal pinisi"
+      },
+      {
+        "n": "Maros",
+        "e": "🦋",
+        "t": "Bantimurung"
+      },
+      {
+        "n": "Parepare",
+        "e": "🌉",
+        "t": "Kota Cinta Habibie"
+      }
+    ]
+  },
+  {
+    "code": "STR",
+    "idx": 29,
+    "name": "Sulawesi Tenggara",
+    "reg": "SLW",
+    "price": 900,
+    "hue": 28,
+    "cities": [
+      {
+        "n": "Kendari",
+        "e": "🏖️",
+        "t": "Teluk Kendari"
+      },
+      {
+        "n": "Baubau",
+        "e": "🏰",
+        "t": "Benteng Keraton Buton"
+      },
+      {
+        "n": "Wakatobi",
+        "e": "🐠",
+        "t": "Taman laut Wakatobi"
+      },
+      {
+        "n": "Kolaka",
+        "e": "⛏️",
+        "t": "Tambang nikel"
+      },
+      {
+        "n": "Muna",
+        "e": "🕳️",
+        "t": "Gua Liang Kabori"
+      }
+    ]
+  },
+  {
+    "code": "MLK",
+    "idx": 30,
+    "name": "Maluku",
+    "reg": "MLK",
+    "price": 700,
+    "hue": 165,
+    "cities": [
+      {
+        "n": "Ambon",
+        "e": "🥜",
+        "t": "Pala dan cengkih"
+      },
+      {
+        "n": "Banda Neira",
+        "e": "🌰",
+        "t": "Pulau rempah"
+      },
+      {
+        "n": "Tual",
+        "e": "🏖️",
+        "t": "Pasir Panjang"
+      },
+      {
+        "n": "Saparua",
+        "e": "🏰",
+        "t": "Benteng Duurstede"
+      },
+      {
+        "n": "Namlea",
+        "e": "🌿",
+        "t": "Minyak kayu putih"
+      }
+    ]
+  },
+  {
+    "code": "MLU",
+    "idx": 31,
+    "name": "Maluku Utara",
+    "reg": "MLK",
+    "price": 700,
+    "hue": 303,
+    "cities": [
+      {
+        "n": "Ternate",
+        "e": "🌋",
+        "t": "Gunung Gamalama"
+      },
+      {
+        "n": "Tidore",
+        "e": "🏰",
+        "t": "Benteng Tahula"
+      },
+      {
+        "n": "Sofifi",
+        "e": "🌴",
+        "t": "Ibu kota provinsi"
+      },
+      {
+        "n": "Morotai",
+        "e": "🪖",
+        "t": "Pulau Morotai"
+      },
+      {
+        "n": "Halmahera",
+        "e": "🌊",
+        "t": "Teluk Kao"
+      }
+    ]
+  },
+  {
+    "code": "PPA",
+    "idx": 32,
+    "name": "Papua",
+    "reg": "PPA",
+    "price": 1200,
+    "hue": 80,
+    "cities": [
+      {
+        "n": "Jayapura",
+        "e": "⛰️",
+        "t": "Pegunungan Cycloop"
+      },
+      {
+        "n": "Sentani",
+        "e": "🏞️",
+        "t": "Danau Sentani"
+      },
+      {
+        "n": "Biak",
+        "e": "🐦",
+        "t": "Cenderawasih"
+      },
+      {
+        "n": "Skouw",
+        "e": "🛂",
+        "t": "Perbatasan PNG"
+      },
+      {
+        "n": "Keerom",
+        "e": "🌿",
+        "t": "Hutan perbatasan"
+      }
+    ]
+  },
+  {
+    "code": "PPB",
+    "idx": 33,
+    "name": "Papua Barat",
+    "reg": "PPA",
+    "price": 900,
+    "hue": 218,
+    "cities": [
+      {
+        "n": "Manokwari",
+        "e": "🏖️",
+        "t": "Pantai Pasir Putih"
+      },
+      {
+        "n": "Fakfak",
+        "e": "🌰",
+        "t": "Pala Fakfak"
+      },
+      {
+        "n": "Kaimana",
+        "e": "🌅",
+        "t": "Senja Kaimana"
+      },
+      {
+        "n": "Teluk Bintuni",
+        "e": "🌿",
+        "t": "Hutan mangrove"
+      },
+      {
+        "n": "Arfak",
+        "e": "🌲",
+        "t": "Pegunungan Arfak"
+      }
+    ]
+  },
+  {
+    "code": "PBD",
+    "idx": 34,
+    "name": "Papua Barat Daya",
+    "reg": "PPA",
+    "price": 1500,
+    "hue": 355,
+    "cities": [
+      {
+        "n": "Sorong",
+        "e": "🚪",
+        "t": "Gerbang Papua"
+      },
+      {
+        "n": "Raja Ampat",
+        "e": "🐠",
+        "t": "Laut terkaya dunia"
+      },
+      {
+        "n": "Waigeo",
+        "e": "🏝️",
+        "t": "Gugus pulau Wayag"
+      },
+      {
+        "n": "Misool",
+        "e": "🌊",
+        "t": "Karang dan gua"
+      },
+      {
+        "n": "Tambrauw",
+        "e": "🐢",
+        "t": "Penyu belimbing"
+      }
+    ]
+  },
+  {
+    "code": "PPT",
+    "idx": 35,
+    "name": "Papua Tengah",
+    "reg": "PPA",
+    "price": 2500,
+    "hue": 133,
+    "cities": [
+      {
+        "n": "Timika",
+        "e": "⛏️",
+        "t": "Tambang Grasberg"
+      },
+      {
+        "n": "Puncak Jaya",
+        "e": "❄️",
+        "t": "Salju abadi"
+      },
+      {
+        "n": "Nabire",
+        "e": "🐋",
+        "t": "Hiu paus Nabire"
+      },
+      {
+        "n": "Paniai",
+        "e": "🏞️",
+        "t": "Danau Paniai"
+      },
+      {
+        "n": "Dogiyai",
+        "e": "🌿",
+        "t": "Lembah Tigi"
+      }
+    ]
+  },
+  {
+    "code": "PPG",
+    "idx": 36,
+    "name": "Papua Pegunungan",
+    "reg": "PPA",
+    "price": 800,
+    "hue": 270,
+    "cities": [
+      {
+        "n": "Wamena",
+        "e": "🥔",
+        "t": "Ubi jalar"
+      },
+      {
+        "n": "Lembah Baliem",
+        "e": "🏹",
+        "t": "Festival Baliem"
+      },
+      {
+        "n": "Jayawijaya",
+        "e": "🛖",
+        "t": "Rumah honai"
+      },
+      {
+        "n": "Yahukimo",
+        "e": "🏔️",
+        "t": "Pegunungan tinggi"
+      },
+      {
+        "n": "Pegunungan Bintang",
+        "e": "🏔️",
+        "t": "Perbatasan pegunungan"
+      }
+    ]
+  },
+  {
+    "code": "PPS",
+    "idx": 37,
+    "name": "Papua Selatan",
+    "reg": "PPA",
+    "price": 1000,
+    "hue": 48,
+    "cities": [
+      {
+        "n": "Merauke",
+        "e": "🏁",
+        "t": "Tugu Sabang-Merauke"
+      },
+      {
+        "n": "Wasur",
+        "e": "🦘",
+        "t": "Taman Nasional Wasur"
+      },
+      {
+        "n": "Mappi",
+        "e": "🌾",
+        "t": "Rawa luas"
+      },
+      {
+        "n": "Asmat",
+        "e": "🗿",
+        "t": "Ukiran Asmat"
+      },
+      {
+        "n": "Tanah Merah",
+        "e": "🌳",
+        "t": "Boven Digoel"
+      }
+    ]
+  }
+]

@@ -16,3 +16,13 @@
 - **F1** Mesin menerima 2-8 pemain (tes memakai 2); batas 3-8 untuk lobi ada di `config.ts` (`MIN_PLAYERS`/`MAX_PLAYERS`) dan dipakai lapisan jaringan.
 - **F1** Efek kartu `each` (bayar semua pemain) ada di prototipe tapi tidak dipakai kartu mana pun, jadi tidak diportir.
 - **F1** Tes Vitest dijalankan lewat PowerShell; di Git Bash Windows vitest sempat gagal dengan `Cannot read properties of undefined (reading 'config')` (penyebab belum diketahui, hanya terjadi di shell itu; `--pool=vmThreads` juga lolos).
+- **F2** Kode Three.js prototipe dipecah ke `src/view/` (layout, camera, world, tiles, pawns, ships, sky, fx, models, scene). Urutan pemakaian RNG dekorasi (`makeLcg`, seed 20241116) dipertahankan sama dengan prototipe supaya pulau, pohon, potongan petak, kapal, dan awan identik. Hash derau gunung sengaja memakai perkalian float biasa (bukan `Math.imul`) seperti prototipe.
+- **F2** Hanya 12 animasi Bencana yang diportir (banjir, rob, merapi, gempa, tsunami, kebakaran, longsor, kering, puting, meteor, meteorstorm, petir). Efek kartu Nasib di prototipe (nosignal, tilang, kuis, dll.) tidak diportir karena brief menyatakan Nasib tidak perlu animasi besar dan prototipe pun hanya memutarnya untuk Bencana. Varian lombok/krakatau tidak dipakai kartu mana pun.
+- **F2** Tidak ada emoji di peta 3D: ikon kota tanpa atlas memakai inisial dalam lingkaran warna provinsi; sprite efek hanya memakai gambar `fx/e*.webp` (jika tidak ada gambarnya, sprite disembunyikan). Gempa memakai `e18` (genteng) sebagai pengganti 🏚️. Emoji kartu tetap tampil di modal HTML.
+- **F2** Tampilan menerima event lewat `Presenter` yang menerapkan event ke state tampilan (`src/game/replay.ts`, murni dan dites terhadap mesin), lalu mengganti dengan state akhir dari mesin.
+- **F2** Satu animasi besar dibatasi 15 detik (`FX_TIMEOUT_MS`) supaya antrean tidak macet.
+- **F2** Bangunan di petak hanya dibangun ulang jika pemilik/level berubah (prototipe membangun ulang seprovinsi; efek tumbuhnya sama).
+- **F2** Panel "Uji animasi": tombol cuaca hanya mengganti tampilan (prototipe ikut mengubah aturan). Di mode jaringan cuaca milik Host.
+- **F2** UI DOM prototipe (panel saldo + koin terbang, kartu kontrol, catatan per pemain, modal, dadu CSS) ikut diportir sekarang karena dibutuhkan untuk hot-seat setara prototipe; Fase 3 akan menyetel POV/HP.
+- **F2** Parameter URL: `?fast=1` (lewati animasi), `?low=1` (kualitas rendah: tanpa bayangan, pohon lebih sedikit, air lebih kasar, hujan lebih sedikit), `?wx=0.01` (percepat timer cuaca untuk uji).
+- **F2** Tes browser: Playwright dengan SwiftShader (`playwright.config.ts`). `npm run test:e2e` (fungsional), `npm run test:visual` (tangkapan layar ke `test-results/visual/` untuk diperiksa manual).

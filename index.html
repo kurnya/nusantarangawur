@@ -3,10 +3,115 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Nusantara Ngawur: board game nyeleneh keliling 38 provinsi Indonesia."
+    />
     <title>Nusantara Ngawur</title>
+    <!-- Font opsional; jika gagal dimuat, font sistem dipakai (lihat --font-d dan --font-b). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <div id="app"></div>
+    <div class="app">
+      <aside class="side left" aria-label="Pemain">
+        <h1 class="brand">Nusantara<br />Ngawur<small>Sabang sampai Merauke</small></h1>
+        <div id="players"></div>
+      </aside>
+      <main class="stage" id="stage" aria-label="Papan permainan">
+        <div class="cam">
+          <button id="camFocus" title="Kembali ke bidak yang jalan">Fokus bidak</button>
+          <button id="camMap" title="Lihat seluruh peta">Peta penuh</button>
+          <button id="camTilt" title="Ganti 3D miring dan dari atas">3D / Atas</button>
+          <button id="camL" aria-label="Putar kiri">&#10226;</button>
+          <button id="camR" aria-label="Putar kanan">&#10227;</button>
+          <button id="camIn" aria-label="Perbesar">+</button>
+          <button id="camOut" aria-label="Perkecil">&minus;</button>
+          <button id="camWeather" title="Hidupkan atau matikan tampilan awan dan hujan">
+            Cuaca: hidup
+          </button>
+          <button id="camLog" title="Buka atau tutup catatan perjalanan">
+            Catatan<span class="bd" id="logBd"></span>
+          </button>
+          <button id="camFx" title="Buka daftar untuk memeriksa animasi bencana">
+            Uji animasi
+          </button>
+        </div>
+        <div class="wxchip" id="wxchip" aria-live="polite"></div>
+        <div class="tray" aria-hidden="true"><div class="dice" id="dice"></div></div>
+        <div class="hud" id="hud" aria-label="Kontrol pemain">
+          <div class="turn" id="turn"></div>
+        </div>
+        <div class="logd" id="logd" role="region" aria-label="Catatan perjalanan">
+          <div class="ldh">
+            <b>Catatan perjalanan</b
+            ><button class="x" id="logClose" aria-label="Tutup catatan">&times;</button>
+          </div>
+          <div class="log" id="log" aria-live="polite"></div>
+          <button class="btn" id="endGame">Akhiri dan hitung kekayaan</button>
+        </div>
+        <div class="hint">
+          Geser untuk menjelajah peta. Shift + geser untuk memutar. Roda mouse untuk zoom.
+        </div>
+      </main>
+    </div>
+
+    <div class="overlay hidden" id="modal">
+      <div class="dlg" id="dlg" role="dialog" aria-modal="true"></div>
+    </div>
+
+    <div class="overlay" id="setup">
+      <div class="dlg setup">
+        <h1 class="brand">Nusantara<br />Ngawur<small>Sabang sampai Merauke</small></h1>
+        <p>
+          Keliling 38 provinsi, beli kota, bangun sampai Metropolitan, dan jangan sampai kena Nasib,
+          Bencana, atau PPN. Mode ini dimainkan bergantian di satu layar.
+        </p>
+        <div class="stepper">
+          <button class="btn" id="minus" aria-label="Kurangi pemain">&minus;</button>
+          <b id="cnt">4</b>
+          <button class="btn" id="plus" aria-label="Tambah pemain">+</button>
+          <span style="color: var(--mute); font-size: 13px">pemain (3 sampai 8)</span>
+        </div>
+        <div class="plist" id="plist"></div>
+        <div class="row"><button class="btn pri big" id="start">Mulai main</button></div>
+        <details>
+          <summary>Aturan singkat</summary>
+          <ul>
+            <li>Mulai dengan Rp15 M. Lewat Titik Nol Sabang dapat gaji Rp2 M.</li>
+            <li>
+              Tiap provinsi punya 5 kartu kota yang berderet. Mendarat di kota kosong, kamu bisa
+              membelinya.
+            </li>
+            <li>Makin banyak kota satu provinsi yang kamu pegang, sewanya makin mahal.</li>
+            <li>
+              Di kota milikmu boleh dibangun Pasar, Mal, lalu Metropolitan. Pegang kelima kota satu
+              provinsi: sewa dua kali lipat.
+            </li>
+            <li>
+              Permainan panjang? Tekan "Akhiri dan hitung kekayaan": uang ditambah nilai kota, yang
+              terbanyak menang.
+            </li>
+            <li>
+              Kartu Nasib: 80% kemungkinan buruk, hanya 20% kabar baik. Bencana: selalu ada
+              dampaknya.
+            </li>
+            <li>
+              Cuaca berlaku untuk seluruh peta dan berganti sendiri secara acak, antara 1,5 sampai 5
+              menit sekali. Hujan, badai petir, dan panas terik bisa menimpa pemain. Cerah dan
+              berawan menambah luck Nasib, kabut menguranginya.
+            </li>
+            <li>Dadu kembar jalan lagi. Tiga kali kembar berturut-turut: masuk penjara.</li>
+            <li>Pemain terakhir yang bertahan menang.</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

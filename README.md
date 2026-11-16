@@ -19,8 +19,10 @@ Uji sub-path Pages: `VITE_BASE=/nusantara-ngawur/ npm run build && npm run previ
 
 ## Status
 
-Fase 0 (fondasi) dan Fase 1 (mesin murni, `src/engine/`) selesai. Berikutnya: Fase 2 (tampilan 3D).
+Fase 0 (fondasi), Fase 1 (mesin murni, `src/engine/`), dan Fase 2 (tampilan 3D + hot-seat, `src/view/`, `src/ui/`, `src/game/`) selesai. Berikutnya: Fase 3 (HUD dan POV).
 
 ## Masalah diketahui / langkah berikut
 
-- Atlas kota huruf D, F, J belum ada (fallback bersih dibuat di fase 2).
+- Atlas kota huruf D, F, J belum ada; kota-kota itu tampil sebagai inisial (lihat docs/ASSETS.md).
+- Parameter URL: `?fast=1` lewati animasi, `?low=1` kualitas rendah.
+- Tes browser pertama kali butuh `npx playwright install chromium`.

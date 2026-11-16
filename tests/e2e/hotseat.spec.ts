@@ -7,7 +7,7 @@ test('hot-seat: beberapa giliran tanpa error, tombol sesuai giliran', async ({ p
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(m.text());
   });
-  await page.goto('?fast=1');
+  await page.goto('?fast=1&mode=local');
   await page.click('#start');
   await expect(page.locator('#players .pc')).toHaveCount(4);
   for (let k = 0; k < 40; k++) {

@@ -1,19 +1,12 @@
 /** Layar awal mode satu perangkat: jumlah pemain dan nama. */
 import { PAWNS } from '../engine/board';
 import * as C from '../engine/config';
+import { NAME_MAX, cleanName } from '../net/names';
 import { $, el, esc, tkImg } from './dom';
 
-export const NAME_MAX = 14;
-
-/** Bersihkan nama pemain: buang karakter kontrol, rapikan spasi, batasi panjang. */
-export function cleanName(raw: string, fallback: string): string {
-  const s = raw
-    // eslint-disable-next-line no-control-regex -- sengaja membuang karakter kontrol
-    .replace(/[\u0000-\u001f\u007f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, NAME_MAX);
-  return s || fallback;
+/** Nama dari layar awal; kosong diganti nama cadangan. */
+export function cleanSetupName(raw: string, fallback: string): string {
+  return cleanName(raw) || fallback;
 }
 
 export function setupScreen(onStart: (players: { name: string; pawn: number }[]) => void): void {
@@ -40,7 +33,7 @@ export function setupScreen(onStart: (players: { name: string; pawn: number }[])
   };
   $('#start').onclick = () => {
     const players = Array.from({ length: n }, (_, i) => ({
-      name: cleanName(
+      name: cleanSetupName(
         (document.getElementById(`pn${i}`) as HTMLInputElement | null)?.value ?? '',
         PAWNS[i]!.name,
       ),

@@ -19,6 +19,8 @@ export interface PresenterDeps {
   pov: () => number;
   /** id pemain pemilik layar, atau null di mode hot-seat (semua layar = pemain giliran) */
   me: () => number | null;
+  /** keterangan tambahan saat menunggu pemain lain (mis. terputus) */
+  waitNote?: () => string | undefined;
 }
 
 /** batas waktu maksimum satu animasi besar supaya tidak macet */
@@ -45,7 +47,7 @@ export class Presenter {
     if (!s) return;
     const { hud, view } = this.d;
     hud.renderPlayers(s, this.d.me());
-    hud.renderTurn(s, { pov: this.d.pov(), busy: this.playing });
+    hud.renderTurn(s, { pov: this.d.pov(), busy: this.playing, waitNote: this.d.waitNote?.() });
     view?.syncPawns(s);
   }
 

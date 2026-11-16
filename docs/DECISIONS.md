@@ -33,3 +33,12 @@
 - **F3** `prefers-reduced-motion`: tanpa guncangan kamera, kilatan layar dibatasi (aman untuk fotosensitif), koin terbang diganti angka mengambang. Animasi Bencana tetap diputar karena bagian dari isi permainan.
 - **F3** HP: toolbar kamera satu baris yang bisa digeser, kotak cuaca di bawah toolbar, petunjuk mouse disembunyikan, kartu pemain lebih ringkas; layar pendek (lanskap) memakai kartu kontrol ringkas.
 - **F3** Aksesibilitas: Escape menutup modal (memilih tombol terakhir) dan fokus kembali ke elemen sebelumnya; pergantian giliran diumumkan lewat wilayah `aria-live` tersembunyi.
+- **F4** Host bermain lewat client loopback (`linkPair` dalam memori) supaya jalur Host sama dengan pemain lain.
+- **F4** Pesan `events` membawa `intent`; client menjalankan mesin deterministik yang sama untuk state lengkap (termasuk RNG, fase, pending) lalu mencocokkan `stateHash`. Pesan tambahan: `welcome`, `profile`, `sync`.
+- **F4** Id kursi dinomori ulang 0..n-1 saat mulai (dikirim lewat `welcome` baru) supaya id kursi = id pemain di mesin.
+- **F4** Pemain yang keluar dari lobi melepas kursinya; setelah mulai, kursi tetap dan ditandai terputus.
+- **F4** Giliran otomatis pemain terputus (45 detik) dan batas waktu giliran (opsi Host) memakai timer yang sama di Host.
+- **F4** Transport ketiga `BroadcastChannel` (`?net=tab`) untuk tes Playwright multi-tab yang stabil tanpa internet; PeerJS tetap bawaan dan diuji asap dengan `scripts/peer-smoke.mjs`.
+- **F4** Modul online (PeerJS, zod, lobi) dimuat dinamis; bundel utama tetap sekitar 188 kB gzip.
+- **F4** `?min=2` hanya untuk uji; aturan resmi minimal 3 pemain.
+- **F4** Playwright memakai satu pekerja karena WebGL perangkat lunak berat.

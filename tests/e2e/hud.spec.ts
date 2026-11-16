@@ -25,7 +25,7 @@ async function finishTurn(page: Page): Promise<void> {
 }
 
 test('catatan: status buka/tutup disimpan per pemain', async ({ page }) => {
-  await page.goto('?fast=1');
+  await page.goto('?fast=1&mode=local');
   await page.click('#minus'); // 3 pemain
   await page.click('#start');
   await expect(page.locator('#logd')).not.toHaveClass(/open/);
@@ -44,7 +44,7 @@ test('catatan: status buka/tutup disimpan per pemain', async ({ page }) => {
 });
 
 test('tombol aksi terkunci selama animasi', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('?mode=local');
   await page.click('#start');
   await page.locator('#acts button', { hasText: 'Lempar dadu' }).click();
   await expect(page.locator('#acts button').first()).toBeDisabled();
@@ -58,7 +58,7 @@ test('tombol aksi terkunci selama animasi', async ({ page }) => {
 });
 
 test('modal info petak: Escape menutup dan fokus kembali', async ({ page }) => {
-  await page.goto('?fast=1');
+  await page.goto('?fast=1&mode=local');
   await page.click('#start');
   await page.locator('#camLog').focus();
   await page.evaluate(() => window.__nn!.openTile(1));
@@ -72,7 +72,7 @@ test('modal info petak: Escape menutup dan fokus kembali', async ({ page }) => {
 test.describe('HP', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
   test('tanpa geser horizontal, toolbar satu baris, kartu kontrol terlihat', async ({ page }) => {
-    await page.goto('?fast=1');
+    await page.goto('?fast=1&mode=local');
     await page.click('#start');
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),

@@ -1,9 +1,14 @@
 import './style.css';
+import type { GameState } from './engine/types';
 import { LocalGame } from './game/local';
+import type { OnlineGame } from './game/online';
 import { Presenter } from './game/presenter';
+import type { ClientIntent } from './net/protocol';
+import { codeFromHash, isRoomCode, normalizeCode } from './net/room';
 import { $, el } from './ui/dom';
 import { setupFxPanel } from './ui/fxpanel';
 import { Hud } from './ui/hud';
+import { hideMenu, savedName, showMenu } from './ui/lobby';
 import { setupScreen } from './ui/setup';
 import { openTile } from './ui/tileInfo';
 import { GameView } from './view/scene';
@@ -13,10 +18,24 @@ const params = new URLSearchParams(location.search);
 const fast = params.get('fast') === '1';
 /** ?low=1 mode kualitas rendah */
 const lowQuality = params.get('low') === '1';
+/** ?net=tab: transport antar tab (tes/pengembangan); bawaan PeerJS */
+const netTab = params.get('net') === 'tab';
+/** ?min=2: izinkan mulai dengan 2 pemain (khusus uji) */
+const minPlayers = Number(params.get('min')) >= 2 ? Number(params.get('min')) : undefined;
 const reducedMotion = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-let game: LocalGame | null = null;
-const pov = () => game?.state?.turn ?? 0;
+/** Permainan yang sedang aktif: satu perangkat atau online. */
+interface ActiveGame {
+  readonly state: GameState | null;
+  readonly playing: boolean;
+  act(i: ClientIntent): void;
+  askEndGame(): Promise<void>;
+}
+
+let game: ActiveGame | null = null;
+let online: OnlineGame | null = null;
+/** id pemain pemilik layar: online = pemain ini, satu perangkat = pemain yang sedang giliran */
+const pov = () => (online ? (online.me ?? 0) : (game?.state?.turn ?? 0));
 
 const hud = new Hud(
   fast,
@@ -63,9 +82,15 @@ try {
   );
 }
 
-const presenter = new Presenter({ hud, view, fast, pov, me: () => null });
+const presenter = new Presenter({
+  hud,
+  view,
+  fast,
+  pov,
+  me: () => (online ? online.me : null),
+  waitNote: () => online?.waitNote(),
+});
 ref.presenter = presenter;
-game = new LocalGame({ hud, view, presenter, weatherScale: Number(params.get('wx') ?? 1) || 1 });
 
 if (view) {
   const v = view;
@@ -95,12 +120,74 @@ $('#logClose').onclick = () => hud.toggleLog(pov());
 $('#endGame').onclick = () => void game?.askEndGame();
 hud.renderWx('cerah');
 
-setupScreen((players) => game?.start(players));
+/* ---------- mode ---------- */
+
+function startLocal(): void {
+  hideMenu();
+  const local = new LocalGame({
+    hud,
+    view,
+    presenter,
+    weatherScale: Number(params.get('wx') ?? 1) || 1,
+  });
+  game = local;
+  $('#setup').classList.remove('hidden');
+  setupScreen((players) => local.start(players));
+}
+
+/** Modul online (PeerJS, zod) dimuat hanya saat dibutuhkan supaya mode satu perangkat ringan. */
+async function makeOnline(): Promise<OnlineGame> {
+  const [{ OnlineGame }, transport] = await Promise.all([
+    import('./game/online'),
+    netTab
+      ? import('./net/bc').then((m) => new m.TabTransport())
+      : import('./net/peer').then((m) => new m.PeerTransport()),
+  ]);
+  const o = new OnlineGame({ hud, view, presenter, transport, toMenu, minPlayers });
+  online = o;
+  game = o;
+  return o;
+}
+
+function toMenu(error?: string, code?: string): void {
+  online = null;
+  game = null;
+  history.replaceState(null, '', location.pathname + location.search);
+  showMenu(menuActions, { error, code });
+}
+
+const menuActions = {
+  create: (name: string) => void makeOnline().then((o) => o.create(name)),
+  join: (name: string, code: string) => void makeOnline().then((o) => o.join(name, code)),
+  local: startLocal,
+};
+
+const hostMatch = /^#\/host\/([A-Za-z0-9]{5})$/.exec(location.hash);
+const joinCode = codeFromHash(location.hash);
+if (params.get('mode') === 'local') startLocal();
+else if (hostMatch && isRoomCode(normalizeCode(hostMatch[1]!)))
+  void makeOnline().then((o) => o.resumeHost(normalizeCode(hostMatch[1]!), savedName()));
+else if (joinCode) void makeOnline().then((o) => o.join(savedName() || 'Pemain', joinCode));
+else showMenu(menuActions);
 
 // kait untuk tes otomatis
 declare global {
   interface Window {
-    __nn?: { game: LocalGame | null; view: GameView | null; openTile: (i: number) => void };
+    __nn?: {
+      readonly game: ActiveGame | null;
+      readonly online: OnlineGame | null;
+      view: GameView | null;
+      openTile: (i: number) => void;
+    };
   }
 }
-window.__nn = { game, view, openTile: onTile };
+window.__nn = {
+  get game() {
+    return game;
+  },
+  get online() {
+    return online;
+  },
+  view,
+  openTile: onTile,
+};

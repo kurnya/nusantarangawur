@@ -6,6 +6,8 @@ export default defineConfig({
   outputDir: 'test-results/pw',
   timeout: 120_000,
   fullyParallel: false,
+  // WebGL perangkat lunak berat: satu pekerja supaya tidak saling memperlambat
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: `http://localhost:${PORT}/`,

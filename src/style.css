@@ -1152,3 +1152,126 @@ details ul {
     height: calc(100% - 64px);
   }
 }
+
+/* ---- Fase 4: menu dan lobi online ---- */
+#modal {
+  z-index: 60;
+}
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.fld input,
+.fld select,
+.invite input {
+  background: #0e1427;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 10px 11px;
+  font: inherit;
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  min-width: 0;
+}
+#mCode {
+  font-family: var(--font-d);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.joinrow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 6px;
+}
+.err {
+  min-height: 1.2em;
+  color: #ff9aa8;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+.netwait {
+  color: var(--mute);
+}
+.roomcode {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 12px 0 8px;
+  color: var(--mute);
+  font-size: 13px;
+}
+.roomcode b {
+  font-family: var(--font-d);
+  font-size: 40px;
+  letter-spacing: 6px;
+  color: var(--gold);
+}
+.invite {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.netstat {
+  color: var(--mute);
+  font-size: 12.5px;
+  margin: 8px 0 0;
+}
+.pawnpick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.pp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: #0e1427;
+}
+.pp span {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--c);
+  background: #fffaf0;
+}
+.pp small {
+  font-size: 10.5px;
+  color: var(--mute);
+}
+.pp.on {
+  border-color: var(--gold);
+  background: #1d2742;
+}
+.pp:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.cl li .kick {
+  margin-left: auto;
+  padding: 4px 9px;
+  font-size: 12px;
+}
+.cl li:has(.kick) {
+  grid-template-columns: 30px 1fr auto;
+}
+.lbl {
+  margin-top: 12px;
+}

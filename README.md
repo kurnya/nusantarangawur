@@ -19,7 +19,7 @@ Uji sub-path Pages: `VITE_BASE=/nusantara-ngawur/ npm run build && npm run previ
 
 ## Status
 
-Fase 0 (fondasi), Fase 1 (mesin murni, `src/engine/`), Fase 2 (tampilan 3D + hot-seat), Fase 3 (HUD, POV, tampilan HP), Fase 4 (jaringan P2P), dan Fase 5 (multiplayer penuh 2 sampai 8 pemain: batas waktu giliran, diagnosis koneksi, kick) selesai. Berikutnya: Fase 6 (deploy). Cara main online dan uji lokal: [docs/MULTIPLAYER.md](docs/MULTIPLAYER.md).
+Fase 0 (fondasi), Fase 1 (mesin murni, `src/engine/`), Fase 2 (tampilan 3D + hot-seat), Fase 3 (HUD, POV, tampilan HP), Fase 4 (jaringan P2P), Fase 5 (multiplayer penuh 2 sampai 8 pemain), dan Fase 6 (deploy GitHub Pages lewat Actions) selesai. Berikutnya: Fase 7 (pemolesan). Cara publikasi: [docs/DEPLOY.md](docs/DEPLOY.md). Cara main online dan uji lokal: [docs/MULTIPLAYER.md](docs/MULTIPLAYER.md).
 
 ## Masalah diketahui / langkah berikut
 

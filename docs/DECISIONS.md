@@ -47,3 +47,7 @@
 - **F5** Kick saat bermain tidak membuat pemain bangkrut (aturan tidak berubah); gilirannya dimainkan otomatis dan tokennya diganti sehingga tidak bisa masuk lagi.
 - **F5** Panel diagnosis membaca jalur WebRTC dari `getStats()` (pasangan kandidat terpilih: host, srflx/prflx, atau relay).
 - **F5** Keputusan pemilik: **tanpa TURN dulu**, hanya STUN publik. TURN publik bersama (Open Relay) diuji 16-11-2026 dan tidak berfungsi. Dukungan TURN opsional tetap ada dan tidak aktif: `VITE_ICE_SERVERS_URL` (mis. API kredensial Metered, diambil saat bermain, batas 4 detik) atau `VITE_ICE_SERVERS` statis; tombol "Uji TURN", `?relay=1`, dan `scripts/turn-check.mjs` untuk pemeriksaan.
+- **F6** Base path ditentukan workflow dari nama repo; repo `USERNAME.github.io` memakai `/`. Build lain memakai `/NAMA-REPO/`.
+- **F6** `ci.yml`: job `check` wajib (lint, typecheck, tes, build); job `e2e` Playwright `continue-on-error` dulu karena WebGL perangkat lunak lambat di runner.
+- **F6** Variabel opsional `VITE_ICE_SERVERS_URL` ikut diteruskan ke build (kosong = tanpa TURN).
+- **F6** `scripts/pages-check.mjs` memeriksa build di sub-path dengan browser sungguhan.

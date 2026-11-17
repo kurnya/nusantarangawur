@@ -1725,6 +1725,21 @@ details ul {
 .mobbar {
   display: none;
 }
+.endgame-top {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 8;
+  padding: 7px 10px;
+  border-color: #ffffff2b;
+  background: #0d1426e8;
+  color: #ffd8a0;
+  font-size: 11px;
+  box-shadow: 0 3px 10px #0006;
+}
+.endgame-top:hover {
+  border-color: var(--gold);
+}
 html.mob .app {
   grid-template-rows: minmax(0, 1fr);
 }
@@ -1795,10 +1810,24 @@ html.mob .pc .you {
 html.mob .mobbar {
   position: absolute;
   top: max(6px, env(safe-area-inset-top));
-  right: max(8px, env(safe-area-inset-right));
+  right: max(58px, calc(env(safe-area-inset-right) + 50px));
   z-index: 9;
   display: flex;
   gap: 6px;
+}
+html.mob .endgame-top {
+  top: max(6px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 0;
+}
+html.mob .endgame-top::before {
+  content: '🏁';
+  font-size: 17px;
 }
 html.mob .mobbar button {
   position: relative;

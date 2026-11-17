@@ -334,8 +334,8 @@ export class OnlineGame {
   }
 
   private syncEndButton(): void {
-    const b = document.getElementById('endGame');
-    if (b) b.style.display = this.isHost ? '' : 'none';
+    const b = document.getElementById('endGame') as HTMLButtonElement | null;
+    if (b) b.hidden = !this.isHost || !this.started;
   }
 
   private enqueue(job: () => Promise<void>): void {

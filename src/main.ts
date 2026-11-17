@@ -245,6 +245,7 @@ hud.renderWx('cerah');
 
 function startLocal(): void {
   startAudio();
+  $('#endGame').hidden = false;
   void toggleFullscreen();
   hideMenu();
   const local = new LocalGame({

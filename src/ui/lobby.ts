@@ -49,6 +49,7 @@ const FPS_OPTS: [FpsPref, string][] = [
   ['45', '45 FPS'],
   ['60', '60 FPS'],
   ['90', '90 FPS'],
+  ['120', '120 FPS'],
 ];
 function autoLabel(): string {
   const l = autoLevel(deviceHints());

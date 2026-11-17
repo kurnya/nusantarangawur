@@ -1018,6 +1018,34 @@ h3 .si {
 .setup {
   width: min(560px, 100%);
 }
+.overlay#menu {
+  align-items: start;
+  padding-top: clamp(12px, 4vh, 42px);
+}
+.overlay#menu .setup {
+  width: min(500px, 100%);
+  padding: 16px;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px #000d, 0 0 0 1px #ffffff08;
+}
+.overlay#menu .setup .brand {
+  font-size: 38px;
+}
+.overlay#menu .setup p {
+  margin: 7px 0 10px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.overlay#menu .setup .fld {
+  margin-top: 7px;
+}
+.overlay#menu .setup .fld input,
+.overlay#menu .setup .fld select {
+  padding: 8px 10px;
+}
+.overlay#menu .setup .row {
+  margin-top: 10px;
+}
 .setup .brand {
   font-size: 44px;
 }

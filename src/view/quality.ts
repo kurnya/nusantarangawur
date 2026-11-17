@@ -4,7 +4,7 @@
  */
 export type QualityLevel = 'high' | 'medium' | 'low';
 export type QualityPref = 'auto' | QualityLevel;
-export type FpsPref = 'auto' | '30' | '45' | '60' | '90';
+export type FpsPref = 'auto' | '30' | '45' | '60' | '90' | '120';
 
 export interface GraphicsPrefs {
   quality: QualityPref;
@@ -45,7 +45,8 @@ export const PROFILES: Record<QualityLevel, QualityProfile> = {
     waterSeg: [320, 230],
     rainDrops: 2600,
     terrainSeg: [190, 70],
-    maxFps: 60,
+    // requestAnimationFrame tetap mengikuti refresh rate perangkat (60/90/120 Hz).
+    maxFps: 120,
   },
   medium: {
     level: 'medium',
@@ -58,7 +59,7 @@ export const PROFILES: Record<QualityLevel, QualityProfile> = {
     waterSeg: [220, 160],
     rainDrops: 1600,
     terrainSeg: [140, 56],
-    maxFps: 60,
+    maxFps: 120,
   },
   low: {
     level: 'low',
@@ -117,7 +118,13 @@ export function loadGraphicsPrefs(): GraphicsPrefs {
       const quality: QualityPref =
         v.quality === 'high' || v.quality === 'medium' || v.quality === 'low' ? v.quality : 'auto';
       const fps: FpsPref =
-        v.fps === '30' || v.fps === '45' || v.fps === '60' || v.fps === '90' ? v.fps : 'auto';
+        v.fps === '30' ||
+        v.fps === '45' ||
+        v.fps === '60' ||
+        v.fps === '90' ||
+        v.fps === '120'
+          ? v.fps
+          : 'auto';
       return { quality, fps };
     }
   } catch {

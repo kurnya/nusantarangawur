@@ -1,5 +1,6 @@
 /** Dialog akhir permainan, dipakai mode satu perangkat dan online. */
-import { fmtMoney, wealth } from '../engine/rules';
+import { PAWNS } from '../engine/board';
+import { fmtMoney, saleValue, wealth } from '../engine/rules';
 import type { GameState } from '../engine/types';
 import { esc, tkImg } from './dom';
 import type { Hud } from './hud';
@@ -25,8 +26,28 @@ export async function confirmEndGame(hud: Hud, s: GameState): Promise<boolean> {
 /** Umumkan pemenang. Selesai saat pemain menekan tombol. */
 export async function showWinner(hud: Hud, s: GameState, button = 'Main lagi'): Promise<void> {
   const w = s.winner !== null ? s.players[s.winner] : null;
+  const rank = [...s.players].sort((a, b) => {
+    if (a.bankrupt !== b.bankrupt) return a.bankrupt ? 1 : -1;
+    return wealth(s, b.id) - wealth(s, a.id);
+  });
+  const list = rank
+    .map((p, k) => {
+      const assets = s.owners.reduce((total, o, tile) => {
+        return o?.p === p.id ? total + saleValue(s, tile) : total;
+      }, 0);
+      const cities = s.owners.filter((o) => o?.p === p.id).length;
+      const pawn = PAWNS[p.pawn];
+      const winner = p.id === s.winner;
+      return `<li class="finalrow${winner ? ' winner' : ''}${p.bankrupt ? ' bankrupt' : ''}" style="--oc:${pawn?.color ?? '#888'}">
+        <span class="finalrank">${k + 1}</span>
+        <span class="finalpawn">${tkImg(p.pawn)}</span>
+        <span class="finalinfo"><b>${esc(p.name)}${winner ? '<em>Pemenang</em>' : ''}</b><small>${esc(pawn?.name ?? 'Pemain')} · ${cities} kota</small></span>
+        <span class="finalmoney"><b>${fmtMoney(wealth(s, p.id))}</b><small>Total kekayaan</small><small>${fmtMoney(p.money)} uang · ${fmtMoney(assets)} aset</small></span>
+      </li>`;
+    })
+    .join('');
   await hud.ask(
-    `<h3>🏆 ${esc(w ? w.name : 'Tidak ada')} menang!</h3><p style="color:var(--mute);margin:0">Penguasa terakhir Nusantara. Sabang sampai Merauke sudah dalam genggaman.</p>`,
+    `<div class="finale"><div class="finalehero"><span class="trophy">🏆</span><div><h3>${esc(w ? w.name : 'Tidak ada')} menang!</h3><p>Hasil akhir permainan</p></div></div><ul class="finallist">${list}</ul></div>`,
     [{ label: button, cls: 'pri' }],
   );
 }

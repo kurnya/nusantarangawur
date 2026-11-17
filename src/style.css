@@ -813,6 +813,111 @@ summary:focus-visible {
   display: block;
   margin-bottom: 8px;
 }
+.finalehero {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.finalehero .trophy {
+  font-size: 36px;
+  line-height: 1;
+}
+.finalehero h3 {
+  margin: 0;
+}
+.finalehero p {
+  margin: 3px 0 0;
+  color: var(--mute);
+  font-size: 12px;
+}
+.finallist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.finalrow {
+  display: grid;
+  grid-template-columns: 20px 34px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--oc);
+  border-radius: 10px;
+  background: #0e1427;
+}
+.finalrow.winner {
+  border-color: var(--gold);
+  border-left-color: var(--gold);
+  background: #1d2742;
+  box-shadow: 0 0 0 1px #f2b63244;
+}
+.finalrow.bankrupt {
+  opacity: 0.5;
+}
+.finalrank {
+  color: var(--mute);
+  font-family: var(--font-d);
+  font-size: 13px;
+  text-align: center;
+}
+.finalpawn {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--oc);
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fffaf0;
+}
+.finalpawn .tkimg {
+  display: block;
+}
+.finalinfo,
+.finalmoney {
+  min-width: 0;
+}
+.finalinfo b,
+.finalmoney b,
+.finalinfo small,
+.finalmoney small {
+  display: block;
+}
+.finalinfo b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.finalinfo small,
+.finalmoney small {
+  color: var(--mute);
+  font-size: 10px;
+  line-height: 1.35;
+}
+.finalmoney {
+  text-align: right;
+}
+.finalmoney b {
+  color: var(--gold);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.finalinfo em {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: var(--gold);
+  color: #2a2000;
+  font-size: 8px;
+  font-style: normal;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
 .c-NASIB {
   background: #6b44a3;
 }

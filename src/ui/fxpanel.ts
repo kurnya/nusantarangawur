@@ -1,5 +1,6 @@
 /** Panel "Uji animasi": memutar animasi Bencana dan mengganti tampilan cuaca tanpa mengubah aturan. */
 import * as C from '../engine/config';
+import { audio } from '../audio';
 import type { WeatherKey } from '../engine/types';
 import type { GameView } from '../view/scene';
 import { $, el } from './dom';
@@ -44,6 +45,7 @@ export function setupFxPanel(
       pn.style.opacity = '0';
       pn.style.pointerEvents = 'none';
       try {
+        audio.fx(k);
         await view.play(k, tg.tile, tg.pid);
       } finally {
         busy = false;

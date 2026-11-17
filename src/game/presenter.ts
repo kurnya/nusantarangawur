@@ -4,6 +4,7 @@
  */
 import { CARD_BY_ID, cityOf } from '../engine/board';
 import { cloneState } from '../engine/engine';
+import { audio } from '../audio';
 import type { CardKind, GameEvent, GameState } from '../engine/types';
 import { esc, sleep } from '../ui/dom';
 import type { Hud } from '../ui/hud';
@@ -136,6 +137,7 @@ export class Presenter {
         return;
       }
       case 'BencanaFx':
+        audio.fx(ev.key);
         if (view && !fast)
           await Promise.race([
             view.play(ev.key, ev.tile, ev.player),

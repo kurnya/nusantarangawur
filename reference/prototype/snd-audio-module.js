@@ -137,8 +137,8 @@ export const Snd=(function(){
       g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.09,t+.5);g.gain.linearRampToValueAtTime(.06,t+1.6);g.gain.exponentialRampToValueAtTime(.0001,t+2.6);o.connect(g);g.connect(out);const s=ctx.createGain();s.gain.value=.6;g.connect(s);s.connect(rev);o.start(t);v.start(t);o.stop(t+2.7);v.stop(t+2.7)}
   }
   function pump(){
-    if(!ctx||!mus)return;
-    const lim=ctx.currentTime+.6;while(nextT<lim){musicStep(nextT);nextT+=BEAT}
+    if(!ctx)return;
+    if(mus){const lim=ctx.currentTime+.6;while(nextT<lim){musicStep(nextT);nextT+=BEAT}}
     if(wx==="cerah"||wx==="berawan"){const p=(WXA[wx].bird)*.012;if(R()<p)bird(ctx.currentTime+.05)}
     if(wx==="badai"&&R()<.012){last.th=ctx.currentTime;SF.thunderFar(ctx.currentTime+.1)}
   }
@@ -154,7 +154,8 @@ export const Snd=(function(){
     ensure,
     start(){
       if(!ensure())return;
-      startAmb();startMusic();if(!tmr)tmr=setInterval(pump,150);
+      // Musik gamelan tidak diputar; ambience ombak/cuaca tetap aktif.
+      startAmb();if(!tmr)tmr=setInterval(pump,150);
       if(!api._vis){api._vis=1;document.addEventListener("visibilitychange",()=>{if(!ctx)return;if(document.hidden)ctx.suspend();else ctx.resume()})}
     },
     play(name,o){

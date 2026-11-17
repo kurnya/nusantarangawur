@@ -1488,8 +1488,6 @@ export class Fx {
     const lt = this.lite(0xaac4ff, 0, 2500, px, 420, pz);
     const sp = this.emitter(400, { size: 40 });
     const sm = this.emitter(160, { size: 90, additive: false, opacity: 0.6 });
-    const dz = this.emo('😵', 120, 0);
-    const ok = this.emo('😤', 120, 0);
     cam.tx = px;
     cam.tz = pz;
     cam.dist = Math.min(cam.dist, 1250);
@@ -1583,10 +1581,6 @@ export class Fx {
           mat.color.copy(new THREE.Color(0x151515).lerp(orig, back));
           emi(mat).setRGB(0.2 * (1 - back), 0.07 * (1 - back), 0);
         }
-        dz.position.set(px, 200, pz);
-        dz.material.opacity = u > 0.4 && u < 2.9 ? Math.sin(u * 6) * 0.3 + 0.7 : 0;
-        ok.position.set(px, 200, pz);
-        ok.material.opacity = u > 3.1 && u < 4.2 ? 1 : 0;
       }
       sm.step(dt, -40, 0.6);
     });

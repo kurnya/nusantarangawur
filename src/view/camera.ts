@@ -18,7 +18,15 @@ export interface Cam {
   /** tampilan cuaca hidup/mati (aturannya tetap jalan) */
   weather: boolean;
   shake: number;
+  /** pengali jarak agar framing tetap sama saat FOV lebih sempit (mode HP) */
+  lens: number;
 }
+
+/** Layar HP: potret sempit atau lanskap pendek. Dipakai CSS (kelas `mob`) dan kamera. */
+export const MOBILE_QUERY = '(max-width: 700px), (max-height: 560px) and (orientation: landscape)';
+export const isMobile = (): boolean => !!window.matchMedia?.(MOBILE_QUERY).matches;
+/** Sudut kamera bawaan: HP sedikit lebih menunduk ala board game isometrik. */
+export const defaultTilt = (): number => (isMobile() ? 44 : 52);
 
 export function makeCam(): Cam {
   return {
@@ -35,6 +43,7 @@ export function makeCam(): Cam {
     follow: true,
     weather: true,
     shake: 0,
+    lens: 1,
   };
 }
 
@@ -69,10 +78,11 @@ export function updateCamera(cam: Cam, camera: THREE.PerspectiveCamera, dt: numb
   cam.fy += ((cam.ty || 0) - cam.fy) * k;
   const t = (clamp(cam.tilt, 2, 78) * Math.PI) / 180;
   const a = (cam.az * Math.PI) / 180;
+  const d = cam.dist * (cam.lens || 1);
   camera.position.set(
-    cam.fx + cam.dist * Math.sin(t) * Math.sin(a),
-    cam.fy + cam.dist * Math.cos(t),
-    cam.fz + cam.dist * Math.sin(t) * Math.cos(a),
+    cam.fx + d * Math.sin(t) * Math.sin(a),
+    cam.fy + d * Math.cos(t),
+    cam.fz + d * Math.sin(t) * Math.cos(a),
   );
   if (cam.shake > 0.5) {
     camera.position.x += (Math.random() - 0.5) * cam.shake;

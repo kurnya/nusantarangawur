@@ -21,6 +21,7 @@ import {
   type FpsPref,
   type QualityPref,
 } from './view/quality';
+import { MOBILE_QUERY } from './view/camera';
 import { GameView } from './view/scene';
 
 const params = new URLSearchParams(location.search);
@@ -163,6 +164,26 @@ if (view) {
     $('#camWeather').textContent = v.toggleWeather() ? 'Cuaca: hidup' : 'Cuaca: mati';
   };
 }
+/* ---------- mode HP: papan penuh layar, tombol kamera dilipat ke menu ---------- */
+const mobMq = window.matchMedia?.(MOBILE_QUERY);
+const applyMob = () => document.documentElement.classList.toggle('mob', !!mobMq?.matches);
+mobMq?.addEventListener?.('change', applyMob);
+applyMob();
+const camPanel = $('#camMenuPanel');
+const mobMenu = $('#mobMenu');
+const setMenu = (open: boolean) => {
+  camPanel.classList.toggle('open', open);
+  mobMenu.setAttribute('aria-expanded', String(open));
+};
+mobMenu.onclick = () => setMenu(!camPanel.classList.contains('open'));
+// tombol zoom/putar tetap membiarkan menu terbuka; lainnya menutupnya
+camPanel.addEventListener('click', (e) => {
+  const b = (e.target as HTMLElement).closest('button');
+  if (b && !['camL', 'camR', 'camIn', 'camOut'].includes(b.id)) setMenu(false);
+});
+$('#mobFocus').onclick = () => $('#camFocus').click();
+$('#mobAssets').onclick = () => $('#camAssets').click();
+
 $('#camLog').onclick = () => hud.toggleLog(pov());
 $('#camAssets').onclick = () => assetPanel.toggle();
 $('#logClose').onclick = () => hud.toggleLog(pov());

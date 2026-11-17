@@ -1613,3 +1613,302 @@ details ul {
 .assets .abtns .btn.gold small {
   color: #3a2c00;
 }
+
+/* ---- Mode HP (kelas `mob` dari main.ts): papan penuh layar ala board game mobile ----
+   Pemain jadi pil kecil melayang di atas papan, tombol kamera dilipat ke menu ☰,
+   panel aksi tanpa kartu besar: hanya tombol tebal di pojok kanan bawah. */
+.mobbar {
+  display: none;
+}
+html.mob .app {
+  grid-template-rows: minmax(0, 1fr);
+}
+html.mob .stage {
+  grid-row: 1;
+}
+html.mob .side.left {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 8;
+  max-width: calc(100% - 150px);
+  padding: max(6px, env(safe-area-inset-top)) 8px 6px max(8px, env(safe-area-inset-left));
+  background: none;
+  border: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+html.mob .side.left .brand {
+  display: none;
+}
+html.mob #players {
+  gap: 5px;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+html.mob .pc {
+  pointer-events: auto;
+  flex: none;
+  min-width: 0;
+  max-width: 150px;
+  grid-template-columns: 28px auto;
+  gap: 6px;
+  padding: 2px 11px 2px 2px;
+  border-radius: 99px;
+  background: #0d1426d9;
+  border: 1.5px solid #ffffff22;
+  box-shadow: 0 3px 10px #0006;
+  backdrop-filter: blur(4px);
+}
+html.mob .pc.on {
+  border-color: var(--gold);
+  background: #26304fe6;
+  box-shadow:
+    0 0 0 2px #f2b63266,
+    0 3px 12px #0008;
+}
+html.mob .pc .tk {
+  width: 28px;
+  height: 28px;
+  border-width: 2px;
+  font-size: 15px;
+}
+html.mob .pc b {
+  font-size: 11px;
+  line-height: 1.15;
+}
+html.mob .pc .m {
+  font-size: 12px;
+  line-height: 1.1;
+}
+html.mob .pc .s,
+html.mob .pc .you {
+  display: none;
+}
+
+/* tombol cepat kanan atas */
+html.mob .mobbar {
+  position: absolute;
+  top: max(6px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 9;
+  display: flex;
+  gap: 6px;
+}
+html.mob .mobbar button {
+  position: relative;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 11px;
+  border-radius: 12px;
+  border: 1.5px solid #ffffff26;
+  background: #0d1426d9;
+  box-shadow: 0 3px 0 #05091499;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+html.mob #mobAssets {
+  font-size: 13px;
+}
+html.mob .mobbar button[aria-expanded='true'] {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+html.mob .mobbar .bd {
+  display: none;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  line-height: 17px;
+}
+html.mob .mobbar .bd.on {
+  display: block;
+}
+
+/* toolbar kamera menjadi menu lipat */
+html.mob .cam {
+  display: none;
+  left: auto;
+  top: calc(max(6px, env(safe-area-inset-top)) + 48px);
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 9;
+  width: min(300px, calc(100% - 16px));
+  max-height: calc(100% - 64px);
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 14px;
+  background: #0d1426f2;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 30px #000a;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+html.mob .cam.open {
+  display: grid;
+}
+html.mob .cam button {
+  grid-column: span 2;
+  min-height: 38px;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  border-radius: 10px;
+}
+html.mob .cam #camL,
+html.mob .cam #camR,
+html.mob .cam #camIn,
+html.mob .cam #camOut {
+  grid-column: span 1;
+  font-size: 17px;
+}
+html.mob .cam #camFocus,
+html.mob .cam #camAssets {
+  display: none;
+}
+html.mob .cam .bd {
+  position: static;
+  margin: 0 0 0 6px;
+}
+
+/* cuaca: pil kecil di bawah tombol cepat */
+html.mob .wxchip {
+  top: calc(max(6px, env(safe-area-inset-top)) + 50px);
+  bottom: auto;
+  right: max(8px, env(safe-area-inset-right));
+  max-width: 220px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+}
+html.mob .wxchip b {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html.mob .wxchip .wd,
+html.mob .wxchip .wl {
+  display: none;
+}
+html.mob .cardnotes {
+  top: calc(max(6px, env(safe-area-inset-top)) + 80px);
+  right: max(8px, env(safe-area-inset-right));
+  width: min(210px, 40%);
+  max-height: calc(100% - 200px);
+}
+html.mob .cnote .cnb {
+  font-size: 11.5px;
+}
+
+/* panel aksi: tanpa kartu, hanya tombol tebal */
+html.mob .hud {
+  left: auto;
+  right: max(8px, env(safe-area-inset-right));
+  bottom: max(8px, env(safe-area-inset-bottom));
+  width: min(220px, calc(100% - 16px));
+}
+html.mob .hud .turn {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+html.mob .hud .turn .who,
+html.mob .hud .dr,
+html.mob .hud #acts .btn.assetsbtn {
+  display: none;
+}
+html.mob .hud .tmr,
+html.mob .hud .wait {
+  align-self: flex-end;
+  width: fit-content;
+  margin: 0 0 6px auto;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: #0d1426d9;
+  font-size: 11.5px;
+  color: #d9e2f6;
+}
+html.mob .hud .tmr.low {
+  color: #ff9aa8;
+}
+html.mob .hud #acts {
+  gap: 6px;
+  margin-top: 0;
+}
+html.mob .hud #acts .btn,
+html.mob .hud #acts .btn.big {
+  min-height: 38px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.15;
+  background: #0d1426e6;
+  border: 1.5px solid #ffffff26;
+  box-shadow: 0 3px 0 #05091499;
+}
+html.mob .hud #acts .btn.pri,
+html.mob .hud #acts .btn.gold {
+  min-height: 50px;
+  font-size: 15px;
+  font-weight: 800;
+  border-radius: 14px;
+}
+html.mob .hud #acts .btn.pri {
+  background: var(--red);
+  border-color: #ff6f84;
+  box-shadow: 0 4px 0 #8f1e31;
+}
+html.mob .hud #acts .btn.gold {
+  background: var(--gold);
+  border-color: #ffd978;
+  color: #2a2000;
+  box-shadow: 0 4px 0 #a37a14;
+}
+
+html.mob .tray {
+  left: 50%;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  transform: scale(0.72);
+  transform-origin: center bottom;
+}
+html.mob .logd {
+  left: max(8px, env(safe-area-inset-left));
+  top: calc(max(6px, env(safe-area-inset-top)) + 48px);
+  bottom: max(8px, env(safe-area-inset-bottom));
+  height: auto;
+  width: min(300px, 46%);
+}
+html.mob .fxpanel {
+  left: auto;
+  right: max(8px, env(safe-area-inset-right));
+  top: calc(max(6px, env(safe-area-inset-top)) + 48px);
+  width: min(240px, calc(100% - 16px));
+  max-height: calc(100% - 64px);
+  z-index: 10;
+}
+html.mob .hint {
+  display: none;
+}
+/* potret: dadu di atas tombol aksi, tombol selebar layar */
+@media (max-width: 700px) {
+  html.mob .hud {
+    left: max(8px, env(safe-area-inset-left));
+    width: auto;
+  }
+  html.mob .tray {
+    bottom: 120px;
+  }
+  html.mob .wxchip {
+    max-width: 170px;
+  }
+}
+html.mob .toast {
+  bottom: 70px;
+}

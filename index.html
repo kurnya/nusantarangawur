@@ -28,7 +28,14 @@
         <div id="players"></div>
       </aside>
       <main class="stage" id="stage" aria-label="Papan permainan">
-        <div class="cam">
+        <div class="mobbar" aria-label="Menu cepat">
+          <button id="mobFocus" aria-label="Kembali ke bidak">&#9678;</button>
+          <button id="mobAssets" aria-label="Kelola aset">Aset</button>
+          <button id="mobMenu" aria-label="Buka menu" aria-expanded="false">
+            &#9776;<span class="bd" id="mobBd"></span>
+          </button>
+        </div>
+        <div class="cam" id="camMenuPanel">
           <button id="camFocus" title="Kembali ke bidak yang jalan">Fokus bidak</button>
           <button id="camMap" title="Lihat seluruh peta">Peta penuh</button>
           <button id="camTilt" title="Ganti 3D miring dan dari atas">3D / Atas</button>

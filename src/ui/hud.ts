@@ -369,9 +369,10 @@ export class Hud {
     d.classList.toggle('open', open);
     if (open) this.logUnread[pov] = 0;
     const n = this.logUnread[pov] ?? 0;
-    if (bd) {
-      bd.textContent = n > 9 ? '9+' : String(n);
-      bd.classList.toggle('on', !open && n > 0 && phase !== 'setup');
+    for (const b of [bd, document.getElementById('mobBd')]) {
+      if (!b) continue;
+      b.textContent = n > 9 ? '9+' : String(n);
+      b.classList.toggle('on', !open && n > 0 && phase !== 'setup');
     }
   }
 

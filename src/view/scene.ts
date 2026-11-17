@@ -4,7 +4,15 @@
  */
 import * as THREE from 'three';
 import type { GameState, WeatherKey } from '../engine/types';
-import { focusOn, makeCam, overview, updateCamera, type Cam } from './camera';
+import {
+  defaultTilt,
+  focusOn,
+  isMobile,
+  makeCam,
+  overview,
+  updateCamera,
+  type Cam,
+} from './camera';
 import { Fx } from './fx';
 import { MID } from './layout';
 import { loadModels } from './models';
@@ -116,6 +124,12 @@ export class GameView {
       const h = Math.max(2, stage.clientHeight);
       this.renderer.setSize(w, h, false);
       this.camera.aspect = w / h;
+      // HP: FOV sempit = tampilan nyaris isometrik ala board game mobile;
+      // jarak dikali `lens` agar luas pandang tetap sama dengan FOV 42.
+      const fov = isMobile() ? 30 : 42;
+      this.camera.fov = fov;
+      this.cam.lens = Math.tan((21 * Math.PI) / 180) / Math.tan((fov / 2) * (Math.PI / 180));
+      this.camera.far = 60000 * this.cam.lens;
       this.camera.updateProjectionMatrix();
     });
     window.addEventListener('resize', resize);
@@ -158,9 +172,11 @@ export class GameView {
     this.syncAll(state);
     const c = this.cam;
     c.follow = true;
-    c.tilt = 52;
+    c.tilt = defaultTilt();
     c.az = 0;
-    c.dist = this.o.stage.clientWidth < 700 ? 2500 : 1750;
+    // HP potret butuh mundur jauh agar beberapa petak tetap terlihat ke samping
+    const st = this.o.stage;
+    c.dist = st.clientWidth < 700 ? 3400 : isMobile() ? 2200 : 1750;
     focusOn(c, state.players[state.turn]?.pos ?? 0, true);
     void loadModels((k, scene) => {
       if (k.startsWith('ship')) this.ships.swap(Number(k.slice(4)), scene);
@@ -215,14 +231,14 @@ export class GameView {
 
   focusPawn(pos: number): void {
     this.cam.follow = true;
-    this.cam.dist = Math.min(this.cam.dist, 3200);
+    this.cam.dist = Math.min(this.cam.dist, 3600);
     focusOn(this.cam, pos);
   }
   overview(): void {
     overview(this.cam, this.o.stage);
   }
   toggleTilt(): void {
-    this.cam.tilt = this.cam.tilt > 25 ? 4 : 52;
+    this.cam.tilt = this.cam.tilt > 25 ? 4 : defaultTilt();
   }
   rotate(dir: 1 | -1): void {
     this.cam.az = Math.round(this.cam.az / 45) * 45 + 45 * dir;

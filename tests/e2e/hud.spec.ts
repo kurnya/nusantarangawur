@@ -71,14 +71,19 @@ test('modal info petak: Escape menutup dan fokus kembali', async ({ page }) => {
 
 test.describe('HP', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
-  test('tanpa geser horizontal, toolbar satu baris, kartu kontrol terlihat', async ({ page }) => {
+  test('tanpa geser horizontal, menu kamera terlipat, kartu kontrol terlihat', async ({ page }) => {
     await page.goto('?fast=1&mode=local');
     await page.click('#start');
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
     ).toBe(0);
-    const cam = (await page.locator('.cam').boundingBox())!;
-    expect(cam.height).toBeLessThan(50);
+    const bar = (await page.locator('.mobbar').boundingBox())!;
+    expect(bar.height).toBeLessThan(50);
+    await expect(page.locator('#camMap')).toBeHidden();
+    await page.click('#mobMenu');
+    await expect(page.locator('#camMap')).toBeVisible();
+    await page.click('#camMap');
+    await expect(page.locator('#camMap')).toBeHidden();
     const btn = page.locator('#acts button', { hasText: 'Lempar dadu' });
     await expect(btn).toBeInViewport();
     const wx = (await page.locator('#wxchip').boundingBox())!;

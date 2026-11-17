@@ -1,4 +1,5 @@
 import './style.css';
+import { audio, startAudio } from './audio';
 import type { GameState } from './engine/types';
 import { LocalGame } from './game/local';
 import type { OnlineGame } from './game/online';
@@ -12,15 +13,22 @@ import { Hud } from './ui/hud';
 import { hideMenu, savedName, showMenu } from './ui/lobby';
 import { setupScreen } from './ui/setup';
 import { openTile } from './ui/tileInfo';
-import { loadQualityPref, resolveQuality } from './view/quality';
+import {
+  loadGraphicsPrefs,
+  resolveFps,
+  resolveQuality,
+  saveGraphicsPrefs,
+  type FpsPref,
+  type QualityPref,
+} from './view/quality';
 import { GameView } from './view/scene';
 
 const params = new URLSearchParams(location.search);
 /** ?fast=1 melewati animasi (untuk tes) */
 const fast = params.get('fast') === '1';
 /** ?low=1 paksa kualitas rendah; selain itu pilihan pemain (bawaan otomatis) */
-const qualityPref = loadQualityPref();
-const quality = resolveQuality(qualityPref, params.get('low') === '1');
+const graphicsPrefs = loadGraphicsPrefs();
+const quality = resolveQuality(graphicsPrefs.quality, params.get('low') === '1');
 /** ?dev=1 menampilkan alat pengembang (panel Uji animasi) */
 const dev = params.get('dev') === '1';
 /** ?net=tab: transport antar tab (tes/pengembangan); bawaan PeerJS */
@@ -43,11 +51,31 @@ const pov = () => (online ? (online.me ?? 0) : (game?.state?.turn ?? 0));
 const hud = new Hud(
   fast,
   {
-    roll: () => game?.act({ t: 'roll' }),
-    buy: () => game?.act({ t: 'buy' }),
-    build: (tile) => game?.act({ t: 'build', tile }),
-    endTurn: () => game?.act({ t: 'endTurn' }),
-    payJail: () => game?.act({ t: 'payJail' }),
+    roll: () => {
+      startAudio();
+      audio.play('dice');
+      game?.act({ t: 'roll' });
+    },
+    buy: () => {
+      startAudio();
+      audio.play('buy');
+      game?.act({ t: 'buy' });
+    },
+    build: (tile) => {
+      startAudio();
+      audio.play('build');
+      game?.act({ t: 'build', tile });
+    },
+    endTurn: () => {
+      startAudio();
+      audio.play('turn');
+      game?.act({ t: 'endTurn' });
+    },
+    payJail: () => {
+      startAudio();
+      audio.play('spend');
+      game?.act({ t: 'payJail' });
+    },
     assets: () => assetPanel.toggle(),
   },
   reducedMotion,
@@ -78,7 +106,8 @@ try {
     stage: $('#stage'),
     getState,
     quality,
-    dynamicResolution: qualityPref === 'auto' && params.get('low') !== '1',
+    fps: resolveFps(graphicsPrefs.fps, quality),
+    dynamicResolution: graphicsPrefs.quality === 'auto' && params.get('low') !== '1',
     fast,
     reducedMotion,
     onTileClick: (i) => onTile(i),
@@ -138,11 +167,67 @@ $('#camLog').onclick = () => hud.toggleLog(pov());
 $('#camAssets').onclick = () => assetPanel.toggle();
 $('#logClose').onclick = () => hud.toggleLog(pov());
 $('#endGame').onclick = () => void game?.askEndGame();
+
+const graphicsPanel = $('#graphicsPanel');
+const gQuality = $('#gQuality') as HTMLSelectElement;
+const gFps = $('#gFps') as HTMLSelectElement;
+const gApply = $('#gApply');
+const gMusic = $('#gMusic') as HTMLInputElement;
+const gSfx = $('#gSfx') as HTMLInputElement;
+const gAmb = $('#gAmb') as HTMLInputElement;
+const gMute = $('#gMute') as HTMLInputElement;
+gQuality.value = graphicsPrefs.quality;
+gFps.value = graphicsPrefs.fps;
+gMusic.value = String(audio.st.music);
+gSfx.value = String(audio.st.sfx);
+gAmb.value = String(audio.st.amb);
+gMute.checked = audio.st.mute;
+$('#camSettings').onclick = () => graphicsPanel.classList.toggle('open');
+gApply.onclick = () => {
+  const next = { quality: gQuality.value as QualityPref, fps: gFps.value as FpsPref };
+  saveGraphicsPrefs(next);
+  const q = resolveQuality(next.quality, params.get('low') === '1');
+  view?.setGraphics(q, resolveFps(next.fps, q), next.quality === 'auto' && params.get('low') !== '1');
+  startAudio();
+  audio.vol('music', Number(gMusic.value));
+  audio.vol('sfx', Number(gSfx.value));
+  audio.vol('amb', Number(gAmb.value));
+  audio.mute(gMute.checked);
+  graphicsPanel.classList.remove('open');
+  hud.toast('Pengaturan grafik diterapkan');
+};
+
+async function toggleFullscreen(): Promise<void> {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+    return;
+  }
+  if (!document.documentElement.requestFullscreen) return;
+  try {
+    await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+  } catch {
+    // iOS Safari tidak menyediakan Fullscreen API untuk halaman biasa.
+  }
+}
+
+function updateFullscreenButton(): void {
+  const button = $('#camFullscreen');
+  button.textContent = document.fullscreenElement ? 'Keluar layar penuh' : 'Layar penuh';
+  button.title = document.fullscreenElement
+    ? 'Keluar dari layar penuh'
+    : 'Gunakan layar penuh (iPhone: tambahkan ke Home Screen)';
+}
+
+$('#camFullscreen').onclick = () => void toggleFullscreen();
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+updateFullscreenButton();
 hud.renderWx('cerah');
 
 /* ---------- mode ---------- */
 
 function startLocal(): void {
+  startAudio();
+  void toggleFullscreen();
   hideMenu();
   const local = new LocalGame({
     hud,
@@ -177,8 +262,16 @@ function toMenu(error?: string, code?: string): void {
 }
 
 const menuActions = {
-  create: (name: string) => void makeOnline().then((o) => o.create(name)),
-  join: (name: string, code: string) => void makeOnline().then((o) => o.join(name, code)),
+  create: (name: string) => {
+    startAudio();
+    void toggleFullscreen();
+    void makeOnline().then((o) => o.create(name));
+  },
+  join: (name: string, code: string) => {
+    startAudio();
+    void toggleFullscreen();
+    void makeOnline().then((o) => o.join(name, code));
+  },
   local: startLocal,
 };
 

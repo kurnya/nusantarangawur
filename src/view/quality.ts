@@ -4,6 +4,12 @@
  */
 export type QualityLevel = 'high' | 'medium' | 'low';
 export type QualityPref = 'auto' | QualityLevel;
+export type FpsPref = 'auto' | '30' | '45' | '60' | '90';
+
+export interface GraphicsPrefs {
+  quality: QualityPref;
+  fps: FpsPref;
+}
 
 export interface QualityProfile {
   level: QualityLevel;
@@ -101,6 +107,33 @@ export function deviceHints(): DeviceHints {
 }
 
 const KEY = 'nn.quality';
+const GRAPHICS_KEY = 'nn.graphics';
+
+export function loadGraphicsPrefs(): GraphicsPrefs {
+  try {
+    const raw = localStorage.getItem(GRAPHICS_KEY);
+    if (raw) {
+      const v = JSON.parse(raw) as Partial<GraphicsPrefs>;
+      const quality: QualityPref =
+        v.quality === 'high' || v.quality === 'medium' || v.quality === 'low' ? v.quality : 'auto';
+      const fps: FpsPref =
+        v.fps === '30' || v.fps === '45' || v.fps === '60' || v.fps === '90' ? v.fps : 'auto';
+      return { quality, fps };
+    }
+  } catch {
+    /* gunakan bawaan */
+  }
+  return { quality: loadQualityPref(), fps: 'auto' };
+}
+
+export function saveGraphicsPrefs(p: GraphicsPrefs): void {
+  try {
+    localStorage.setItem(GRAPHICS_KEY, JSON.stringify(p));
+  } catch {
+    /* abaikan */
+  }
+}
+
 export function loadQualityPref(): QualityPref {
   try {
     const v = localStorage.getItem(KEY);
@@ -115,6 +148,11 @@ export function saveQualityPref(p: QualityPref): void {
   } catch {
     /* abaikan */
   }
+}
+
+/** Target FPS lokal; 'auto' mengikuti batas profil kualitas. */
+export function resolveFps(pref: FpsPref, quality: QualityProfile): number {
+  return pref === 'auto' ? quality.maxFps : Number(pref);
 }
 
 /** Profil akhir dari preferensi (+ ?low=1 sebagai paksaan rendah). */

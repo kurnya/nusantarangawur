@@ -454,8 +454,12 @@ export class Hud {
     );
     d.title = 'Klik untuk menutup';
     const close = () => {
+      if (d.classList.contains('out')) return;
       d.classList.add('out');
-      setTimeout(() => d.remove(), 300);
+      setTimeout(() => {
+        d.remove();
+        if (!box.children.length) box.remove();
+      }, 300);
     };
     d.onclick = close;
     box.prepend(d);

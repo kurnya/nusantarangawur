@@ -9,8 +9,9 @@ import { NAME_MAX } from '../net/names';
 import {
   autoLevel,
   deviceHints,
-  loadQualityPref,
-  saveQualityPref,
+  loadGraphicsPrefs,
+  saveGraphicsPrefs,
+  type FpsPref,
   type QualityPref,
 } from '../view/quality';
 import { $, esc, tkImg } from './dom';
@@ -41,6 +42,13 @@ const QUALITY_OPTS: [QualityPref, string][] = [
   ['high', 'Tinggi'],
   ['medium', 'Sedang'],
   ['low', 'Rendah'],
+];
+const FPS_OPTS: [FpsPref, string][] = [
+  ['auto', 'Otomatis'],
+  ['30', '30 FPS'],
+  ['45', '45 FPS'],
+  ['60', '60 FPS'],
+  ['90', '90 FPS'],
 ];
 function autoLabel(): string {
   const l = autoLevel(deviceHints());
@@ -78,7 +86,10 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
     <p class="err" id="mErr" role="alert"></p>
     <div class="row"><button class="btn" id="mLocal">Main di satu perangkat (bergantian)</button></div>
     <label class="fld">Kualitas grafis <select id="mQuality">${QUALITY_OPTS.map(
-      ([v, l]) => `<option value="${v}" ${loadQualityPref() === v ? 'selected' : ''}>${l}</option>`,
+      ([v, l]) => `<option value="${v}" ${loadGraphicsPrefs().quality === v ? 'selected' : ''}>${l}</option>`,
+    ).join('')}</select></label>
+    <label class="fld">Target FPS <select id="mFps">${FPS_OPTS.map(
+      ([v, l]) => `<option value="${v}" ${loadGraphicsPrefs().fps === v ? 'selected' : ''}>${l}</option>`,
     ).join('')}</select></label>
     <p class="netstat">Otomatis menyesuaikan perangkat dan menurunkan resolusi bila terasa berat. Pilih Rendah jika HP panas atau patah-patah.</p>`;
   const nameI = $('#mName') as HTMLInputElement;
@@ -106,8 +117,13 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
   };
   $('#mLocal').onclick = () => a.local();
   const qs = $('#mQuality') as HTMLSelectElement;
+  const fs = $('#mFps') as HTMLSelectElement;
   qs.onchange = () => {
-    saveQualityPref(qs.value as QualityPref);
+    saveGraphicsPrefs({ quality: qs.value as QualityPref, fps: fs.value as FpsPref });
+    location.reload();
+  };
+  fs.onchange = () => {
+    saveGraphicsPrefs({ quality: qs.value as QualityPref, fps: fs.value as FpsPref });
     location.reload();
   };
   $('#menu').classList.remove('hidden');

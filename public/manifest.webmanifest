@@ -1,0 +1,10 @@
+{
+  "name": "Nusantara Ngawur",
+  "short_name": "Nusantara Ngawur",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1220",
+  "theme_color": "#0d1220",
+  "description": "Board game nyeleneh keliling 38 provinsi Indonesia."
+}

@@ -21,6 +21,8 @@ export interface ViewOpts {
   getState: () => GameState | null;
   onTileClick: (tile: number) => void;
   quality: QualityProfile;
+  /** target FPS lokal pemain; tidak dibagikan ke pemain lain */
+  fps?: number;
   /** sesuaikan resolusi render dari FPS (mode kualitas otomatis) */
   dynamicResolution?: boolean;
   /** lewati animasi besar (?fast=1) */
@@ -42,7 +44,8 @@ export class GameView {
   readonly pawns: Pawns;
   private readonly fx: Fx;
   private clock = 0;
-  private readonly dynRes: DynamicResolution | null;
+  private dynRes: DynamicResolution | null;
+  private targetFps: number;
   private resize: () => void = () => {};
   private last = performance.now();
   /** mode layar pembuka: kamera berputar pelan */
@@ -57,6 +60,7 @@ export class GameView {
       powerPreference: 'high-performance',
     });
     const q = o.quality;
+    this.targetFps = o.fps ?? q.maxFps;
     const startRatio = Math.min(window.devicePixelRatio || 1, q.maxPixelRatio);
     this.renderer.setPixelRatio(startRatio);
     this.dynRes = o.dynamicResolution
@@ -131,6 +135,18 @@ export class GameView {
         .catch(() => {});
 
     requestAnimationFrame(this.frame);
+  }
+
+  /** Terapkan pengaturan lokal tanpa membangun ulang sesi multiplayer. */
+  setGraphics(q: QualityProfile, fps: number, dynamicResolution = false): void {
+    this.targetFps = Math.max(1, fps);
+    this.renderer.shadowMap.enabled = q.shadowMap > 0;
+    const startRatio = Math.min(window.devicePixelRatio || 1, q.maxPixelRatio);
+    this.renderer.setPixelRatio(startRatio);
+    this.dynRes = dynamicResolution
+      ? new DynamicResolution(Math.min(q.minPixelRatio, startRatio), startRatio, startRatio)
+      : null;
+    this.resize();
   }
 
   /* ---------- API untuk lapisan permainan ---------- */
@@ -348,7 +364,7 @@ export class GameView {
   private readonly frame = (now: number): void => {
     requestAnimationFrame(this.frame);
     // batas FPS: lewati frame jika terlalu cepat (toleransi 2 ms)
-    if (now - this.last < 1000 / this.o.quality.maxFps - 2) return;
+    if (now - this.last < 1000 / this.targetFps - 2) return;
     const raw = Math.max(0, (now - this.last) / 1000);
     const dt = Math.min(0.05, raw);
     this.last = now;

@@ -29,6 +29,7 @@ export interface LobbyActions {
   start(): void;
   kick(id: number): void;
   setStartMoney(v: number): void;
+  setDiceCount(v: number): void;
   setTurnLimit(sec: number): void;
   leave(): void;
 }
@@ -206,11 +207,14 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
                 `<option value="${m}" ${v.lobby?.settings.startMoney === m ? 'selected' : ''}>${fmtMoney(m)}</option>`,
             )
             .join('')}</select></label>
+          <label class="fld">Jumlah dadu <select id="lbDiceCount">${[1, 2, 3, 4]
+            .map((n) => `<option value="${n}" ${v.lobby?.settings.diceCount === n ? 'selected' : ''}>${n} dadu</option>`)
+            .join('')}</select></label>
           <label class="fld">Batas waktu giliran <select id="lbLimit">${TURN_LIMITS.map(
             (s) =>
               `<option value="${s}" ${(v.lobby?.settings.turnLimit ?? 0) === s ? 'selected' : ''}>${limitText(s)}</option>`,
           ).join('')}</select></label></div>`
-        : `<p class="netstat lbset1">Uang awal: ${fmtMoney(v.lobby?.settings.startMoney ?? C.START_MONEY)} · Batas waktu giliran: ${limitText(v.lobby?.settings.turnLimit ?? 0)}</p>`
+        : `<p class="netstat lbset1">Uang awal: ${fmtMoney(v.lobby?.settings.startMoney ?? C.START_MONEY)} · ${v.lobby?.settings.diceCount ?? 2} dadu · Batas waktu giliran: ${limitText(v.lobby?.settings.turnLimit ?? 0)}</p>`
     }
     </div>
     <footer class="lbfoot">
@@ -253,6 +257,8 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
   });
   const money = document.getElementById('lbMoney') as HTMLSelectElement | null;
   if (money) money.onchange = () => a.setStartMoney(Number(money.value));
+  const diceCount = document.getElementById('lbDiceCount') as HTMLSelectElement | null;
+  if (diceCount) diceCount.onchange = () => a.setDiceCount(Number(diceCount.value));
   const limit = document.getElementById('lbLimit') as HTMLSelectElement | null;
   if (limit) limit.onchange = () => a.setTurnLimit(Number(limit.value));
   const start = document.getElementById('lbStart');

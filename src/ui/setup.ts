@@ -9,7 +9,7 @@ export function cleanSetupName(raw: string, fallback: string): string {
   return cleanName(raw) || fallback;
 }
 
-export function setupScreen(onStart: (players: { name: string; pawn: number }[]) => void): void {
+export function setupScreen(onStart: (players: { name: string; pawn: number }[], diceCount: number) => void): void {
   let n = 4;
   /** karakter pilihan tiap baris pemain (bisa diganti dengan mengetuk avatar) */
   const pick: number[] = Array.from({ length: C.MAX_PLAYERS }, (_, i) => i);
@@ -76,7 +76,7 @@ export function setupScreen(onStart: (players: { name: string; pawn: number }[])
       pawn: pick[i]!,
     }));
     $('#setup').classList.add('hidden');
-    onStart(players);
+    onStart(players, Number(($('#diceCount') as HTMLSelectElement).value));
   };
   render();
 }

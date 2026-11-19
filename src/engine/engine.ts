@@ -36,12 +36,16 @@ export interface NewGameOptions {
   players: { name: string; pawn: number }[];
   seed: number;
   startMoney?: number;
+  diceCount?: number;
 }
 
 export function createGame(opts: NewGameOptions): GameState {
   const n = opts.players.length;
   if (n < 2 || n > C.MAX_PLAYERS) throw new Error(`jumlah pemain tidak sah: ${n}`);
   const rng = new Rng(opts.seed | 0);
+  const diceCount = opts.diceCount ?? 2;
+  if (!Number.isInteger(diceCount) || diceCount < 1 || diceCount > 4)
+    throw new Error(`jumlah dadu tidak sah: ${diceCount}`);
   const money = opts.startMoney ?? C.START_MONEY;
   const players: Player[] = opts.players.map((p, id) => ({
     id,
@@ -60,7 +64,9 @@ export function createGame(opts: NewGameOptions): GameState {
     rev: 0,
     players,
     owners: TILES.map(() => null),
-    turn: 0,
+    // Semua pemain memiliki peluang yang sama untuk memulai.
+    turn: rng.int(n),
+    diceCount,
     phase: 'roll',
     dbl: 0,
     pending: null,
@@ -464,24 +470,27 @@ class Game {
 
   private doRoll(): void {
     const p = this.cur;
-    let a = this.rng.d6();
-    let b = this.rng.d6();
-    if (p.jail <= 0) [a, b] = this.steerDice(p, a, b);
-    const dbl = a === b;
-    this.s.last = a + b;
-    this.emit({ e: 'DiceRolled', pid: p.id, a, b, double: dbl });
+    let values = Array.from({ length: this.s.diceCount }, () => this.rng.d6());
+    if (p.jail <= 0 && values.length >= 2) {
+      const [a, b] = this.steerDice(p, values[0]!, values[1]!);
+      values = [a, b, ...values.slice(2)];
+    }
+    const total = values.reduce((sum, value) => sum + value, 0);
+    const dbl = values.length > 1 && values.every((value) => value === values[0]);
+    this.s.last = total;
+    this.emit({ e: 'DiceRolled', pid: p.id, a: values[0]!, b: values[1] ?? 0, values, double: dbl });
     if (p.jail > 0) {
       if (dbl) {
         p.jail = 0;
         this.s.dbl = 0;
         this.emit({ e: 'JailReleased', pid: p.id, reason: 'kembar' });
-        this.move(p, a + b, 0);
+        this.move(p, total, 0);
       } else {
         p.jail--;
         if (p.jail === 0) {
           this.emit({ e: 'JailReleased', pid: p.id, reason: 'denda' });
           this.change(p, -C.JAIL_FEE, 'jailfee');
-          if (!p.bankrupt && !this.over) this.move(p, a + b, 0);
+          if (!p.bankrupt && !this.over) this.move(p, total, 0);
         } else {
           this.emit({ e: 'JailStay', pid: p.id, left: p.jail });
           this.endTurn();
@@ -500,7 +509,7 @@ class Game {
       } else {
         this.s.dbl = 0;
       }
-      this.move(p, a + b, 0);
+      this.move(p, total, 0);
     }
     if (!p.bankrupt && !this.over && p.jail <= 0) this.weatherHazard(p);
     this.afterAction();

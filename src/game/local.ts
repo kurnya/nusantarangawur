@@ -33,8 +33,12 @@ export class LocalGame {
 
   constructor(private readonly d: LocalDeps) {}
 
-  start(players: { name: string; pawn: number }[], seed = (Math.random() * 2 ** 31) | 0): void {
-    const s = createGame({ seed, players });
+  start(
+    players: { name: string; pawn: number }[],
+    diceCount = 2,
+    seed = (Math.random() * 2 ** 31) | 0,
+  ): void {
+    const s = createGame({ seed, players, diceCount });
     this.state = s;
     const { hud, view, presenter } = this.d;
     view?.start(s);
@@ -42,7 +46,7 @@ export class LocalGame {
     hud.renderWx(s.weather);
     presenter.show(s);
     hud.log({
-      msg: 'Permainan dimulai dari Titik Nol Sabang, jalan ke kanan. Selamat berkeliling Nusantara.',
+      msg: `${s.players[s.turn]!.name} terpilih secara acak untuk jalan duluan. ${diceCount} dadu dipakai.`,
       cls: '',
     });
     hud.log({

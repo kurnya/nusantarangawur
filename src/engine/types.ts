@@ -70,6 +70,8 @@ export interface GameState {
   /** pemilik per petak (null = tidak dimiliki / bukan kota) */
   owners: (Ownership | null)[];
   turn: number;
+  /** jumlah dadu yang dipakai sepanjang permainan (1..4) */
+  diceCount: number;
   phase: Phase;
   /** jumlah dadu kembar berturut-turut giliran ini */
   dbl: number;
@@ -116,7 +118,7 @@ export type HazardKind = 'banjir' | 'petir' | 'kebakaran';
 export type GameEvent =
   | { e: 'TurnStarted'; pid: number }
   | { e: 'TurnSkipped'; pid: number }
-  | { e: 'DiceRolled'; pid: number; a: number; b: number; double: boolean }
+  | { e: 'DiceRolled'; pid: number; a: number; b: number; values?: number[]; double: boolean }
   | { e: 'DiceSteered'; pid: number; weather: WeatherKey }
   | { e: 'PawnStepped'; pid: number; from: number; to: number }
   | { e: 'PassedStart'; pid: number; amount: number }

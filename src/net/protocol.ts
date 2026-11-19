@@ -77,6 +77,8 @@ export interface LobbyPlayer {
 }
 export interface RoomSettings {
   startMoney: number;
+  /** jumlah dadu untuk tiap lemparan */
+  diceCount: number;
   /** batas waktu giliran (detik), 0 = tanpa batas */
   turnLimit: number;
   /** tampilan cuaca (awan, hujan, kabut) di semua layar; aturan cuaca tetap berlaku */
@@ -135,6 +137,7 @@ const HostMsgShape = z.discriminatedUnion('t', [
     ),
     settings: z.object({
       startMoney: z.number(),
+      diceCount: z.number().int().min(1).max(4),
       turnLimit: z.number(),
       weatherFx: z.boolean(),
     }),

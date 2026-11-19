@@ -87,11 +87,17 @@ export class HostSession {
   constructor(o: HostOptions) {
     this.o = o;
     this.code = o.code;
-    this.settings = { startMoney: C.START_MONEY, turnLimit: 0, weatherFx: true, ...o.settings };
+    this.settings = { startMoney: C.START_MONEY, diceCount: 2, turnLimit: 0, weatherFx: true, ...o.settings };
     if (o.restore) {
       // simpanan versi lama belum punya weatherFx
-      this.settings = { ...o.restore.settings, weatherFx: o.restore.settings.weatherFx ?? true };
+      this.settings = {
+        ...o.restore.settings,
+        diceCount: o.restore.settings.diceCount ?? 2,
+        weatherFx: o.restore.settings.weatherFx ?? true,
+      };
       this.state = o.restore.state;
+      // Simpanan sebelum pilihan jumlah dadu belum punya properti ini.
+      if (this.state && !Number.isInteger(this.state.diceCount)) this.state.diceCount = this.settings.diceCount;
       this.seats = o.restore.seats.map((s) => ({
         ...s,
         connected: false,
@@ -312,6 +318,7 @@ export class HostSession {
     this.state = createGame({
       seed,
       startMoney: this.settings.startMoney,
+      diceCount: this.settings.diceCount,
       players: this.seats.map((s) => ({ name: s.name, pawn: s.pawn })),
     });
     for (const s of this.seats) {

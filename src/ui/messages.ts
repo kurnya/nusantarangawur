@@ -25,10 +25,14 @@ export function messageFor(ev: GameEvent, s: GameState): LogLine | null {
         cls: 'bad',
       };
     case 'DiceRolled':
+      {
+        const values = ev.values ?? [ev.a, ev.b];
+        const total = values.reduce((sum, value) => sum + value, 0);
       return {
-        msg: `${nm(ev.pid)} melempar dadu ${ev.a} + ${ev.b} = ${ev.a + ev.b}${ev.double ? ' (kembar)' : ''}.`,
+        msg: `${nm(ev.pid)} melempar dadu ${values.join(' + ')} = ${total}${ev.double ? ' (kembar)' : ''}.`,
         cls: '',
       };
+      }
     case 'PassedStart':
       return {
         msg: `${nm(ev.pid)} melewati Titik Nol Sabang. Gaji ${fmtMoney(ev.amount)}.`,

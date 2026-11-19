@@ -317,7 +317,7 @@ function startLocal(): void {
   });
   game = local;
   $('#setup').classList.remove('hidden');
-  setupScreen((players) => local.start(players));
+  setupScreen((players, diceCount) => local.start(players, diceCount));
 }
 
 /** Modul online (PeerJS, zod) dimuat hanya saat dibutuhkan supaya mode satu perangkat ringan. */

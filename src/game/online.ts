@@ -217,6 +217,7 @@ export class OnlineGame {
     },
     kick: (id) => this.host?.kick(id),
     setStartMoney: (v) => this.host?.setSettings({ startMoney: v }),
+    setDiceCount: (v) => this.host?.setSettings({ diceCount: v }),
     setTurnLimit: (s) => this.host?.setSettings({ turnLimit: s }),
     leave: () => this.leave(),
   };

@@ -49,6 +49,7 @@ export class Hud {
   private flyTo = new Set<number>();
   private cubes: HTMLElement[] = [];
   private dies: HTMLElement[] = [];
+  private diceCount = 2;
   /** dadu 3D WebGL; null bila WebGL tidak tersedia (dadu CSS dipakai) */
   private d3: Dice3D | null = null;
   /** pemilihan dadu per pemain; diisi main.ts */
@@ -254,6 +255,7 @@ export class Hud {
     const p = s.players[s.turn];
     const t = $('#turn');
     if (!p) return;
+    if (this.diceCount !== s.diceCount) this.buildDice(s.diceCount);
     // dadu di nampan langsung memakai skin pemain yang sedang giliran, bukan baru setelah lempar
     this.skinDice(s.turn);
     this.applyLog(v.pov, s.phase);
@@ -321,11 +323,16 @@ export class Hud {
 
   /* ---------- dadu ---------- */
 
-  private buildDice(): void {
+  private buildDice(count = 2): void {
     const dice = $('#dice');
+    this.d3?.dispose();
+    this.d3 = null;
+    dice.parentElement?.querySelector('.d3box')?.remove();
+    dice.parentElement?.classList.remove('gl');
     dice.innerHTML = '';
     this.cubes = [];
     this.dies = [];
+    this.diceCount = count;
     const pips: Record<number, number[]> = {
       1: [4],
       2: [0, 8],
@@ -334,7 +341,7 @@ export class Hud {
       5: [0, 2, 4, 6, 8],
       6: [0, 2, 3, 5, 6, 8],
     };
-    [-38, 38].forEach((x, k) => {
+    Array.from({ length: count }, (_, k) => (k - (count - 1) / 2) * 52).forEach((x, k) => {
       const die = el('div', `die k${k}`);
       die.style.left = `${x}px`;
       const c = el('div', 'cube sk0');
@@ -350,8 +357,8 @@ export class Hud {
       this.dies.push(die);
     });
     dice.appendChild(el('div', 'dsum', ''));
-    this.setDice([1, 1], false);
-    try {
+    this.setDice(Array.from({ length: count }, () => 1), false);
+    if (count === 2) try {
       const tray = dice.parentElement!;
       const box = el('div', 'd3box');
       tray.appendChild(box);
@@ -369,7 +376,7 @@ export class Hud {
     this.d3?.setSkin(k);
   }
 
-  private setDice(vals: [number, number], anim: boolean): void {
+  private setDice(vals: readonly number[], anim: boolean): void {
     this.spin += anim ? 1 : 0;
     this.cubes.forEach((c, k) => {
       const [ax, ay] = DICE_ROT[vals[k]!] ?? [0, 0];
@@ -378,9 +385,11 @@ export class Hud {
     });
   }
 
-  async rollDice(a: number, b: number, pid = 0): Promise<void> {
+  async rollDice(values: readonly number[], pid = 0): Promise<void> {
+    if (this.diceCount !== values.length) this.buildDice(values.length);
     this.skinDice(pid);
-    if (this.d3) {
+    if (this.d3 && values.length === 2) {
+      const [a, b] = values as [number, number];
       if (this.fast) this.d3.place(a, b);
       else {
         this.showSum(a, b);
@@ -390,7 +399,7 @@ export class Hud {
       this.setDice([a, b], false);
       return;
     }
-    this.setDice([a, b], !this.fast);
+    this.setDice(values, !this.fast);
     if (!this.fast) {
       // ulang animasi lemparan dan tampilkan jumlah setelah dadu mendarat
       this.dies.forEach((d) => {
@@ -400,7 +409,7 @@ export class Hud {
       });
       const sum = $('#dice').querySelector<HTMLElement>('.dsum');
       if (sum) {
-        sum.innerHTML = `${a + b}${a === b ? '<small>KEMBAR</small>' : ''}`;
+        sum.innerHTML = `${values.reduce((total, value) => total + value, 0)}${values.length > 1 && values.every((value) => value === values[0]) ? '<small>KEMBAR</small>' : ''}`;
         sum.classList.remove('show');
         void sum.offsetWidth;
         sum.classList.add('show');

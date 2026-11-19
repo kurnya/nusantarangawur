@@ -23,7 +23,7 @@ export function applyEvent(s: GameState, ev: GameEvent): void {
       break;
     }
     case 'DiceRolled':
-      s.last = ev.a + ev.b;
+      s.last = (ev.values ?? [ev.a, ev.b]).reduce((sum, value) => sum + value, 0);
       break;
     case 'PawnStepped': {
       const p = P(ev.pid);

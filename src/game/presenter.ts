@@ -79,7 +79,7 @@ export class Presenter {
     };
     switch (ev.e) {
       case 'DiceRolled':
-        await hud.rollDice(ev.a, ev.b, ev.pid);
+        await hud.rollDice(ev.values ?? [ev.a, ev.b], ev.pid);
         applyEvent(s, ev);
         log();
         this.renderAll();

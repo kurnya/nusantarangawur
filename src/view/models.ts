@@ -1,7 +1,7 @@
 /**
  * Kait model 3D opsional: jika public/assets/models/manifest.json ada, misalnya
  * {"pawn0":"pawn0.glb","ship3":"ship3.glb"}, model GLB menggantikan model prosedural.
- * Kunci: pawn0..pawn7 (karakter bidak), ship0..ship7 (jenis kapal).
+ * Kunci: pawn0..pawn15 (karakter bidak), ship0..ship7 (jenis kapal).
  */
 import type * as THREE from 'three';
 import { assetUrl } from '../assetUrl';
@@ -13,7 +13,7 @@ export function parseManifest(raw: unknown): ModelManifest {
   const out: ModelManifest = {};
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
   for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-    if (!/^(pawn|ship)[0-7]$/.test(k)) continue;
+    if (!/^(pawn(1[0-5]|[0-9])|ship[0-7])$/.test(k)) continue;
     if (typeof v !== 'string' || !/^[\w./-]+\.(glb|gltf)$/i.test(v) || v.includes('..')) continue;
     out[k] = v;
   }

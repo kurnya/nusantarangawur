@@ -2,11 +2,17 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#0d1220" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta
       name="description"
@@ -24,7 +30,9 @@
   <body>
     <div class="app">
       <aside class="side left" aria-label="Pemain">
-        <h1 class="brand">Nusantara<br />Ngawur<small>Sabang sampai Merauke</small></h1>
+        <h1 class="brand">
+          Nusantara<br />Ngawur<small>Sabang sampai Merauke</small>
+        </h1>
         <div id="players"></div>
       </aside>
       <main class="stage" id="stage" aria-label="Papan permainan">
@@ -35,35 +43,91 @@
             &#9776;<span class="bd" id="mobBd"></span>
           </button>
         </div>
-        <button class="endgame-top btn" id="endGame" hidden title="Akhiri permainan dan hitung kekayaan">
+        <button
+          class="endgame-top btn"
+          id="endGame"
+          hidden
+          title="Akhiri permainan dan hitung kekayaan"
+        >
           Akhiri permainan
         </button>
         <div class="cam" id="camMenuPanel">
-          <button id="camFocus" title="Kembali ke bidak yang jalan">Fokus bidak</button>
-          <button id="camMap" title="Lihat seluruh peta">Peta penuh</button>
-          <button id="camTilt" title="Ganti 3D miring dan dari atas">3D / Atas</button>
-          <button id="camL" aria-label="Putar kiri">&#10226;</button>
-          <button id="camR" aria-label="Putar kanan">&#10227;</button>
-          <button id="camIn" aria-label="Perbesar">+</button>
-          <button id="camOut" aria-label="Perkecil">&minus;</button>
-          <button id="camWeather" title="Hidupkan atau matikan tampilan awan dan hujan">
-            Cuaca: hidup
-          </button>
-          <button id="camAssets" title="Kelola aset: bangun, gadai, tebus, jual">Aset</button>
-          <button id="camLog" title="Buka atau tutup catatan perjalanan">
-            Catatan<span class="bd" id="logBd"></span>
-          </button>
-          <button id="camFullscreen" title="Gunakan layar penuh">Layar penuh</button>
-          <button id="camSettings" title="Atur grafik dan FPS">Pengaturan</button>
-          <button id="camFx" title="Buka daftar untuk memeriksa animasi bencana">
-            Uji animasi
-          </button>
-          <button id="camNet" title="Status koneksi dan pemain" hidden>Koneksi</button>
+          <div class="cg" role="group" aria-label="Kamera">
+            <button id="camFocus" title="Kembali ke bidak yang jalan">
+              Fokus bidak
+            </button>
+            <button id="camMap" title="Lihat seluruh peta">Peta penuh</button>
+            <button id="camTilt" title="Ganti 3D miring dan dari atas">
+              3D / Atas
+            </button>
+          </div>
+          <div class="cg" role="group" aria-label="Zoom dan putar">
+            <button id="camL" aria-label="Putar kiri" title="Putar kiri">
+              &#10226;
+            </button>
+            <button id="camR" aria-label="Putar kanan" title="Putar kanan">
+              &#10227;
+            </button>
+            <button id="camOut" aria-label="Perkecil" title="Perkecil">
+              &minus;
+            </button>
+            <button id="camIn" aria-label="Perbesar" title="Perbesar">+</button>
+          </div>
+          <div class="cg" role="group" aria-label="Permainan">
+            <button
+              id="camAssets"
+              title="Kelola aset: bangun, gadai, tebus, jual"
+            >
+              Aset
+            </button>
+            <button id="camLog" title="Buka atau tutup catatan perjalanan">
+              Catatan<span class="bd" id="logBd"></span>
+            </button>
+          </div>
+          <div class="cg moreWrap">
+            <button
+              id="camMore"
+              class="more"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="camMorePanel"
+            >
+              Lainnya &#9662;
+            </button>
+            <div class="cg morepanel" id="camMorePanel">
+              <button
+                id="camWeather"
+                title="Hidupkan atau matikan tampilan awan dan hujan"
+              >
+                Cuaca: hidup
+              </button>
+              <button id="camFullscreen" title="Gunakan layar penuh">
+                Layar penuh
+              </button>
+              <button id="camSettings" title="Atur grafik dan FPS">
+                Pengaturan
+              </button>
+              <button
+                id="camFx"
+                title="Buka daftar untuk memeriksa animasi bencana"
+              >
+                Uji animasi
+              </button>
+              <button id="camNet" title="Status koneksi dan pemain" hidden>
+                Koneksi
+              </button>
+            </div>
+          </div>
         </div>
         <div class="wxchip" id="wxchip" aria-live="polite"></div>
-        <div class="fxpanel settingspanel" id="graphicsPanel" aria-label="Pengaturan grafik">
+        <div
+          class="fxpanel settingspanel"
+          id="graphicsPanel"
+          aria-label="Pengaturan grafik"
+        >
           <h4>Pengaturan grafik</h4>
-          <label class="settingrow">Kualitas
+          <label class="settingrow"
+            >Kualitas
             <select id="gQuality">
               <option value="auto">Otomatis</option>
               <option value="high">Tinggi</option>
@@ -71,7 +135,8 @@
               <option value="low">Rendah</option>
             </select>
           </label>
-          <label class="settingrow">Target FPS
+          <label class="settingrow"
+            >Target FPS
             <select id="gFps">
               <option value="auto">Otomatis</option>
               <option value="30">30 FPS</option>
@@ -81,25 +146,42 @@
               <option value="120">120 FPS</option>
             </select>
           </label>
-          <label class="settingrow">Efek suara <input id="gSfx" type="range" min="0" max="1" step="0.05" /></label>
-          <label class="settingrow">Suasana <input id="gAmb" type="range" min="0" max="1" step="0.05" /></label>
-          <label class="settingcheck"><input id="gMute" type="checkbox" /> Mute semua audio</label>
+          <label class="settingrow"
+            >Efek suara
+            <input id="gSfx" type="range" min="0" max="1" step="0.05"
+          /></label>
+          <label class="settingrow"
+            >Suasana <input id="gAmb" type="range" min="0" max="1" step="0.05"
+          /></label>
+          <label class="settingcheck"
+            ><input id="gMute" type="checkbox" /> Mute semua audio</label
+          >
           <small>Pengaturan ini hanya berlaku di perangkat kamu.</small>
           <button class="btn gold" id="gApply">Terapkan</button>
         </div>
-        <div class="tray" aria-hidden="true"><div class="dice" id="dice"></div></div>
+        <div class="tray" aria-hidden="true">
+          <div class="dice" id="dice"></div>
+        </div>
         <div class="hud" id="hud" aria-label="Kontrol pemain">
           <div class="turn" id="turn"></div>
         </div>
-        <div class="logd" id="logd" role="region" aria-label="Catatan perjalanan">
+        <div
+          class="logd"
+          id="logd"
+          role="region"
+          aria-label="Catatan perjalanan"
+        >
           <div class="ldh">
             <b>Catatan perjalanan</b
-            ><button class="x" id="logClose" aria-label="Tutup catatan">&times;</button>
+            ><button class="x" id="logClose" aria-label="Tutup catatan">
+              &times;
+            </button>
           </div>
           <div class="log" id="log" aria-live="polite"></div>
         </div>
         <div class="hint">
-          Geser untuk menjelajah peta. Shift + geser untuk memutar. Roda mouse untuk zoom.
+          Geser untuk menjelajah peta &middot; Shift + geser untuk memutar
+          &middot; Roda mouse untuk zoom &middot; Spasi untuk lempar dadu
         </div>
       </main>
     </div>
@@ -114,50 +196,69 @@
 
     <div class="overlay hidden" id="setup">
       <div class="dlg setup">
-        <h1 class="brand">Nusantara<br />Ngawur<small>Sabang sampai Merauke</small></h1>
+        <h1 class="brand">
+          Nusantara<br />Ngawur<small>Sabang sampai Merauke</small>
+        </h1>
         <p>
-          Keliling 38 provinsi, beli kota, bangun sampai Metropolitan, dan jangan sampai kena Nasib,
-          Bencana, atau PPN. Mode ini dimainkan bergantian di satu layar.
+          Keliling 38 provinsi, beli kota, bangun sampai Metropolitan, dan
+          jangan sampai kena Nasib, Bencana, atau PPN. Mode ini dimainkan
+          bergantian di satu layar.
         </p>
         <div class="stepper">
-          <button class="btn" id="minus" aria-label="Kurangi pemain">&minus;</button>
+          <button class="btn" id="minus" aria-label="Kurangi pemain">
+            &minus;
+          </button>
           <b id="cnt">4</b>
           <button class="btn" id="plus" aria-label="Tambah pemain">+</button>
-          <span style="color: var(--mute); font-size: 13px">pemain (2 sampai 8)</span>
+          <span style="color: var(--mute); font-size: 13px"
+            >pemain (2 sampai 8)</span
+          >
         </div>
         <div class="plist" id="plist"></div>
-        <div class="row"><button class="btn pri big" id="start">Mulai main</button></div>
+        <div class="row">
+          <button class="btn pri big" id="start">Mulai main</button>
+        </div>
         <details>
           <summary>Aturan singkat</summary>
           <ul>
-            <li>Mulai dengan Rp15 M. Lewat Titik Nol Sabang dapat gaji Rp2 M.</li>
             <li>
-              Tiap provinsi punya 5 kartu kota yang berderet. Mendarat di kota kosong, kamu bisa
-              membelinya.
-            </li>
-            <li>Makin banyak kota satu provinsi yang kamu pegang, sewanya makin mahal.</li>
-            <li>
-              Di kota milikmu boleh dibangun Pasar, Mal, lalu Metropolitan. Pegang kelima kota satu
-              provinsi: sewa dua kali lipat.
+              Mulai dengan Rp15 M. Lewat Titik Nol Sabang dapat gaji Rp2 M.
             </li>
             <li>
-              Permainan panjang? Tekan "Akhiri dan hitung kekayaan": uang ditambah nilai kota, yang
-              terbanyak menang.
+              Tiap provinsi punya 5 kartu kota yang berderet. Mendarat di kota
+              kosong, kamu bisa membelinya.
             </li>
             <li>
-              Kartu Nasib: 80% kemungkinan buruk, hanya 20% kabar baik. Bencana: selalu ada
-              dampaknya.
+              Makin banyak kota satu provinsi yang kamu pegang, sewanya makin
+              mahal.
             </li>
             <li>
-              Cuaca berlaku untuk seluruh peta dan berganti sendiri secara acak, antara 1,5 sampai 5
-              menit sekali. Hujan, badai petir, dan panas terik bisa menimpa pemain. Cerah dan
-              berawan menambah luck Nasib, kabut menguranginya.
+              Di kota milikmu boleh dibangun Pasar, Mal, lalu Metropolitan.
+              Pegang kelima kota satu provinsi: sewa dua kali lipat.
             </li>
             <li>
-              Menu <b>Aset</b> bisa dibuka kapan saja: bangun, gadai ke bank saat butuh uang (kota
-              tidak menarik sewa sampai ditebus), tebus, atau jual langsung ke bank.
+              Permainan panjang? Tekan "Akhiri dan hitung kekayaan": uang
+              ditambah nilai kota, yang terbanyak menang.
             </li>
-            <li>Dadu kembar jalan lagi. Tiga kali kembar berturut-turut: masuk penjara.</li>
+            <li>
+              Kartu Nasib: 80% kemungkinan buruk, hanya 20% kabar baik. Bencana:
+              selalu ada dampaknya.
+            </li>
+            <li>
+              Cuaca berlaku untuk seluruh peta dan berganti sendiri secara acak,
+              antara 1,5 sampai 5 menit sekali. Hujan, badai petir, dan panas
+              terik bisa menimpa pemain. Cerah dan berawan menambah luck Nasib,
+              kabut menguranginya.
+            </li>
+            <li>
+              Menu <b>Aset</b> bisa dibuka kapan saja: bangun, gadai ke bank
+              saat butuh uang (kota tidak menarik sewa sampai ditebus), tebus,
+              atau jual langsung ke bank.
+            </li>
+            <li>
+              Dadu kembar jalan lagi. Tiga kali kembar berturut-turut: masuk
+              penjara.
+            </li>
             <li>Pemain terakhir yang bertahan menang.</li>
           </ul>
         </details>

@@ -1,0 +1,360 @@
+/* Dadu: skin per pemain, lemparan memantul, bayangan, dan lencana jumlah. Dimuat setelah style.css. */
+.tray {
+  width: 280px;
+  margin-left: -140px;
+  height: 110px;
+  bottom: 28px;
+}
+.die {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+.dshadow {
+  position: absolute;
+  left: -26px;
+  top: 38px;
+  width: 52px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.5), transparent);
+  transform: rotateX(90deg) translateZ(-34px);
+  opacity: 0.7;
+}
+.die.toss {
+  animation: dieToss 1.15s cubic-bezier(0.3, 0, 0.4, 1) both;
+}
+.die.toss .dshadow {
+  animation: dieShadow 1.15s cubic-bezier(0.3, 0, 0.4, 1) both;
+}
+.die.toss.k1 {
+  animation-delay: 0.07s;
+}
+.die.toss.k1 .dshadow {
+  animation-delay: 0.07s;
+}
+@keyframes dieToss {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  10% {
+    transform: translate3d(0, -20px, 0);
+  }
+  34% {
+    transform: translate3d(0, -92px, 0);
+  }
+  58% {
+    transform: translate3d(0, 0, 0);
+  }
+  68% {
+    transform: translate3d(0, -26px, 0);
+  }
+  80% {
+    transform: translate3d(0, 0, 0);
+  }
+  88% {
+    transform: translate3d(0, -7px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes dieShadow {
+  0% {
+    transform: rotateX(90deg) translateZ(-34px) scale(1);
+    opacity: 0.7;
+  }
+  34% {
+    transform: rotateX(90deg) translateZ(-34px) scale(0.55);
+    opacity: 0.25;
+  }
+  58%,
+  80%,
+  100% {
+    transform: rotateX(90deg) translateZ(-34px) scale(1);
+    opacity: 0.7;
+  }
+  68% {
+    transform: rotateX(90deg) translateZ(-34px) scale(0.8);
+    opacity: 0.45;
+  }
+}
+.cube {
+  transition: transform 1.05s cubic-bezier(0.16, 0.8, 0.24, 1);
+  --f1: #ffffff;
+  --f2: #e8e2d2;
+  --bd: #bdb59e;
+  --pip: #1b1f33;
+  --pip1: #d63b3b;
+  --pg: none;
+}
+.cube .f {
+  background:
+    radial-gradient(120% 120% at 25% 15%, rgba(255, 255, 255, 0.45), transparent 55%),
+    linear-gradient(145deg, var(--f1), var(--f2));
+  border-color: var(--bd);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    inset 0 -5px 8px rgba(0, 0, 0, 0.12);
+}
+.cube .f i.on {
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in srgb, var(--pip) 70%, #fff),
+    var(--pip) 60%
+  );
+  box-shadow:
+    inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+    var(--pg);
+}
+.cube .f.p1 i.on {
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in srgb, var(--pip1) 70%, #fff),
+    var(--pip1) 60%
+  );
+}
+.cube.sk1,
+.dkface.sk1 {
+  --f1: #4a4e60;
+  --f2: #15161d;
+  --bd: #000;
+  --pip: #f2c14e;
+  --pip1: #f2c14e;
+  --pg: 0 0 6px rgba(242, 193, 78, 0.7);
+}
+.cube.sk2,
+.dkface.sk2 {
+  --f1: #ee5a5a;
+  --f2: #a81f2d;
+  --bd: #7a1420;
+  --pip: #fff4e0;
+  --pip1: #ffd36b;
+}
+.cube.sk3,
+.dkface.sk3 {
+  --f1: #8cebbb;
+  --f2: #2f9a72;
+  --bd: #1f6e51;
+  --pip: #ffffff;
+  --pip1: #fff3a0;
+}
+.cube.sk4,
+.dkface.sk4 {
+  --f1: #ffe699;
+  --f2: #d9a21f;
+  --bd: #a2760c;
+  --pip: #4a2f06;
+  --pip1: #8f1d1d;
+}
+.cube.sk5,
+.dkface.sk5 {
+  --f1: #74c0ff;
+  --f2: #1f63c4;
+  --bd: #174a94;
+  --pip: #ffffff;
+  --pip1: #ffd36b;
+}
+.cube.sk6,
+.dkface.sk6 {
+  --f1: #c8935f;
+  --f2: #7a4a26;
+  --bd: #55321a;
+  --pip: #fff1d6;
+  --pip1: #ffcf5c;
+}
+.cube.sk7,
+.dkface.sk7 {
+  --f1: #222a5a;
+  --f2: #0b0f26;
+  --bd: #36e2ff;
+  --pip: #36e2ff;
+  --pip1: #ff4fd8;
+  --pg: 0 0 7px currentColor;
+}
+.cube.sk7 .f i.on {
+  box-shadow: 0 0 7px var(--pip);
+}
+.cube.sk7 .f.p1 i.on {
+  box-shadow: 0 0 8px var(--pip1);
+}
+.dsum {
+  position: absolute;
+  left: 50%;
+  top: -72px;
+  transform: translateX(-50%) scale(0.6);
+  opacity: 0;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(13, 20, 38, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.dsum small {
+  font-size: 11px;
+  color: #ffd36b;
+  margin-left: 6px;
+  letter-spacing: 0.08em;
+}
+.dsum.show {
+  animation: dsumIn 1.7s ease both;
+  animation-delay: 0.95s;
+}
+@keyframes dsumIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.6);
+  }
+  14% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1.1);
+  }
+  24% {
+    transform: translateX(-50%) scale(1);
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px) scale(1);
+  }
+}
+
+/* pemilih dadu */
+.dr {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.dkbtn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #dfe6ff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.dkbtn:hover,
+.dkbtn:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+}
+.dkpick {
+  position: fixed;
+  z-index: 60;
+  width: min(300px, calc(100vw - 24px));
+  padding: 12px;
+  border-radius: 16px;
+  background: #121a30;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+.dkpick h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.dkgrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.dkopt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 4px;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #cfd8f5;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.dkopt:hover,
+.dkopt:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+}
+.dkopt.on {
+  border-color: #ffd36b;
+  color: #fff;
+}
+.dkface {
+  --f1: #ffffff;
+  --f2: #e8e2d2;
+  --bd: #bdb59e;
+  --pip: #1b1f33;
+  --pip1: #d63b3b;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  padding: 5px;
+  background: linear-gradient(145deg, var(--f1), var(--f2));
+  border: 1px solid var(--bd);
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.15);
+}
+.dkface i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: auto;
+  background: var(--pip);
+}
+.dkface i.c {
+  background: var(--pip1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .die.toss,
+  .die.toss .dshadow {
+    animation: none;
+  }
+  .cube {
+    transition-duration: 0.01s;
+  }
+}
+
+/* dadu 3D (WebGL): kanvas transparan di atas papan, dadu CSS hanya cadangan */
+.tray.gl .die {
+  display: none;
+}
+.d3box {
+  position: absolute;
+  left: 50%;
+  bottom: -26px;
+  width: min(440px, 100vw);
+  height: 240px;
+  margin-left: calc(min(440px, 100vw) / -2);
+  pointer-events: none;
+}
+.dice3d {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.tray.gl .dsum {
+  top: -112px;
+}
+.dsum.show {
+  animation-delay: 1.35s;
+}

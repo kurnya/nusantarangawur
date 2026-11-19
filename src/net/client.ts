@@ -55,6 +55,7 @@ export interface TurnTimer {
 export interface Hello {
   name: string;
   pawn: number;
+  dice?: number;
   token?: string;
 }
 
@@ -84,7 +85,14 @@ export class ClientSession {
         this.cb.onLost?.();
       }
     });
-    this.send({ v: 1, t: 'hello', name: hello.name, pawn: hello.pawn, token: hello.token });
+    this.send({
+      v: 1,
+      t: 'hello',
+      name: hello.name,
+      pawn: hello.pawn,
+      dice: hello.dice,
+      token: hello.token,
+    });
   }
 
   /* ---------- kirim ---------- */
@@ -100,8 +108,8 @@ export class ClientSession {
   setReady(ready: boolean): void {
     this.send({ v: 1, t: 'ready', ready });
   }
-  setProfile(name: string, pawn: number): void {
-    this.send({ v: 1, t: 'profile', name, pawn });
+  setProfile(name: string, pawn: number, dice?: number): void {
+    this.send({ v: 1, t: 'profile', name, pawn, dice });
   }
   requestSync(): void {
     this.syncing = true;

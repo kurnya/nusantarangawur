@@ -9,6 +9,7 @@ import { cityPrice, fmtMoney, rentOf } from '../engine/rules';
 import type { GameState, SpecialKind } from '../engine/types';
 import { ANG, G, MID, PATH, PITCH, POS, REGTILES, TILE_H, type V2 } from './layout';
 import { WATER_Y } from './world';
+import { facadeTex, gableGeo, tileTex } from './texkit';
 import {
   BODY_FONT,
   DISP_FONT,
@@ -423,19 +424,14 @@ export class Tiles {
   }
 
   /* ---- bangunan milik pemain ---- */
-  private makeBuilding(lv: number, oc: string, tile: number): THREE.Group {
+  /** front: arah z lokal yang menghadap jalan (+1 / -1) */
+  private makeBuilding(lv: number, oc: string, tile: number, front = -1): THREE.Group {
     const g = new THREE.Group();
     const own = new THREE.Color(oc);
-    const wall = new THREE.MeshStandardMaterial({ color: 0xf3ead2, roughness: 0.8 });
-    const roofM = new THREE.MeshStandardMaterial({ color: own, roughness: 0.6 });
-    const glass = new THREE.MeshStandardMaterial({
-      color: 0x8fd0e8,
-      roughness: 0.2,
-      metalness: 0.5,
-    });
+    const F = front;
     const add = (
       geo: THREE.BufferGeometry,
-      mat: THREE.Material,
+      mat: THREE.Material | THREE.Material[],
       x: number,
       y: number,
       z: number,
@@ -449,35 +445,156 @@ export class Tiles {
       g.add(m);
       return m;
     };
+    const std = (c: number | THREE.Color, r = 0.75, o: THREE.MeshStandardMaterialParameters = {}) =>
+      new THREE.MeshStandardMaterial({ color: c, roughness: r, ...o });
+    /** material bertekstur fasad, diulang rx x ry */
+    const fac = (kind: Parameters<typeof facadeTex>[0], rx: number, ry: number, o = {}) => {
+      const t = facadeTex(kind).clone();
+      t.needsUpdate = true;
+      t.repeat.set(rx, ry);
+      return new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, ...o });
+    };
+    const concrete = std(0xcfc9bd, 0.9);
+    const trim = std(own, 0.55);
     let top: number;
     if (lv === 0) {
-      add(new THREE.BoxGeometry(46, 28, 46), wall, 0, 14, 0);
-      add(new THREE.ConeGeometry(40, 26, 4), roofM, 0, 41, 0, Math.PI / 4);
-      top = 58;
+      // rumah tinggal: dinding plester, atap genteng pelana, teras bertiang
+      const W = 54;
+      const D = 40;
+      const H = 28;
+      add(new THREE.BoxGeometry(W + 6, 4, D + 6), concrete, 0, 2, 0);
+      const wallTex = fac('house', 1, 1);
+      const wallSide = std(0xefe6d2, 0.9);
+      add(
+        new THREE.BoxGeometry(W, H, D),
+        [wallSide, wallSide, wallSide, wallSide, wallTex, wallTex],
+        0,
+        4 + H / 2,
+        0,
+      );
+      const gev = new THREE.Mesh(gableGeo(W, D, 18, 0, true), wallSide);
+      gev.position.set(0, 4 + H, 0);
+      g.add(gev);
+      const rt = tileTex().clone();
+      rt.needsUpdate = true;
+      const roof = new THREE.MeshStandardMaterial({
+        map: rt,
+        roughness: 0.8,
+        side: THREE.DoubleSide,
+      });
+      add(gableGeo(W, D, 19, 7), roof, 0, 4 + H + 0.8, 0);
+      add(new THREE.BoxGeometry(W + 14, 2, 2), std(0x7a3a22), 0, 4 + H + 20, 0);
+      // pintu dan kusen berwarna pemilik
+      add(new THREE.BoxGeometry(12, 20, 1.2), trim, 0, 14, F * (D / 2 + 0.7));
+      add(new THREE.BoxGeometry(14, 2, 1.6), std(0x6b4a2e), 0, 25, F * (D / 2 + 0.8));
+      // teras: lantai, dua tiang, atap kecil
+      add(new THREE.BoxGeometry(34, 2, 14), concrete, 0, 5, F * (D / 2 + 7));
+      [-14, 14].forEach((x) =>
+        add(new THREE.CylinderGeometry(1.4, 1.4, 22, 8), std(0xf4efe4), x, 15, F * (D / 2 + 12)),
+      );
+      const pr = add(new THREE.BoxGeometry(40, 2, 18), roof, 0, 27, F * (D / 2 + 8));
+      pr.rotation.x = F * 0.22;
+      // pagar rendah dan tanaman pot
+      for (let k = -3; k <= 3; k++)
+        if (k) add(new THREE.BoxGeometry(1.4, 8, 1.4), std(0xf4efe4), k * 8, 6, F * (D / 2 + 22));
+      add(new THREE.BoxGeometry(50, 1.4, 1.4), std(0xf4efe4), 0, 9, F * (D / 2 + 22));
+      add(new THREE.SphereGeometry(5, 8, 6), std(0x3f7a36, 0.9), -26, 8, F * (D / 2 + 16));
+      add(new THREE.SphereGeometry(5, 8, 6), std(0x3f7a36, 0.9), 26, 8, F * (D / 2 + 16));
+      top = 54;
     } else if (lv === 1) {
-      add(new THREE.BoxGeometry(84, 24, 52), wall, 0, 12, 0);
+      // ruko dua lantai: deret toko dengan kanopi warna pemilik dan toren air di atap
+      const W = 88;
+      const D = 50;
+      const H = 46;
+      add(new THREE.BoxGeometry(W + 4, 3, D + 4), concrete, 0, 1.5, 0);
+      const front = fac('ruko', 2, 1);
+      const side = std(0xe6dcc6, 0.9);
+      const mats = [side, side, side, side, front, front];
+      add(new THREE.BoxGeometry(W, H, D), mats, 0, 3 + H / 2, 0);
+      add(new THREE.BoxGeometry(W + 2, 6, D + 2), std(0xd8cfba, 0.85), 0, 3 + H + 3, 0);
+      // kanopi toko
+      const can = add(new THREE.BoxGeometry(W, 1.6, 12), trim, 0, 26, F * (D / 2 + 5));
+      can.rotation.x = F * 0.25;
       for (let k = 0; k < 4; k++)
-        add(new THREE.BoxGeometry(18, 5, 58), k % 2 ? wall : roofM, -30 + k * 20, 30, 0);
-      add(new THREE.BoxGeometry(70, 4, 4), roofM, 0, 24, 28);
-      top = 44;
+        add(
+          new THREE.BoxGeometry(18, 5, 0.8),
+          std(0xffffff, 0.6),
+          -33 + k * 22,
+          40,
+          F * (D / 2 + 0.5),
+        );
+      // toren air dan kerangka
+      add(new THREE.CylinderGeometry(6, 6, 12, 12), std(0x3a6ab8, 0.5), 28, 3 + H + 16, -8);
+      add(new THREE.BoxGeometry(16, 6, 16), std(0x777777, 0.8), 28, 3 + H + 7, -8);
+      add(new THREE.BoxGeometry(10, 8, 8), std(0xbfbfbf, 0.6), -28, 3 + H + 10, 6);
+      top = 72;
     } else if (lv === 2) {
-      add(new THREE.BoxGeometry(70, 92, 60), glass, 0, 46, 0);
-      add(new THREE.BoxGeometry(76, 8, 66), wall, 0, 96, 0);
-      add(new THREE.BoxGeometry(44, 14, 10), roofM, 0, 112, 26);
-      top = 122;
+      // gedung kantor: podium lobi kaca, menara beton-kaca, peralatan atap
+      add(
+        new THREE.BoxGeometry(86, 16, 70),
+        fac('glass', 3, 0.5, { metalness: 0.3, roughness: 0.25 }),
+        0,
+        8,
+        0,
+      );
+      add(new THREE.BoxGeometry(90, 3, 74), concrete, 0, 17.5, 0);
+      add(new THREE.BoxGeometry(66, 96, 54), fac('office', 1, 1.3), 0, 19 + 48, 0);
+      add(new THREE.BoxGeometry(68, 6, 56), concrete, 0, 19 + 96 + 3, 0);
+      // pita logo warna pemilik
+      add(new THREE.BoxGeometry(40, 8, 1.2), trim, 0, 19 + 88, F * 27.6);
+      // kanopi lobi
+      add(new THREE.BoxGeometry(36, 2, 14), concrete, 0, 15, F * 42);
+      [-14, 14].forEach((x) =>
+        add(
+          new THREE.CylinderGeometry(1.2, 1.2, 14, 8),
+          std(0xaaaaaa, 0.4, { metalness: 0.6 }),
+          x,
+          8,
+          F * 47,
+        ),
+      );
+      for (let k = 0; k < 3; k++)
+        add(new THREE.BoxGeometry(12, 7, 10), std(0xb8b8b8, 0.6), -20 + k * 18, 125, -10);
+      add(new THREE.CylinderGeometry(1, 1, 30, 6), std(0xdddddd), 22, 136, 12);
+      top = 150;
     } else {
-      add(new THREE.BoxGeometry(34, 150, 34), glass, -26, 75, 10);
-      add(new THREE.BoxGeometry(36, 210, 36), glass, 16, 105, -12);
-      add(new THREE.BoxGeometry(30, 110, 30), glass, 30, 55, 26);
-      add(new THREE.CylinderGeometry(1.6, 1.6, 50, 6), roofM, 16, 235, -12);
-      top = 250;
+      // pencakar langit: tiga menara kaca bertingkat mundur dengan mahkota dan antena
+      const glass = (rx: number, ry: number) =>
+        fac('glass', rx, ry, { metalness: 0.45, roughness: 0.18 });
+      add(new THREE.BoxGeometry(96, 20, 80), glass(3, 0.6), 0, 10, 0);
+      add(new THREE.BoxGeometry(100, 3, 84), concrete, 0, 21.5, 0);
+      add(new THREE.BoxGeometry(40, 150, 40), glass(1.2, 4.5), -26, 23 + 75, 10);
+      add(new THREE.BoxGeometry(42, 4, 42), concrete, -26, 23 + 152, 10);
+      add(new THREE.BoxGeometry(44, 170, 44), glass(1.3, 5), 18, 23 + 85, -12);
+      add(new THREE.BoxGeometry(36, 50, 36), glass(1.1, 1.5), 18, 23 + 170 + 25, -12);
+      add(new THREE.BoxGeometry(26, 26, 26), glass(0.8, 0.8), 18, 23 + 220 + 13, -12);
+      add(new THREE.BoxGeometry(46, 4, 46), trim, 18, 23 + 170 + 2, -12);
+      add(
+        new THREE.CylinderGeometry(0.8, 2, 46, 6),
+        std(0xdddddd, 0.4, { metalness: 0.7 }),
+        18,
+        23 + 246 + 23,
+        -12,
+      );
+      add(new THREE.BoxGeometry(32, 100, 32), glass(1, 3), 32, 23 + 50, 26);
+      add(new THREE.BoxGeometry(34, 4, 34), trim, 32, 23 + 101, 26);
+      top = 300;
     }
-    add(new THREE.CylinderGeometry(2.2, 2.2, 76, 6), wall, -46, 38, -34);
+    add(
+      new THREE.CylinderGeometry(1.4, 1.4, 76, 6),
+      std(0xe8e8e8, 0.4, { metalness: 0.5 }),
+      -50,
+      38,
+      -F * 30,
+    );
     const flag = new THREE.Mesh(
-      new THREE.PlaneGeometry(32, 20),
+      new THREE.PlaneGeometry(32, 20, 6, 1),
       new THREE.MeshStandardMaterial({ color: own, side: THREE.DoubleSide, roughness: 0.7 }),
     );
-    flag.position.set(-30, 66, -34);
+    const fp = flag.geometry.attributes.position as THREE.BufferAttribute;
+    for (let k = 0; k < fp.count; k++) fp.setZ(k, Math.sin((fp.getX(k) + 16) * 0.2) * 2);
+    flag.geometry.computeVertexNormals();
+    flag.position.set(-33, 66, -F * 30);
     flag.castShadow = true;
     g.add(flag);
     const b = this.badgeSprite(oc, 58, tile);
@@ -515,11 +632,14 @@ export class Tiles {
       const a = (ANG[i]! * Math.PI) / 180;
       let nx = -Math.sin(a);
       let nz = Math.cos(a);
+      // jalan berada di sisi berlawanan dari arah dorong bangunan
+      let front = -1;
       if (nx * (q[0] - MID[0]) + nz * (q[1] - MID[1]) < 0) {
         nx = -nx;
         nz = -nz;
+        front = 1;
       }
-      const b = this.makeBuilding(o.lv, oc, i);
+      const b = this.makeBuilding(o.lv, oc, i, front);
       b.position.set(q[0] + nx * 192 * G, 1, q[1] + nz * 192 * G);
       b.rotation.y = -a;
       b.scale.setScalar(0.01);

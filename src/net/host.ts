@@ -32,6 +32,7 @@ interface Seat {
   id: number;
   name: string;
   pawn: number;
+  dice?: number;
   token: string;
   ready: boolean;
   connected: boolean;
@@ -116,6 +117,7 @@ export class HostSession {
       id: s.id,
       name: s.name,
       pawn: s.pawn,
+      dice: s.dice,
       ready: s.ready || s.host,
       connected: s.connected,
       host: s.host,
@@ -191,7 +193,7 @@ export class HostSession {
     }
     const taken = new Set(this.seats.map((s) => s.pawn));
     const pawn = taken.has(msg.pawn)
-      ? [...Array(C.MAX_PLAYERS).keys()].find((p) => !taken.has(p))!
+      ? [...Array(C.N_PAWNS).keys()].find((p) => !taken.has(p))!
       : msg.pawn;
     const ids = new Set(this.seats.map((s) => s.id));
     let id = 0;
@@ -200,6 +202,7 @@ export class HostSession {
       id,
       name: msg.name || `Pemain ${id + 1}`,
       pawn,
+      dice: msg.dice,
       token: makeToken(),
       ready: false,
       connected: true,
@@ -254,7 +257,11 @@ export class HostSession {
         this.broadcastLobby();
         return;
       case 'profile': {
-        if (this.started) return;
+        if (msg.dice !== undefined) seat.dice = msg.dice;
+        if (this.started) {
+          if (msg.dice !== undefined) this.broadcastLobby();
+          return;
+        }
         if (msg.name) seat.name = msg.name;
         const taken = this.seats.some((s) => s !== seat && s.pawn === msg.pawn);
         if (!taken) seat.pawn = msg.pawn;

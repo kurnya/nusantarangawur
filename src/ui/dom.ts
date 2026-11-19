@@ -30,7 +30,7 @@ export function el<K extends keyof HTMLElementTagNameMap>(
 export const sleep = (ms: number, fast: boolean) =>
   new Promise<void>((r) => setTimeout(r, fast ? 0 : ms));
 
-/** Gambar bidak (karakter 0..7). */
+/** Gambar bidak (karakter 0..15). */
 export const tkImg = (pawn: number) =>
   `<img class="tkimg" alt="" src="${assetUrl(`ppl/p${pawn}.webp`)}">`;
 

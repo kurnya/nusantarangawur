@@ -6,8 +6,9 @@ import { CARD_BY_ID, cityOf } from '../engine/board';
 import { cloneState } from '../engine/engine';
 import { audio } from '../audio';
 import type { CardKind, GameEvent, GameState } from '../engine/types';
-import { esc, sleep } from '../ui/dom';
+import { sleep } from '../ui/dom';
 import type { Hud } from '../ui/hud';
+import { cardArt } from '../ui/cardArt';
 import { chanceLine, messageFor, monopolyLine } from '../ui/messages';
 import type { GameView } from '../view/scene';
 import { applyEvent } from './replay';
@@ -78,7 +79,7 @@ export class Presenter {
     };
     switch (ev.e) {
       case 'DiceRolled':
-        await hud.rollDice(ev.a, ev.b);
+        await hud.rollDice(ev.a, ev.b, ev.pid);
         applyEvent(s, ev);
         log();
         this.renderAll();
@@ -119,7 +120,7 @@ export class Presenter {
           kind: ev.kind,
           tag,
           text: card?.x ?? '',
-          icon: esc(card?.em ?? ''),
+          icon: cardArt(ev.card, ev.kind, 'mini'),
         });
         this.renderAll();
         return;
@@ -128,12 +129,17 @@ export class Presenter {
         log();
         applyEvent(s, ev);
         const icon = ev.kind === 'banjir' ? '🌊' : ev.kind === 'petir' ? '⚡' : '🔥';
-        await this.cardModal(hud.cardHTML('BENCANA', ev.text, icon, 'Musibah cuaca'), ev.pid, {
-          kind: 'BENCANA',
-          tag: 'Musibah cuaca',
-          text: ev.text,
-          icon,
-        });
+        const hz = ev.kind === 'banjir' ? 'hz-banjir' : ev.kind === 'petir' ? 'hz-petir' : 'hz-api';
+        await this.cardModal(
+          hud.cardHTML('BENCANA', ev.text, icon, 'Musibah cuaca', cardArt(hz, 'BENCANA')),
+          ev.pid,
+          {
+            kind: 'BENCANA',
+            tag: 'Musibah cuaca',
+            text: ev.text,
+            icon: cardArt(hz, 'BENCANA', 'mini'),
+          },
+        );
         return;
       }
       case 'BencanaFx':

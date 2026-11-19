@@ -87,10 +87,12 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
     <p class="err" id="mErr" role="alert"></p>
     <div class="row"><button class="btn" id="mLocal">Main di satu perangkat (bergantian)</button></div>
     <label class="fld">Kualitas grafis <select id="mQuality">${QUALITY_OPTS.map(
-      ([v, l]) => `<option value="${v}" ${loadGraphicsPrefs().quality === v ? 'selected' : ''}>${l}</option>`,
+      ([v, l]) =>
+        `<option value="${v}" ${loadGraphicsPrefs().quality === v ? 'selected' : ''}>${l}</option>`,
     ).join('')}</select></label>
     <label class="fld">Target FPS <select id="mFps">${FPS_OPTS.map(
-      ([v, l]) => `<option value="${v}" ${loadGraphicsPrefs().fps === v ? 'selected' : ''}>${l}</option>`,
+      ([v, l]) =>
+        `<option value="${v}" ${loadGraphicsPrefs().fps === v ? 'selected' : ''}>${l}</option>`,
     ).join('')}</select></label>
     <p class="netstat">Otomatis menyesuaikan perangkat dan menurunkan resolusi bila terasa berat. Pilih Rendah jika HP panas atau patah-patah.</p>`;
   const nameI = $('#mName') as HTMLInputElement;
@@ -120,11 +122,17 @@ export function showMenu(a: MenuActions, opts: { code?: string; error?: string }
   const qs = $('#mQuality') as HTMLSelectElement;
   const fs = $('#mFps') as HTMLSelectElement;
   qs.onchange = () => {
-    saveGraphicsPrefs({ quality: qs.value as QualityPref, fps: fs.value as FpsPref });
+    saveGraphicsPrefs({
+      quality: qs.value as QualityPref,
+      fps: fs.value as FpsPref,
+    });
     location.reload();
   };
   fs.onchange = () => {
-    saveGraphicsPrefs({ quality: qs.value as QualityPref, fps: fs.value as FpsPref });
+    saveGraphicsPrefs({
+      quality: qs.value as QualityPref,
+      fps: fs.value as FpsPref,
+    });
     location.reload();
   };
   $('#menu').classList.remove('hidden');
@@ -162,10 +170,15 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
       ? (document.activeElement as HTMLInputElement).value
       : null;
   box.innerHTML = `
-    <h1 class="brand">Nusantara<br>Ngawur</h1>
-    <div class="roomcode"><span>Kode ruangan</span><b id="lbCode">${esc(v.code)}</b></div>
-    <div class="invite"><input id="lbLink" readonly aria-label="Tautan undangan" value="${esc(v.invite)}"><button class="btn" id="lbCopy">Salin tautan</button></div>
-    <p class="netstat" id="lbStat" role="status">${esc(v.status)}</p>
+    <header class="lbhead">
+      <div class="lbtop">
+        <h1 class="brand">Nusantara<br>Ngawur</h1>
+        <div class="roomcode"><span>Kode ruangan</span><b id="lbCode">${esc(v.code)}</b></div>
+      </div>
+      <div class="invite"><input id="lbLink" readonly aria-label="Tautan undangan" value="${esc(v.invite)}"><button class="btn gold" id="lbCopy">Salin tautan</button></div>
+      <p class="netstat" id="lbStat" role="status">${esc(v.status)}</p>
+    </header>
+    <div class="lbbody">
     <label class="fld">Nama kamu<input id="lbName" maxlength="${NAME_MAX}" value="${esc(keepName ?? meP?.name ?? '')}"></label>
     <div class="lbl">Pilih karakter</div>
     <div class="pawnpick" role="radiogroup" aria-label="Karakter bidak">
@@ -185,7 +198,9 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
     </ul>
     ${
       v.isHost
-        ? `<label class="fld">Uang awal <select id="lbMoney">${[10000, 15000, 20000, 30000]
+        ? `<div class="lbset"><label class="fld">Uang awal <select id="lbMoney">${[
+            10000, 15000, 20000, 30000,
+          ]
             .map(
               (m) =>
                 `<option value="${m}" ${v.lobby?.settings.startMoney === m ? 'selected' : ''}>${fmtMoney(m)}</option>`,
@@ -194,18 +209,21 @@ export function renderLobby(v: LobbyView, a: LobbyActions): void {
           <label class="fld">Batas waktu giliran <select id="lbLimit">${TURN_LIMITS.map(
             (s) =>
               `<option value="${s}" ${(v.lobby?.settings.turnLimit ?? 0) === s ? 'selected' : ''}>${limitText(s)}</option>`,
-          ).join('')}</select></label>`
-        : `<p class="netstat">Uang awal: ${fmtMoney(v.lobby?.settings.startMoney ?? C.START_MONEY)} · Batas waktu giliran: ${limitText(v.lobby?.settings.turnLimit ?? 0)}</p>`
+          ).join('')}</select></label></div>`
+        : `<p class="netstat lbset1">Uang awal: ${fmtMoney(v.lobby?.settings.startMoney ?? C.START_MONEY)} · Batas waktu giliran: ${limitText(v.lobby?.settings.turnLimit ?? 0)}</p>`
     }
-    <div class="row">
-      ${
-        v.isHost
-          ? `<button class="btn pri big" id="lbStart" ${v.canStart?.ok ? '' : 'disabled'}>Mulai</button>`
-          : `<button class="btn ${meP?.ready ? '' : 'pri'} big" id="lbReady">${meP?.ready ? 'Batal siap' : 'Siap'}</button>`
-      }
-      <button class="btn big" id="lbLeave">Keluar</button>
     </div>
-    ${v.isHost && v.canStart && !v.canStart.ok ? `<p class="netstat">${esc(v.canStart.reason ?? '')}</p>` : ''}`;
+    <footer class="lbfoot">
+      ${v.isHost && v.canStart && !v.canStart.ok ? `<p class="netstat lbwhy">${esc(v.canStart.reason ?? '')}</p>` : ''}
+      <div class="row">
+        ${
+          v.isHost
+            ? `<button class="btn pri big" id="lbStart" ${v.canStart?.ok ? '' : 'disabled'}>Mulai</button>`
+            : `<button class="btn ${meP?.ready ? '' : 'pri'} big" id="lbReady">${meP?.ready ? 'Batal siap' : 'Siap'}</button>`
+        }
+        <button class="btn big" id="lbLeave">Keluar</button>
+      </div>
+    </footer>`;
   $('#lbCopy').onclick = async () => {
     const inp = $('#lbLink') as HTMLInputElement;
     try {

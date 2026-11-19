@@ -19,6 +19,8 @@ import { loadModels } from './models';
 import { Pawns } from './pawns';
 import { Ships } from './ships';
 import { Sky } from './sky';
+import { buildProvinceNature, type Nature } from './nature';
+import { WIND } from './nature/kit';
 import { Tiles } from './tiles';
 import { DynamicResolution, type QualityProfile } from './quality';
 import { clamp, makeLcg } from './util';
@@ -46,6 +48,7 @@ export class GameView {
   readonly camera = new THREE.PerspectiveCamera(42, 1, 40, 60000);
   private readonly root = new THREE.Group();
   private readonly world: World;
+  private readonly nature: Nature;
   private readonly tiles: Tiles;
   private readonly ships: Ships;
   private readonly sky: Sky;
@@ -91,6 +94,7 @@ export class GameView {
       getState: o.getState,
       labelSize: q.labelSize,
     });
+    this.nature = buildProvinceNature(this.root, q.treeDensity);
     this.ships = new Ships(this.root, rnd);
     let flash: (op: number, col?: string) => void = () => {};
     this.sky = new Sky({
@@ -226,6 +230,9 @@ export class GameView {
 
   async play(key: string, tile: number, pid: number): Promise<void> {
     if (this.o.fast) return;
+    // muat alam di lokasi bencana dulu supaya kamera tidak tersendat saat tiba
+    const q = this.tiles.TC[tile];
+    if (q) await this.nature.prefetch(q[0], q[1]);
     await this.fx.play(key, tile, pid);
   }
 
@@ -408,6 +415,8 @@ export class GameView {
     this.world.sun.position.set(cam.fx - 2200, 3700, cam.fz + 1700);
     this.world.sun.target.position.set(cam.fx, 0, cam.fz);
     this.world.waterMat.uniforms.uTime!.value = this.clock;
+    WIND.value = this.clock;
+    this.nature.update(cam.tx, cam.tz, cam.ed ?? cam.dist * cam.lens);
     this.sky.step(dt, this.camera, this.scene);
     this.world.treeDim.value =
       (0.35 + 0.65 * this.fx.fxS.dim) * Math.min(1, 0.4 + 0.6 * this.sky.W.lt);

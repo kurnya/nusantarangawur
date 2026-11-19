@@ -318,7 +318,7 @@ function buildLandRibbon(scene: THREE.Scene): void {
   }
   const sand: RGB = [0.9, 0.83, 0.62];
   const sandD: RGB = [0.62, 0.52, 0.38];
-  const grass: RGB = [0.33, 0.62, 0.3];
+  const grass: RGB = [0.31, 0.54, 0.27];
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n;
     for (let k = 0; k < sec.length - 1; k++) {
@@ -340,7 +340,7 @@ function buildLandRibbon(scene: THREE.Scene): void {
       const nz = fbm(P[i]![0] * 0.01, P[i]![1] * 0.01, 2);
       const c =
         kind === 'top'
-          ? mix3(grass, [0.22, 0.52, 0.24], nz)
+          ? mix3(grass, [0.22, 0.45, 0.22], nz)
           : kind === 'beach'
             ? mix3(sand, [0.78, 0.7, 0.52], nz)
             : sandD;

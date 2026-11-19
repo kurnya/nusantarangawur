@@ -3,7 +3,7 @@
  * Lihat docs/MULTIPLAYER.md untuk penjelasan alur.
  */
 import { z } from 'zod';
-import { MAX_PLAYERS } from '../engine/config';
+import { N_PAWNS } from '../engine/config';
 import type { GameEvent, GameState, Intent } from '../engine/types';
 import { NAME_MAX, cleanName } from './names';
 
@@ -19,7 +19,9 @@ const pawn = z
   .number()
   .int()
   .min(0)
-  .max(MAX_PLAYERS - 1);
+  .max(N_PAWNS - 1);
+/** pilihan dadu kosmetik (0..7) */
+const dice = z.number().int().min(0).max(7);
 const token = z.string().regex(/^[A-Za-z0-9_-]{16,64}$/);
 
 /** Niat dari client: tanpa pid (Host yang menentukan pid dari koneksi). */
@@ -40,8 +42,15 @@ export const isAssetIntent = (i: { t: string }) =>
 export type ClientIntent = z.infer<typeof ClientIntentSchema>;
 
 export const ClientMsgSchema = z.discriminatedUnion('t', [
-  z.object({ v: z.literal(1), t: z.literal('hello'), name, pawn, token: token.optional() }),
-  z.object({ v: z.literal(1), t: z.literal('profile'), name, pawn }),
+  z.object({
+    v: z.literal(1),
+    t: z.literal('hello'),
+    name,
+    pawn,
+    dice: dice.optional(),
+    token: token.optional(),
+  }),
+  z.object({ v: z.literal(1), t: z.literal('profile'), name, pawn, dice: dice.optional() }),
   z.object({
     v: z.literal(1),
     t: z.literal('intent'),
@@ -58,6 +67,8 @@ export interface LobbyPlayer {
   id: number;
   name: string;
   pawn: number;
+  /** dadu kosmetik pilihan pemain */
+  dice?: number;
   ready: boolean;
   connected: boolean;
   host: boolean;
@@ -115,6 +126,7 @@ const HostMsgShape = z.discriminatedUnion('t', [
         id: z.number().int(),
         name: z.string(),
         pawn: z.number().int(),
+        dice: z.number().int().optional(),
         ready: z.boolean(),
         connected: z.boolean(),
         host: z.boolean(),

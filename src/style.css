@@ -1026,7 +1026,9 @@ h3 .si {
   width: min(500px, 100%);
   padding: 16px;
   border-radius: 20px;
-  box-shadow: 0 24px 70px #000d, 0 0 0 1px #ffffff08;
+  box-shadow:
+    0 24px 70px #000d,
+    0 0 0 1px #ffffff08;
 }
 .overlay#menu .setup .brand {
   font-size: 38px;
@@ -1077,6 +1079,32 @@ h3 .si {
   grid-template-columns: 36px 1fr;
   gap: 8px;
   align-items: center;
+}
+.pin .pav {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid var(--c);
+  background: #fffaf0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.pin .pav:hover,
+.pin .pav:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.pchoose {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+  background: #121a30;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+  margin: 2px 0 6px;
 }
 .pin span {
   width: 36px;
@@ -1461,7 +1489,7 @@ details ul {
 }
 .pawnpick {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
   gap: 6px;
   margin-top: 6px;
 }

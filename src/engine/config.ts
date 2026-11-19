@@ -16,6 +16,8 @@ export const CARD_DEPTH_LIMIT = 2;
 /** minimal pemain (keputusan pemilik: 2, brief awal 3) */
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 8;
+/** jumlah karakter bidak (profesi) yang bisa dipilih */
+export const N_PAWNS = 16;
 
 export const CITY_PRICE_RATE = 0.28;
 export const RENT_RATE = 0.16;

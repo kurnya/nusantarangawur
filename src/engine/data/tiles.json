@@ -1,1256 +1,281 @@
 [
-  {
-    "t": "sp",
-    "k": "START"
-  },
-  {
-    "t": "city",
-    "p": "ACH",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "ACH",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "ACH",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "ACH",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "ACH",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "SUT",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SUT",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "SUT",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "SUT",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "SUT",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "SMB",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "SMB",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SMB",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "SMB",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "SMB",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "sp",
-    "k": "RAZIA"
-  },
-  {
-    "t": "city",
-    "p": "RIA",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "RIA",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "RIA",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "RIA",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "RIA",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "KEP",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KEP",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "KEP",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "KEP",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KEP",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "PAJAK"
-  },
-  {
-    "t": "city",
-    "p": "JAM",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "JAM",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "JAM",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "JAM",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "JAM",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SSL",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "SSL",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "SSL",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SSL",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "SSL",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "BBL",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "BBL",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "BBL",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "BBL",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "BBL",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "JAIL"
-  },
-  {
-    "t": "city",
-    "p": "BKL",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "BKL",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "BKL",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "BKL",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "BKL",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "LPG",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "LPG",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "LPG",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "LPG",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "LPG",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "JAIL"
-  },
-  {
-    "t": "city",
-    "p": "BTN",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "BTN",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "BTN",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "BTN",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "BTN",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "DKI",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "DKI",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "DKI",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "DKI",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "DKI",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "JBR",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "JBR",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "JBR",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "JBR",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "JBR",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "JTG",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "JTG",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "JTG",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "JTG",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "JTG",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "DIY",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "DIY",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "DIY",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "DIY",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "DIY",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "sp",
-    "k": "PAJAK"
-  },
-  {
-    "t": "city",
-    "p": "JTM",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "JTM",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "JTM",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "JTM",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "JTM",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "BAL",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "BAL",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "BAL",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "BAL",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "BAL",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "NTB",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "NTB",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "NTB",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "NTB",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "NTB",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "sp",
-    "k": "RAZIA"
-  },
-  {
-    "t": "city",
-    "p": "NTT",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "NTT",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "NTT",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "NTT",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "NTT",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "PARK"
-  },
-  {
-    "t": "city",
-    "p": "KBR",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KBR",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "KBR",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "KBR",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "KBR",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "KTG",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "KTG",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KTG",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "KTG",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "KTG",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KSL",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "KSL",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "KSL",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "KSL",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "KSL",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "KTM",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KTM",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "KTM",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "KTM",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "KTM",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "KTR",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "KTR",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "KTR",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "KTR",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "KTR",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SLU",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "SLU",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "SLU",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SLU",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "SLU",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "JAIL"
-  },
-  {
-    "t": "city",
-    "p": "GRT",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "GRT",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "GRT",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "GRT",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "GRT",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "STG",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "STG",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "STG",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "STG",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "STG",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "sp",
-    "k": "PAJAK"
-  },
-  {
-    "t": "city",
-    "p": "SLB",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "SLB",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "SLB",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SLB",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "SLB",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "SLS",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "SLS",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "SLS",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "SLS",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "SLS",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "RAZIA"
-  },
-  {
-    "t": "city",
-    "p": "STR",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "STR",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "STR",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "STR",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "STR",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "MLK",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "MLK",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "MLK",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "MLK",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "MLK",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "MLU",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "MLU",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "MLU",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "MLU",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "MLU",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "RAZIA"
-  },
-  {
-    "t": "city",
-    "p": "PPA",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "PPA",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "PPA",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "PPA",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "PPA",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "PPB",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "PPB",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "PPB",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "PPB",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "PPB",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "JAIL"
-  },
-  {
-    "t": "city",
-    "p": "PBD",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "PBD",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "PBD",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "PBD",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "PBD",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "PPT",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "PPT",
-    "ci": 1
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "PPT",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "PPT",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "PPT",
-    "ci": 4
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "PPG",
-    "ci": 0
-  },
-  {
-    "t": "city",
-    "p": "PPG",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "PPG",
-    "ci": 2
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "PPG",
-    "ci": 3
-  },
-  {
-    "t": "city",
-    "p": "PPG",
-    "ci": 4
-  },
-  {
-    "t": "city",
-    "p": "PPS",
-    "ci": 0
-  },
-  {
-    "t": "sp",
-    "k": "NASIB"
-  },
-  {
-    "t": "city",
-    "p": "PPS",
-    "ci": 1
-  },
-  {
-    "t": "city",
-    "p": "PPS",
-    "ci": 2
-  },
-  {
-    "t": "city",
-    "p": "PPS",
-    "ci": 3
-  },
-  {
-    "t": "sp",
-    "k": "BENCANA"
-  },
-  {
-    "t": "city",
-    "p": "PPS",
-    "ci": 4
-  }
+  { "t": "sp", "k": "START" },
+  { "t": "city", "p": "ACH", "ci": 0 },
+  { "t": "city", "p": "ACH", "ci": 1 },
+  { "t": "city", "p": "ACH", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "ACH", "ci": 3 },
+  { "t": "city", "p": "ACH", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SUT", "ci": 0 },
+  { "t": "city", "p": "SUT", "ci": 1 },
+  { "t": "city", "p": "SUT", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "SUT", "ci": 3 },
+  { "t": "city", "p": "SUT", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SMB", "ci": 0 },
+  { "t": "city", "p": "SMB", "ci": 1 },
+  { "t": "city", "p": "SMB", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SMB", "ci": 3 },
+  { "t": "city", "p": "SMB", "ci": 4 },
+  { "t": "sp", "k": "RAZIA" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "RIA", "ci": 0 },
+  { "t": "city", "p": "RIA", "ci": 1 },
+  { "t": "city", "p": "RIA", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "RIA", "ci": 3 },
+  { "t": "city", "p": "RIA", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KEP", "ci": 0 },
+  { "t": "city", "p": "KEP", "ci": 1 },
+  { "t": "city", "p": "KEP", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KEP", "ci": 3 },
+  { "t": "city", "p": "KEP", "ci": 4 },
+  { "t": "sp", "k": "PAJAK" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "JAM", "ci": 0 },
+  { "t": "city", "p": "JAM", "ci": 1 },
+  { "t": "city", "p": "JAM", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "JAM", "ci": 3 },
+  { "t": "city", "p": "JAM", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SSL", "ci": 0 },
+  { "t": "city", "p": "SSL", "ci": 1 },
+  { "t": "city", "p": "SSL", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SSL", "ci": 3 },
+  { "t": "city", "p": "SSL", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BBL", "ci": 0 },
+  { "t": "city", "p": "BBL", "ci": 1 },
+  { "t": "city", "p": "BBL", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "BBL", "ci": 3 },
+  { "t": "city", "p": "BBL", "ci": 4 },
+  { "t": "sp", "k": "JAIL" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BKL", "ci": 0 },
+  { "t": "city", "p": "BKL", "ci": 1 },
+  { "t": "city", "p": "BKL", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BKL", "ci": 3 },
+  { "t": "city", "p": "BKL", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "LPG", "ci": 0 },
+  { "t": "city", "p": "LPG", "ci": 1 },
+  { "t": "city", "p": "LPG", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "LPG", "ci": 3 },
+  { "t": "city", "p": "LPG", "ci": 4 },
+  { "t": "sp", "k": "JAIL" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BTN", "ci": 0 },
+  { "t": "city", "p": "BTN", "ci": 1 },
+  { "t": "city", "p": "BTN", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BTN", "ci": 3 },
+  { "t": "city", "p": "BTN", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "DKI", "ci": 0 },
+  { "t": "city", "p": "DKI", "ci": 1 },
+  { "t": "city", "p": "DKI", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "DKI", "ci": 3 },
+  { "t": "city", "p": "DKI", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "JBR", "ci": 0 },
+  { "t": "city", "p": "JBR", "ci": 1 },
+  { "t": "city", "p": "JBR", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "JBR", "ci": 3 },
+  { "t": "city", "p": "JBR", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "JTG", "ci": 0 },
+  { "t": "city", "p": "JTG", "ci": 1 },
+  { "t": "city", "p": "JTG", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "JTG", "ci": 3 },
+  { "t": "city", "p": "JTG", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "DIY", "ci": 0 },
+  { "t": "city", "p": "DIY", "ci": 1 },
+  { "t": "city", "p": "DIY", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "DIY", "ci": 3 },
+  { "t": "city", "p": "DIY", "ci": 4 },
+  { "t": "sp", "k": "PAJAK" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "JTM", "ci": 0 },
+  { "t": "city", "p": "JTM", "ci": 1 },
+  { "t": "city", "p": "JTM", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "JTM", "ci": 3 },
+  { "t": "city", "p": "JTM", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BAL", "ci": 0 },
+  { "t": "city", "p": "BAL", "ci": 1 },
+  { "t": "city", "p": "BAL", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "BAL", "ci": 3 },
+  { "t": "city", "p": "BAL", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "NTB", "ci": 0 },
+  { "t": "city", "p": "NTB", "ci": 1 },
+  { "t": "city", "p": "NTB", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "NTB", "ci": 3 },
+  { "t": "city", "p": "NTB", "ci": 4 },
+  { "t": "sp", "k": "RAZIA" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "NTT", "ci": 0 },
+  { "t": "city", "p": "NTT", "ci": 1 },
+  { "t": "city", "p": "NTT", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "NTT", "ci": 3 },
+  { "t": "city", "p": "NTT", "ci": 4 },
+  { "t": "sp", "k": "PARK" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KBR", "ci": 0 },
+  { "t": "city", "p": "KBR", "ci": 1 },
+  { "t": "city", "p": "KBR", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "KBR", "ci": 3 },
+  { "t": "city", "p": "KBR", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KTG", "ci": 0 },
+  { "t": "city", "p": "KTG", "ci": 1 },
+  { "t": "city", "p": "KTG", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KTG", "ci": 3 },
+  { "t": "city", "p": "KTG", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KSL", "ci": 0 },
+  { "t": "city", "p": "KSL", "ci": 1 },
+  { "t": "city", "p": "KSL", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "KSL", "ci": 3 },
+  { "t": "city", "p": "KSL", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KTM", "ci": 0 },
+  { "t": "city", "p": "KTM", "ci": 1 },
+  { "t": "city", "p": "KTM", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KTM", "ci": 3 },
+  { "t": "city", "p": "KTM", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "KTR", "ci": 0 },
+  { "t": "city", "p": "KTR", "ci": 1 },
+  { "t": "city", "p": "KTR", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "KTR", "ci": 3 },
+  { "t": "city", "p": "KTR", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SLU", "ci": 0 },
+  { "t": "city", "p": "SLU", "ci": 1 },
+  { "t": "city", "p": "SLU", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SLU", "ci": 3 },
+  { "t": "city", "p": "SLU", "ci": 4 },
+  { "t": "sp", "k": "JAIL" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "GRT", "ci": 0 },
+  { "t": "city", "p": "GRT", "ci": 1 },
+  { "t": "city", "p": "GRT", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "GRT", "ci": 3 },
+  { "t": "city", "p": "GRT", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "STG", "ci": 0 },
+  { "t": "city", "p": "STG", "ci": 1 },
+  { "t": "city", "p": "STG", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "STG", "ci": 3 },
+  { "t": "city", "p": "STG", "ci": 4 },
+  { "t": "sp", "k": "PAJAK" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SLB", "ci": 0 },
+  { "t": "city", "p": "SLB", "ci": 1 },
+  { "t": "city", "p": "SLB", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "SLB", "ci": 3 },
+  { "t": "city", "p": "SLB", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SLS", "ci": 0 },
+  { "t": "city", "p": "SLS", "ci": 1 },
+  { "t": "city", "p": "SLS", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "SLS", "ci": 3 },
+  { "t": "city", "p": "SLS", "ci": 4 },
+  { "t": "sp", "k": "RAZIA" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "STR", "ci": 0 },
+  { "t": "city", "p": "STR", "ci": 1 },
+  { "t": "city", "p": "STR", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "STR", "ci": 3 },
+  { "t": "city", "p": "STR", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "MLK", "ci": 0 },
+  { "t": "city", "p": "MLK", "ci": 1 },
+  { "t": "city", "p": "MLK", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "MLK", "ci": 3 },
+  { "t": "city", "p": "MLK", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "MLU", "ci": 0 },
+  { "t": "city", "p": "MLU", "ci": 1 },
+  { "t": "city", "p": "MLU", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "MLU", "ci": 3 },
+  { "t": "city", "p": "MLU", "ci": 4 },
+  { "t": "sp", "k": "RAZIA" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPA", "ci": 0 },
+  { "t": "city", "p": "PPA", "ci": 1 },
+  { "t": "city", "p": "PPA", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPA", "ci": 3 },
+  { "t": "city", "p": "PPA", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPB", "ci": 0 },
+  { "t": "city", "p": "PPB", "ci": 1 },
+  { "t": "city", "p": "PPB", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "PPB", "ci": 3 },
+  { "t": "city", "p": "PPB", "ci": 4 },
+  { "t": "sp", "k": "JAIL" },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PBD", "ci": 0 },
+  { "t": "city", "p": "PBD", "ci": 1 },
+  { "t": "city", "p": "PBD", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PBD", "ci": 3 },
+  { "t": "city", "p": "PBD", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPT", "ci": 0 },
+  { "t": "city", "p": "PPT", "ci": 1 },
+  { "t": "city", "p": "PPT", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "PPT", "ci": 3 },
+  { "t": "city", "p": "PPT", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPG", "ci": 0 },
+  { "t": "city", "p": "PPG", "ci": 1 },
+  { "t": "city", "p": "PPG", "ci": 2 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPG", "ci": 3 },
+  { "t": "city", "p": "PPG", "ci": 4 },
+  { "t": "sp", "k": "NASIB" },
+  { "t": "city", "p": "PPS", "ci": 0 },
+  { "t": "city", "p": "PPS", "ci": 1 },
+  { "t": "city", "p": "PPS", "ci": 2 },
+  { "t": "sp", "k": "BENCANA" },
+  { "t": "city", "p": "PPS", "ci": 3 },
+  { "t": "city", "p": "PPS", "ci": 4 },
+  { "t": "sp", "k": "NASIB" }
 ]

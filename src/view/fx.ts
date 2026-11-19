@@ -5,9 +5,11 @@
  */
 import * as THREE from 'three';
 import { assetUrl } from '../assetUrl';
-import type { Cam } from './camera';
+import { camArrived, type Cam } from './camera';
+import { Puffs, buildBolt, funnelR, funnelSway, makeFunnel, makeSmokeTextures } from './fxkit';
 import { MID, PITCH, POS, type V2 } from './layout';
 import type { Pawns } from './pawns';
+import { makeVictim } from './victim';
 import { emi } from './pawns';
 import type { Sky } from './sky';
 import { cpt, disposeTree, markShared } from './tiles';
@@ -107,6 +109,7 @@ export class Fx {
   private readonly fxTex: THREE.Texture[];
   private readonly dotTex: THREE.CanvasTexture;
   private readonly ringTex: THREE.CanvasTexture;
+  private readonly smokeTex: THREE.Texture[];
   private readonly U: Record<string, THREE.IUniform>;
 
   constructor(private readonly d: FxDeps) {
@@ -141,7 +144,13 @@ export class Fx {
         x.stroke();
       }, 128),
     );
+    this.smokeTex = makeSmokeTextures(3);
     this.U = d.waterMat.uniforms;
+  }
+
+  /** kolam gumpalan asap (sprite membesar dan memudar) */
+  private puffs(n: number, o: { additive?: boolean } = {}): Puffs {
+    return new Puffs(this.fxG, this.smokeTex, n, o);
   }
 
   /* ---------- infrastruktur ---------- */
@@ -279,7 +288,9 @@ export class Fx {
     return l;
   }
   private rock(r: number) {
-    return this.mk(new THREE.DodecahedronGeometry(r, 0), 0x6e655c, { roughness: 1 });
+    return this.mk(new THREE.DodecahedronGeometry(r, 0), 0x6e655c, {
+      roughness: 1,
+    });
   }
   private lineSeg(color: number, opacity = 1) {
     const l = new THREE.LineSegments(
@@ -326,7 +337,18 @@ export class Fx {
     }
     const ps: Part[] = [];
     for (let i = 0; i < n; i++)
-      ps.push({ on: false, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, l: 1, a: 0, c: [1, 1, 1] });
+      ps.push({
+        on: false,
+        x: 0,
+        y: 0,
+        z: 0,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        l: 1,
+        a: 0,
+        c: [1, 1, 1],
+      });
     let cu = 0;
     return {
       P,
@@ -522,7 +544,16 @@ export class Fx {
       cam.tz = C.z;
       cam.tilt = Math.min(cam.tilt, 44);
       cam.dist = Math.min(Math.max(cam.dist, 1500), 1900);
-      await new Promise((r) => setTimeout(r, 550));
+      // tunggu kamera benar-benar tiba (perjalanan jauh butuh lebih lama), maks 3,5 detik
+      const t0 = performance.now();
+      await new Promise<void>((r) => {
+        const tick = () => {
+          const el = performance.now() - t0;
+          if ((el > 450 && camArrived(cam, 60)) || el > 3500) r();
+          else requestAnimationFrame(tick);
+        };
+        tick();
+      });
     }
     try {
       await f(C);
@@ -586,16 +617,32 @@ export class Fx {
     const rp = new Float32Array(N * 6);
     const dr: { x: number; z: number; y: number; v: number }[] = [];
     for (let i = 0; i < N; i++)
-      dr.push({ x: (R() - 0.5) * 1100, z: (R() - 0.5) * 1100, y: R() * 800, v: 900 + R() * 400 });
+      dr.push({
+        x: (R() - 0.5) * 1100,
+        z: (R() - 0.5) * 1100,
+        y: R() * 800,
+        v: 900 + R() * 400,
+      });
     rain.geometry.setAttribute('position', new THREE.BufferAttribute(rp, 3));
     rain.frustumCulled = false;
     const wv = this.emo('🌊', 150, 0);
     this.fxS.dim = 0.78;
+    const splash = this.emitter(160, { size: 14, opacity: 0.8 });
+    let wlNow = -8;
+    const vic = makeVictim(this.d.pawns, C.pi, o.h ? 'rob' : 'flood', {
+      total: 4.2,
+      dir: [C.tx, C.tz],
+      water: () => wlNow,
+      emit: (...a) => splash.spawn(...a),
+    });
     await this.run(4.2, (p, dt, el) => {
       const k = p < 0.35 ? ez(p / 0.35) : p > 0.75 ? 1 - ez((p - 0.75) / 0.25) : 1;
       uFl.w = h * k;
       uMud.w = mud[3] * Math.min(1, k * 1.4);
       const wl = -8 + h * k;
+      wlNow = wl;
+      vic.step(dt, el);
+      splash.step(dt, -500, 0.4);
       dr.forEach((d, i) => {
         d.y -= d.v * dt;
         if (d.y < wl) d.y += 800;
@@ -619,6 +666,7 @@ export class Fx {
       this.d.cam.shake = Math.max(this.d.cam.shake, 2);
     });
     uFl.w = 0;
+    vic.end();
   }
 
   private async merapi(C: FxCtx, o: { big?: boolean } = {}): Promise<void> {
@@ -628,10 +676,34 @@ export class Fx {
     const cz = ISL.cz;
     const cy = this.d.sky.craterY + 30;
     const lv = this.emitter(900, { size: big ? 120 : 90 });
-    const ash = this.emitter(360, { size: 330, additive: false, opacity: 0.78 });
+    const ash = this.emitter(360, {
+      size: 330,
+      additive: false,
+      opacity: 0.78,
+    });
     const tr = this.emitter(900, { size: 70 });
     const sm = this.emitter(200, { size: 150, additive: false, opacity: 0.7 });
     const lt = this.lite(0xff7a2a, 0, 4000, cx, cy + 200, cz);
+    /* lapisan realisme: tiang abu, payung abu, awan panas, petir gunung, hujan bara */
+    const H = ISL.H;
+    const plume = this.puffs(170);
+    const umbrella = this.puffs(80);
+    const pdc = this.puffs(170);
+    const trailSmoke = this.puffs(90);
+    const ember = this.emitter(520, { size: 30 });
+    const vent = this.glow(0xff8a2a, H, 0);
+    vent.position.set(cx, cy + 20, cz);
+    const bolt = this.lineSeg(0xdfe9ff, 0);
+    const boltPos = new Float32Array(3 * 2 * 80);
+    bolt.geometry.setAttribute('position', new THREE.BufferAttribute(boltPos, 3));
+    bolt.frustumCulled = false;
+    const boltGlow = this.glow(0xbcd0ff, H * 0.55, 0);
+    let boltT = 0;
+    let boltNext = 1.1;
+    let accP = 0;
+    let accC = 0;
+    let accE = 0;
+    const wind: [number, number] = [H * 0.17, H * 0.05];
     const base = Math.atan2(C.z - cz, C.x - cx);
     const streams: {
       cv: THREE.CatmullRomCurve3;
@@ -668,7 +740,14 @@ export class Fx {
       this.fxG.add(m1);
       this.fxG.add(m2);
       const hd = this.glow(0xff7a20, 300, 0.9);
-      streams.push({ cv, m1, m2, hd, dl: 0.5 + si * 0.12, sp: 1 / (1.6 + si * 0.25) });
+      streams.push({
+        cv,
+        m1,
+        m2,
+        hd,
+        dl: 0.5 + si * 0.12,
+        sp: 1 / (1.6 + si * 0.25),
+      });
     });
     const rocksN = big ? 11 : 8;
     const pw = this.d.pawns.list[C.pi] ?? null;
@@ -676,7 +755,18 @@ export class Fx {
     const PX = pw ? pw.position.x : C.x;
     const PZ = pw ? pw.position.z : C.z;
     const porig = new THREE.Color(0xffffff);
-    const th = { on: false, ph: 0, t: 0, b: 0, t2: 0, vx: 0, vy: 0, vz: 0, sx: 0, sz: 0 };
+    const th = {
+      on: false,
+      ph: 0,
+      t: 0,
+      b: 0,
+      t2: 0,
+      vx: 0,
+      vy: 0,
+      vz: 0,
+      sx: 0,
+      sz: 0,
+    };
     const bombs: {
       m: THREE.Mesh;
       g: THREE.Sprite;
@@ -724,9 +814,10 @@ export class Fx {
       if (el < 3.0) {
         cam.tx = cx;
         cam.tz = cz;
-        cam.ty = cy - ISL.H * 0.12;
-        cam.tilt += (70 - cam.tilt) * Math.min(1, dt * 8);
-        cam.dist += (ISL.H * 1.8 - cam.dist) * Math.min(1, dt * 8);
+        // sudut lebih rendah dan menjauh supaya seluruh tiang abu terlihat
+        cam.ty = cy + H * 0.85;
+        cam.tilt += (64 - cam.tilt) * Math.min(1, dt * 5);
+        cam.dist += (H * 4.3 - cam.dist) * Math.min(1, dt * 5);
         cam.az += (az0 + dz - cam.az) * Math.min(1, dt * 7);
       } else {
         cam.tx = C.x;
@@ -764,6 +855,105 @@ export class Fx {
             [0.2, 0.19, 0.18],
           );
       }
+      /* ---- tiang abu yang membumbung dan mengembang ---- */
+      const power = el < 1.2 ? 1 : Math.max(0.3, 1 - (el - 1.2) / 3.4);
+      if (el > 0.35 && el < 3.9) {
+        accP += dt * 75 * (el < 3 ? 1 : 0.4);
+        while (accP >= 1) {
+          accP--;
+          const a = R() * TAU;
+          const rr = R() * H * 0.05;
+          plume.spawn({
+            x: cx + Math.cos(a) * rr,
+            y: cy + 10,
+            z: cz + Math.sin(a) * rr,
+            vx: Math.cos(a) * H * 0.22 * R(),
+            vy: H * (1.0 + R() * 0.5) * power,
+            vz: Math.sin(a) * H * 0.22 * R(),
+            life: 3.8 + R() * 1.2,
+            s0: H * 0.12,
+            s1: H * (0.55 + R() * 0.3),
+            c0: [0.62, 0.32, 0.15],
+            c1: [0.25, 0.225, 0.21],
+            op: 0.85,
+            spin: (R() - 0.5) * 0.8,
+          });
+        }
+      }
+      /* payung abu di puncak: menyebar mendatar lalu hanyut searah angin */
+      if (el > 1.3 && el < 4.4) {
+        accC += dt * 45;
+        while (accC >= 1) {
+          accC--;
+          const a = R() * TAU;
+          const sp = H * (0.2 + R() * 0.42);
+          umbrella.spawn({
+            x: cx + Math.cos(a) * H * 0.12 + wind[0] * 0.7,
+            y: cy + H * (1.75 + R() * 0.55),
+            z: cz + Math.sin(a) * H * 0.12 + wind[1] * 0.7,
+            vx: Math.cos(a) * sp,
+            vy: H * 0.04 * R(),
+            vz: Math.sin(a) * sp,
+            life: 3.6,
+            s0: H * 0.28,
+            s1: H * (0.62 + R() * 0.3),
+            c0: [0.48, 0.42, 0.37],
+            c1: [0.3, 0.28, 0.27],
+            op: 0.7,
+            spin: (R() - 0.5) * 0.4,
+          });
+        }
+      }
+      /* petir vulkanik di dalam awan abu */
+      boltT -= dt;
+      if (el > boltNext && el < 4.6) {
+        boltNext = el + 0.22 + R() * 0.5;
+        const sx = cx + (R() - 0.5) * H * 0.3;
+        const sy = cy + H * (0.8 + R() * 1.1);
+        const sz = cz + (R() - 0.5) * H * 0.3;
+        const a0 = new THREE.Vector3(sx, sy, sz);
+        const b0v = new THREE.Vector3(
+          sx + (R() - 0.5) * H * 0.7,
+          sy - H * (0.45 + R() * 0.6),
+          sz + (R() - 0.5) * H * 0.7,
+        );
+        const nf = buildBolt(boltPos, a0, b0v, H * 0.07, 2);
+        bolt.geometry.setDrawRange(0, nf / 3);
+        (bolt.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+        boltT = 0.13;
+        boltGlow.position.copy(a0.clone().lerp(b0v, 0.5));
+        this.flash(0.14, '#dfe8ff');
+      }
+      const bo = boltT > 0 ? 0.55 + 0.45 * Math.random() : 0;
+      bolt.material.opacity = bo;
+      boltGlow.material.opacity = bo * 0.85;
+      /* kawah menyala, langit menggelap oleh abu */
+      const ventK = el < 0.35 ? 0 : el < 0.8 ? (el - 0.35) / 0.45 : 1;
+      const ventFade = p > 0.78 ? Math.max(0, (1 - p) / 0.22) : 1;
+      vent.material.opacity =
+        ventK * ventFade * (0.5 + 0.12 * Math.sin(el * 9) + (el < 0.8 ? 0.4 : 0));
+      const vs = H * (0.8 + 0.2 * Math.sin(el * 11 + 1)) * (el < 0.8 ? 1.5 - (el - 0.35) : 1);
+      vent.scale.set(vs, vs, 1);
+      const dk = Math.min(1, Math.max(0, (el - 0.4) / 2.2)) * ventFade;
+      this.fxS.dim = 1 - 0.5 * dk;
+      this.fxS.warm = 0.75 * dk;
+      /* hujan bara berpijar */
+      if (el > 0.7 && el < 6) {
+        accE += dt * 55;
+        while (accE >= 1) {
+          accE--;
+          ember.spawn(
+            cx + wind[0] * 0.8 + (R() - 0.5) * H * 1.6,
+            cy + H * (0.3 + R() * 1.9),
+            cz + wind[1] * 0.8 + (R() - 0.5) * H * 1.6,
+            wind[0] * 0.3,
+            -40 - R() * 110,
+            wind[1] * 0.3,
+            2.6,
+            [1, 0.45 + R() * 0.25, 0.1],
+          );
+        }
+      }
       streams.forEach((st) => {
         const u = Math.max(0, Math.min(1, (el - st.dl) * st.sp));
         const cnt = Math.floor(u * 90) * 36;
@@ -779,6 +969,22 @@ export class Fx {
           st.hd.position.copy(pt);
           st.hd.material.opacity = 0.9 * fade;
           st.hd.visible = true;
+          if (Math.random() < dt * 12)
+            pdc.spawn({
+              x: pt.x + (R() - 0.5) * 50,
+              y: pt.y + 20,
+              z: pt.z + (R() - 0.5) * 50,
+              vx: (R() - 0.5) * 70,
+              vy: 40 + R() * 80,
+              vz: (R() - 0.5) * 70,
+              life: 2.4,
+              s0: 90,
+              s1: 300 + R() * 160,
+              c0: [0.34, 0.29, 0.25],
+              c1: [0.2, 0.19, 0.18],
+              op: 0.72,
+              spin: (R() - 0.5) * 0.6,
+            });
           if (Math.random() < 0.6)
             sm.spawn(
               pt.x,
@@ -797,13 +1003,18 @@ export class Fx {
       ash.step(dt, -30, 0.5);
       tr.step(dt, -30, 0.6);
       sm.step(dt, -30, 0.6);
+      plume.step(dt, 0.45, 30, wind);
+      umbrella.step(dt, 0.6, 0, wind);
+      pdc.step(dt, 0.7, 22, [wind[0] * 0.12, wind[1] * 0.12]);
+      trailSmoke.step(dt, 0.8, 0);
+      ember.step(dt, 25, 0.3);
       if (big && el > 0.35 && el < 0.5) this.flash(0.8, '#ffd9a0');
       else if (el > 0.35 && el < 0.45) this.flash(0.4, '#ffd9a0');
       const su = el - 0.35;
       shock.position.set(cx, 20, cz);
       const ss = su > 0 ? 240 + su * 1700 : 1;
       shock.scale.set(ss, ss, 1);
-      shock.material.opacity = big && su > 0 && su < 1.6 ? 0.5 * (1 - su / 1.6) : 0;
+      shock.material.opacity = su > 0 && su < 1.6 ? (big ? 0.5 : 0.32) * (1 - su / 1.6) : 0;
       bombs.forEach((b) => {
         const u = (el - b.t0) / b.dur;
         if (u < 0 || u >= 1) {
@@ -876,7 +1087,10 @@ export class Fx {
               m.position.set(X, 22, Z);
               const a = R() * TAU;
               const sp = 140 + R() * 260;
-              deb.push({ m, v: [Math.cos(a) * sp, 300 + R() * 320, Math.sin(a) * sp] });
+              deb.push({
+                m,
+                v: [Math.cos(a) * sp, 300 + R() * 320, Math.sin(a) * sp],
+              });
             }
             const sc = new THREE.Mesh(
               new THREE.CircleGeometry(b.r * 2.2, 24),
@@ -904,6 +1118,22 @@ export class Fx {
         b.g.position.set(x, y, z);
         b.m.rotation.x += dt * 6;
         b.m.rotation.z += dt * 4;
+        if (Math.random() < dt * 34)
+          trailSmoke.spawn({
+            x,
+            y,
+            z,
+            vx: (R() - 0.5) * 40,
+            vy: (R() - 0.3) * 30,
+            vz: (R() - 0.5) * 40,
+            life: 1.7,
+            s0: b.r * 0.9,
+            s1: b.r * 3.6,
+            c0: [0.55, 0.3, 0.18],
+            c1: [0.22, 0.2, 0.19],
+            op: 0.6,
+            spin: (R() - 0.5) * 1.2,
+          });
         for (let k = 0; k < 7; k++)
           tr.spawn(
             x + (R() - 0.5) * b.r,
@@ -1057,7 +1287,11 @@ export class Fx {
         ang = na;
       }
     }
-    const dust = this.emitter(260, { size: 110, additive: false, opacity: 0.6 });
+    const dust = this.emitter(260, {
+      size: 110,
+      additive: false,
+      opacity: 0.6,
+    });
     const stuff: {
       s: THREE.Object3D;
       t0: number;
@@ -1089,7 +1323,22 @@ export class Fx {
       });
     }
     const hd = this.emo('🏚️', 150, 0);
+    const gdust = this.emitter(260, {
+      size: 130,
+      additive: false,
+      opacity: 0.55,
+    });
+    const vic = makeVictim(this.d.pawns, C.pi, 'gempa', {
+      total: 3.6,
+      dir: [C.nx, C.nz],
+      emit: (...a) => gdust.spawn(...a),
+      thud: () => {
+        cam.shake = Math.max(cam.shake, 26);
+      },
+    });
     await this.run(3.6, (_p, dt, el) => {
+      vic.step(dt, el);
+      gdust.step(dt, -40, 0.7);
       const amp = el < 2.7 ? 1 : (3.6 - el) / 0.9;
       cam.shake = Math.max(cam.shake, 22 * amp);
       root.position.set((R() - 0.5) * 7 * amp, (R() - 0.5) * 3 * amp, (R() - 0.5) * 7 * amp);
@@ -1137,6 +1386,7 @@ export class Fx {
       hd.material.opacity = Math.min(1, el);
     });
     root.position.set(0, 0, 0);
+    vic.end();
   }
 
   private async tsunami(C: FxCtx): Promise<void> {
@@ -1156,7 +1406,14 @@ export class Fx {
     uMud.set(0.45, 0.38, 0.26, 0.6);
     uFl.set(C.x, C.z, 2300, 0);
     const AMP = 190;
+    const vic = makeVictim(this.d.pawns, C.pi, 'tsunami', {
+      total: 5.2,
+      dir: [nx, nz],
+      hit: 2.0,
+      emit: (...a) => fo.spawn(...a),
+    });
     await this.run(5.2, (p, dt, el) => {
+      vic.step(dt, el);
       const e = Math.min(1, el / 3.4);
       const sp = S0 + (S1 - S0) * e;
       const cx = C.x + C.nx * sp;
@@ -1195,13 +1452,62 @@ export class Fx {
     uWa.x = 0;
     uFl.w = 0;
     this.d.cam.shake = 0;
+    vic.end();
   }
 
   private async kebakaran(C: FxCtx): Promise<void> {
-    const fire = this.emitter(500, { size: 80 });
-    const smoke = this.emitter(160, { size: 150, additive: false, opacity: 0.7 });
-    const tr: { c: THREE.Mesh<THREE.ConeGeometry, THREE.MeshStandardMaterial> }[] = [];
-    for (let i = 0; i < 9; i++) {
+    const H = 100;
+    const flame = this.puffs(300, { additive: true });
+    const smoke = this.puffs(220);
+    const spark = this.emitter(360, { size: 16 });
+    const T = 4.6;
+    const vic = makeVictim(this.d.pawns, C.pi, 'burn', {
+      total: T,
+      dir: [C.nx, C.nz],
+      emit: (x, y, z, vx, vy, vz, life, c) =>
+        flame.spawn({
+          x,
+          y,
+          z,
+          vx,
+          vy,
+          vz,
+          life: life + 0.3,
+          s0: 26,
+          s1: 60,
+          c0: [1, 0.78, 0.3],
+          c1: [c[0], c[1] * 0.5, 0.02],
+          op: 0.45,
+          spin: 0.5,
+        }),
+      smoke: (x, y, z, vx, vy, vz, life) =>
+        smoke.spawn({
+          x,
+          y,
+          z,
+          vx,
+          vy,
+          vz,
+          life: life + 1,
+          s0: 40,
+          s1: 170,
+          c0: [0.2, 0.18, 0.16],
+          c1: [0.1, 0.1, 0.1],
+          op: 0.5,
+          spin: 0.2,
+        }),
+    });
+    /* pohon: menyala bergiliran dari tengah ke luar, lalu menghitam */
+    const tr: {
+      g: THREE.Group;
+      c: THREE.Mesh<THREE.ConeGeometry, THREE.MeshStandardMaterial>;
+      t: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshStandardMaterial>;
+      at: number;
+      x: number;
+      z: number;
+    }[] = [];
+    const N = 15;
+    for (let i = 0; i < N; i++) {
       const g = new THREE.Group();
       const t = this.mk(new THREE.CylinderGeometry(5, 7, 40, 6), 0x5b3b22);
       t.position.y = 20;
@@ -1210,62 +1516,136 @@ export class Fx {
       this.fxG.remove(t);
       this.fxG.remove(c);
       g.add(t, c);
-      const a = (i / 9) * TAU;
-      const r = 260 + R() * 120;
-      g.position.set(C.x + Math.cos(a) * r, 12, C.z + Math.sin(a) * r);
+      const a = (i / N) * TAU + R() * 0.3;
+      const r = 120 + R() * 280;
+      const x = C.x + Math.cos(a) * r;
+      const z = C.z + Math.sin(a) * r;
+      g.position.set(x, 12, z);
+      g.scale.setScalar(0.9 + R() * 0.5);
       this.fxG.add(g);
-      tr.push({ c });
+      tr.push({ g, c, t, at: 0.2 + (r / 400) * 1.8 + R() * 0.3, x, z });
     }
     const lt = this.lite(0xff7a22, 3, 1500, C.x, 200, C.z);
-    const fi = this.emo('🔥', 170, 0);
-    this.fxS.dim = 0.8;
-    this.fxS.warm = 0.4;
-    await this.run(3.8, (p, dt, el) => {
-      const k = Math.min(1, el / 1);
-      const st = p > 0.8 ? (1 - p) * 5 : 1;
-      for (let i = 0; i < 10 * st; i++) {
+    const wind: [number, number] = [H * 0.5, H * 0.15];
+    let accG = 0;
+    this.fxS.warm = 0.2;
+    await this.run(T, (p, dt, el) => {
+      vic.step(dt, el);
+      const st = p > 0.78 ? Math.max(0, (1 - p) / 0.22) : 1;
+      this.fxS.dim = 1 - 0.3 * Math.min(1, el / 1.5) * st;
+      this.fxS.warm = 0.15 + 0.5 * Math.min(1, el / 1.5) * st;
+      /* api tanah yang merambat keluar */
+      accG += dt * 90 * st;
+      while (accG >= 1) {
+        accG--;
         const a = R() * TAU;
-        const r = R() * 340 * k;
-        fire.spawn(
-          C.x + Math.cos(a) * r,
-          16,
-          C.z + Math.sin(a) * r,
-          (R() - 0.5) * 40,
-          140 + R() * 200,
-          (R() - 0.5) * 40,
-          0.9 + R() * 0.6,
-          [1, 0.35 + R() * 0.4, 0.05],
-        );
+        const r = Math.sqrt(R()) * (80 + 340 * Math.min(1, el / 1.6));
+        flame.spawn({
+          x: C.x + Math.cos(a) * r,
+          y: 14,
+          z: C.z + Math.sin(a) * r,
+          vx: (R() - 0.5) * 40,
+          vy: 180 + R() * 220,
+          vz: (R() - 0.5) * 40,
+          life: 0.6 + R() * 0.6,
+          s0: 36,
+          s1: 56 + R() * 30,
+          c0: [1, 0.8, 0.35],
+          c1: [0.95, 0.2, 0.02],
+          op: 0.4,
+          spin: (R() - 0.5) * 1.2,
+        });
+        if (R() < 0.3)
+          smoke.spawn({
+            x: C.x + Math.cos(a) * r,
+            y: 60,
+            z: C.z + Math.sin(a) * r,
+            vx: 20,
+            vy: 150 + R() * 100,
+            vz: (R() - 0.5) * 30,
+            life: 3.2,
+            s0: 50,
+            s1: 220 + R() * 90,
+            c0: [0.3, 0.26, 0.22],
+            c1: [0.11, 0.11, 0.11],
+            op: 0.4,
+            spin: (R() - 0.5) * 0.4,
+          });
       }
-      for (let i = 0; i < 2 * st; i++)
-        smoke.spawn(
-          C.x + (R() - 0.5) * 500,
-          120,
-          C.z + (R() - 0.5) * 500,
-          40,
-          120 + R() * 80,
-          (R() - 0.5) * 30,
-          2.8,
-          [0.18, 0.17, 0.17],
+      /* pohon terbakar: lidah api tinggi, asap pekat, percikan */
+      tr.forEach((o) => {
+        const b = Math.min(1, Math.max(0, (el - o.at) / 0.9));
+        if (b <= 0) return;
+        o.c.material.color.setRGB(
+          0.12 * (1 - b) + 0.05,
+          0.43 * (1 - b) + 0.04,
+          0.18 * (1 - b) + 0.03,
         );
-      fire.step(dt, -120, 0.5);
-      smoke.step(dt, -40, 0.6);
-      lt.intensity = (2.5 + Math.random() * 1.5) * st;
-      tr.forEach((g) =>
-        g.c.material.color.setRGB(
-          0.12 + (1 - p) * 0.1,
-          0.43 * (1 - p) + 0.08,
-          0.18 * (1 - p) + 0.05,
-        ),
-      );
-      fi.position.set(C.x, 330, C.z);
-      fi.material.opacity = Math.min(1, el) * st;
+        o.t.material.color.setRGB(
+          0.36 * (1 - b) + 0.05,
+          0.23 * (1 - b) + 0.04,
+          0.13 * (1 - b) + 0.03,
+        );
+        o.c.scale.y = 1 - 0.28 * b;
+        if (R() < dt * 26 * st)
+          flame.spawn({
+            x: o.x + (R() - 0.5) * 24,
+            y: 40 + R() * 80,
+            z: o.z + (R() - 0.5) * 24,
+            vx: (R() - 0.5) * 30,
+            vy: 220 + R() * 260,
+            vz: (R() - 0.5) * 30,
+            life: 0.7 + R() * 0.5,
+            s0: 40,
+            s1: 76 + R() * 34,
+            c0: [1, 0.85, 0.4],
+            c1: [0.95, 0.22, 0.02],
+            op: 0.45,
+            spin: R() - 0.5,
+          });
+        if (R() < dt * 9 * st)
+          smoke.spawn({
+            x: o.x,
+            y: 120,
+            z: o.z,
+            vx: 10,
+            vy: 170 + R() * 120,
+            vz: (R() - 0.5) * 20,
+            life: 3.4,
+            s0: 50,
+            s1: 240 + R() * 100,
+            c0: [0.28, 0.25, 0.22],
+            c1: [0.1, 0.1, 0.1],
+            op: 0.42,
+            spin: (R() - 0.5) * 0.4,
+          });
+        if (R() < dt * 14 * st)
+          spark.spawn(
+            o.x + (R() - 0.5) * 30,
+            100 + R() * 60,
+            o.z + (R() - 0.5) * 30,
+            (R() - 0.5) * 90 + wind[0] * 0.6,
+            160 + R() * 200,
+            (R() - 0.5) * 90,
+            1.6 + R(),
+            [1, 0.55 + R() * 0.3, 0.1],
+          );
+      });
+      flame.step(dt, 0.3, 90, [wind[0] * 0.25, wind[1] * 0.25]);
+      smoke.step(dt, 0.5, 40, wind);
+      spark.step(dt, -60, 0.4);
+      lt.intensity = (2.4 + Math.random() * 1.6) * Math.min(1, el / 0.8) * st;
     });
+    vic.end();
   }
 
   private async longsor(C: FxCtx): Promise<void> {
     const cam = this.d.cam;
-    const dust = this.emitter(500, { size: 200, additive: false, opacity: 0.7 });
+    const dust = this.emitter(500, {
+      size: 200,
+      additive: false,
+      opacity: 0.7,
+    });
     const mud: {
       m: THREE.Mesh;
       tx: number;
@@ -1315,9 +1695,24 @@ export class Fx {
       const off = 420 + R() * 100;
       m.position.set(C.x + C.nx * off + C.tx * lat, 0, C.z + C.nz * off + C.tz * lat);
       m.scale.y = 0.01;
-      ch.push({ m, r, h: 1.5 + R() * 1.3, dl: R() * 0.45, vy: 0, vx: 0, vz: 0, rot: R() * 3 });
+      ch.push({
+        m,
+        r,
+        h: 1.5 + R() * 1.3,
+        dl: R() * 0.45,
+        vy: 0,
+        vx: 0,
+        vz: 0,
+        rot: R() * 3,
+      });
     }
-    const bits: { m: THREE.Mesh; live: boolean; vx: number; vy: number; vz: number }[] = [];
+    const bits: {
+      m: THREE.Mesh;
+      live: boolean;
+      vx: number;
+      vy: number;
+      vz: number;
+    }[] = [];
     for (let i = 0; i < 26; i++) {
       const m = this.rock(14 + R() * 22);
       m.visible = false;
@@ -1325,7 +1720,13 @@ export class Fx {
     }
     const em = this.emo('⛰️', 170, 0);
     let col = false;
+    const vic = makeVictim(this.d.pawns, C.pi, 'slide', {
+      total: 4.8,
+      dir: [-C.nx, -C.nz],
+      emit: (...a) => dust.spawn(...a),
+    });
     await this.run(4.8, (p, dt, el) => {
+      vic.step(dt, el);
       if (el < 1.4) {
         cam.shake = Math.max(cam.shake, el < 1.2 ? 16 : 6);
         ch.forEach((c) => {
@@ -1444,6 +1845,7 @@ export class Fx {
       em.position.set(C.x, 340, C.z);
       em.material.opacity = Math.min(1, el) * (p > 0.9 ? (1 - p) * 10 : 1);
     });
+    vic.end();
   }
 
   private async petir(C: FxCtx): Promise<void> {
@@ -1456,6 +1858,7 @@ export class Fx {
     const orig = new THREE.Color(0xffffff);
     const bolt = this.lineSeg(0xe8f0ff, 1);
     const bolt2 = this.lineSeg(0x7aa8ff, 0.7);
+    let boltPts: number[] = [];
     const mkBolt = () => {
       const pts: number[] = [];
       const pts2: number[] = [];
@@ -1482,12 +1885,55 @@ export class Fx {
         y = ny;
         z = nz;
       }
+      boltPts = pts;
       bolt.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
       bolt2.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pts2, 3));
     };
     const lt = this.lite(0xaac4ff, 0, 2500, px, 420, pz);
     const sp = this.emitter(400, { size: 40 });
     const sm = this.emitter(160, { size: 90, additive: false, opacity: 0.6 });
+    // cahaya tebal kanal petir, busur listrik di tubuh, dan bekas hangus di tanah
+    const glow = this.emitter(900, { size: 46 });
+    const arcs = this.lineSeg(0xbfe0ff, 0.95);
+    const arcs2 = this.lineSeg(0x6aa8ff, 0.7);
+    arcs.visible = arcs2.visible = false;
+    const scorch = new THREE.Mesh(
+      new THREE.CircleGeometry(46, 24),
+      new THREE.MeshBasicMaterial({
+        color: 0x0a0806,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      }),
+    );
+    scorch.rotation.x = -Math.PI / 2;
+    scorch.position.set(px, 13.6, pz);
+    scorch.renderOrder = 2;
+    this.fxG.add(scorch);
+    const ring = this.ringSp(0xcfe4ff, 0);
+    ring.position.set(px, 16, pz);
+    const mkArcs = () => {
+      const a1: number[] = [];
+      const a2: number[] = [];
+      const S = 1.55;
+      for (let q = 0; q < 7; q++) {
+        let x = px + (R() - 0.5) * 30 * S;
+        let y = 13 + R() * 110 * S;
+        let z = pz + (R() - 0.5) * 30 * S;
+        const segs = 3 + Math.floor(R() * 4);
+        for (let k = 0; k < segs; k++) {
+          const nx = x + (R() - 0.5) * 34;
+          const ny = y + (R() - 0.5) * 34;
+          const nz = z + (R() - 0.5) * 34;
+          (q % 2 ? a2 : a1).push(x, y, z, nx, ny, nz);
+          x = nx;
+          y = ny;
+          z = nz;
+        }
+      }
+      arcs.geometry.setAttribute('position', new THREE.Float32BufferAttribute(a1, 3));
+      arcs2.geometry.setAttribute('position', new THREE.Float32BufferAttribute(a2, 3));
+    };
     cam.tx = px;
     cam.tz = pz;
     cam.dist = Math.min(cam.dist, 1250);
@@ -1528,6 +1974,8 @@ export class Fx {
           lt.intensity = 12;
           mat.color.setHex(0x151515);
           emi(mat).setHex(0x331100);
+          scorch.material.opacity = 0.75;
+          ring.material.opacity = 1;
           for (let k = 0; k < 120; k++) {
             const a = R() * TAU;
             const s2 = 150 + R() * 420;
@@ -1546,6 +1994,49 @@ export class Fx {
       } else if (el >= t1 + 0.3) {
         bolt.visible = bolt2.visible = el < t1 + 0.55 && Math.random() > 0.5;
         lt.intensity = Math.max(0, lt.intensity - dt * 40);
+      }
+      if (bolt.visible && boltPts.length)
+        for (let i = 0; i < boltPts.length; i += 6) {
+          const f = R();
+          glow.spawn(
+            boltPts[i]! + (boltPts[i + 3]! - boltPts[i]!) * f,
+            boltPts[i + 1]! + (boltPts[i + 4]! - boltPts[i + 1]!) * f,
+            boltPts[i + 2]! + (boltPts[i + 5]! - boltPts[i + 2]!) * f,
+            0,
+            0,
+            0,
+            0.09,
+            [0.75, 0.85, 1],
+          );
+        }
+      glow.step(dt, 0, 0);
+      if (hit) {
+        const u = el - t1;
+        // gelombang kejut di tanah
+        const rq = Math.min(1, u / 0.5);
+        ring.scale.set(60 + rq * 420, 60 + rq * 420, 1);
+        ring.material.opacity = Math.max(0, 1 - rq);
+        // kesetrum: tubuh berpendar biru berkedip dengan busur listrik
+        const zap = u < 1.1;
+        arcs.visible = arcs2.visible = zap && Math.random() > 0.25;
+        if (zap) {
+          if (Math.random() < 0.6) mkArcs();
+          const f = Math.random() > 0.35 ? 1 : 0.2;
+          emi(mat).setRGB(0.35 * f, 0.55 * f, 1.0 * f);
+          if (Math.random() < 0.5)
+            sp.spawn(
+              px + (R() - 0.5) * 40,
+              20 + R() * 150,
+              pz + (R() - 0.5) * 40,
+              (R() - 0.5) * 260,
+              80 + R() * 200,
+              (R() - 0.5) * 260,
+              0.45,
+              [0.7, 0.85, 1],
+            );
+        }
+        // bekas hangus memudar perlahan di akhir
+        scorch.material.opacity = 0.75 * Math.max(0, Math.min(1, (6 - el) / 1.4));
       }
       sp.step(dt, 700, 0.4);
       if (el > t1) {
@@ -1577,13 +2068,16 @@ export class Fx {
             [0.14, 0.14, 0.14],
           );
         const back = Math.max(0, Math.min(1, (u - 3.0) / 1.0));
-        if (u > 0.3) {
+        if (u > 1.1) {
           mat.color.copy(new THREE.Color(0x151515).lerp(orig, back));
           emi(mat).setRGB(0.2 * (1 - back), 0.07 * (1 - back), 0);
         }
       }
       sm.step(dt, -40, 0.6);
     });
+    this.fxG.remove(scorch);
+    scorch.geometry.dispose();
+    scorch.material.dispose();
     pw.rotation.set(0, 0, 0);
     mat.color.copy(orig);
     emi(mat).setRGB(0, 0, 0);
@@ -1670,14 +2164,30 @@ export class Fx {
     const gl = this.glow(0xffa030, 900, 0.7);
     const cac = this.emo('🌵', 120, 0);
     const wil = this.emo('🥀', 90, 0);
-    const dust = this.emitter(220, { size: 150, additive: false, opacity: 0.5 });
+    const dust = this.emitter(220, {
+      size: 150,
+      additive: false,
+      opacity: 0.5,
+    });
     const heat = this.emitter(80, { size: 120, opacity: 0.2 });
     const tw = new THREE.Mesh(
       new THREE.IcosahedronGeometry(46, 1),
       new THREE.MeshBasicMaterial({ color: 0x7a5a30, wireframe: true }),
     );
     this.fxG.add(tw);
+    const kdust = this.emitter(120, {
+      size: 50,
+      additive: false,
+      opacity: 0.3,
+    });
+    const vic = makeVictim(this.d.pawns, C.pi, 'dry', {
+      total: 4.2,
+      dir: [C.tx, C.tz],
+      emit: (...a) => kdust.spawn(...a),
+    });
     await this.run(4.2, (p, dt, el) => {
+      vic.step(dt, el);
+      kdust.step(dt, 10, 0.8);
       const u = ez(Math.min(1, el / 1.6));
       const d = p > 0.82 ? (1 - p) * 5.5 : 1;
       this.fxS.warm = u * 0.9 * d;
@@ -1726,20 +2236,90 @@ export class Fx {
         );
       heat.step(dt, -40, 0.5);
     });
+    vic.end();
   }
 
   private async puting(C: FxCtx): Promise<void> {
     const cam = this.d.cam;
-    const N = 1100;
-    const em = this.emitter(N, { size: 90, additive: false, opacity: 0.75 });
-    const parts: { h: number; a: number; w: number }[] = [];
-    for (let i = 0; i < N; i++)
-      parts.push({ h: Math.pow(R(), 0.8) * 880, a: R() * TAU, w: 3 + R() * 4.5 });
-    const pa = (em.P.geometry.attributes.position as THREE.BufferAttribute).array as Float32Array;
-    const ca = (em.P.geometry.attributes.color as THREE.BufferAttribute).array as Float32Array;
+    const HT = 880;
+    const RT = 330;
+    const RB = 24;
+    const SW = 90;
     const kn = this.knocker(C);
     const pw = kn.pw;
     const T = 4.9;
+    // kamera mundur supaya seluruh corong sampai awan induk terlihat
+    cam.dist = 3000;
+    cam.tilt = 62;
+    cam.ty = HT * 0.42;
+    /* corong: tiga lapis bersarang dengan kecepatan putar dan kegelapan berbeda */
+    const layers = [
+      {
+        o: 0.5,
+        m: makeFunnel({
+          height: HT,
+          rTop: RT * 1.2,
+          rBot: RB * 1.6,
+          opacity: 0.8,
+          spin: 1.4,
+          color: 0xc4bfb2,
+          scale: 2.2,
+          sway: SW,
+        }),
+      },
+      {
+        o: 0.66,
+        m: makeFunnel({
+          height: HT,
+          rTop: RT,
+          rBot: RB,
+          opacity: 0.9,
+          spin: 2.2,
+          color: 0x948e82,
+          scale: 3.1,
+          sway: SW,
+        }),
+      },
+      {
+        o: 0.6,
+        m: makeFunnel({
+          height: HT,
+          rTop: RT * 0.55,
+          rBot: RB * 0.6,
+          opacity: 0.85,
+          spin: 3.2,
+          color: 0x4b453e,
+          scale: 3.9,
+          sway: SW,
+        }),
+      },
+    ];
+    layers.forEach((l) => this.fxG.add(l.m));
+    /* awan induk gelap di puncak corong */
+    const wall = Array.from({ length: 30 }, (_, i) => {
+      const spr = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: this.smokeTex[i % this.smokeTex.length]!,
+          transparent: true,
+          depthWrite: false,
+          opacity: 0,
+        }),
+      );
+      const shade = 0.27 + R() * 0.2;
+      spr.material.color.setRGB(shade * 0.95, shade, shade * 1.1);
+      this.fxG.add(spr);
+      const r = R() * RT * 1.7;
+      return {
+        spr,
+        a: R() * TAU,
+        r,
+        y: HT - 70 + R() * 140 - r * 0.06,
+        size: 380 + R() * 320,
+        w: 0.3 + R() * 0.35,
+      };
+    });
+    const dust = this.puffs(120);
+    const mid = this.puffs(90);
     const deb: { m: THREE.Mesh; h: number; a: number; w: number }[] = [];
     for (let i = 0; i < 34; i++) {
       const m = this.mk(
@@ -1755,8 +2335,8 @@ export class Fx {
       w: 2 + R() * 2,
     }));
     const dz = this.emo('😵', 130, 0);
-    const ground = this.emitter(260, { size: 170, additive: false, opacity: 0.55 });
-    this.fxS.dim = 0.78;
+    this.fxS.dim = 0.74;
+    this.fxS.warm = 0;
     const lt = this.lite(0xaabbcc, 1.6, 1600, C.x, 260, C.z);
     let cap = 0;
     let rel = 0;
@@ -1764,58 +2344,110 @@ export class Fx {
     let t0 = 0;
     let sx0 = 0;
     let sz0 = 0;
+    let accD = 0;
+    let accM = 0;
+    const orbit = (h: number) => funnelR(h / HT, RT, RB) + 55;
     await this.run(T + 3.4, (_p, dt, el) => {
       const q = Math.min(1, el / T);
       const u = -760 + 1520 * ez(q);
       const cx = C.x + C.tx * u;
       const cz = C.z + C.tz * u;
       const st = q < 0.1 ? q * 10 : q > 0.9 ? (1 - q) * 10 : el > T ? 0 : 1;
-      parts.forEach((o, i) => {
-        o.a += o.w * dt;
-        const r = (34 + o.h * 0.5) * st;
-        pa[i * 3] = cx + Math.cos(o.a) * r;
-        pa[i * 3 + 1] = o.h * st + 10;
-        pa[i * 3 + 2] = cz + Math.sin(o.a) * r;
-        const sh = 0.26 + 0.2 * Math.sin(o.a * 2 + o.h * 0.02);
-        ca[i * 3] = sh;
-        ca[i * 3 + 1] = sh;
-        ca[i * 3 + 2] = sh + 0.04;
+      const grow = Math.min(1, el / 1.4);
+      layers.forEach((l, i) => {
+        const un = l.m.material.uniforms;
+        un.uTime!.value = el + i * 3.7;
+        un.uGrow!.value = grow;
+        un.uOpacity!.value = l.o * Math.min(1, st * 1.4);
+        const k = 0.3 + 0.7 * st;
+        l.m.scale.set(k, 1, k);
+        l.m.position.set(cx, 4, cz);
+        l.m.visible = st > 0.01;
       });
-      (em.P.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
-      (em.P.geometry.attributes.color as THREE.BufferAttribute).needsUpdate = true;
+      wall.forEach((o) => {
+        o.a += o.w * dt;
+        const [sx, sz] = funnelSway(1, el, SW);
+        o.spr.position.set(cx + sx + Math.cos(o.a) * o.r, o.y, cz + sz + Math.sin(o.a) * o.r);
+        o.spr.scale.set(o.size, o.size * 0.7, 1);
+        o.spr.material.rotation += dt * 0.08;
+        o.spr.material.opacity = 0.8 * Math.min(1, el / 0.7) * Math.min(1, st * 1.3);
+      });
+      /* debu tebal di dasar dan serpihan di sepanjang corong */
+      if (st > 0.2) {
+        accD += dt * 46;
+        while (accD >= 1) {
+          accD--;
+          const a = R() * TAU;
+          const r = 40 + R() * 200;
+          dust.spawn({
+            x: cx + Math.cos(a) * r,
+            y: 14,
+            z: cz + Math.sin(a) * r,
+            vx: -Math.sin(a) * 340 + Math.cos(a) * 110,
+            vy: 40 + R() * 110,
+            vz: Math.cos(a) * 340 + Math.sin(a) * 110,
+            life: 1.9,
+            s0: 130,
+            s1: 360 + R() * 140,
+            c0: [0.66, 0.56, 0.44],
+            c1: [0.5, 0.45, 0.4],
+            op: 0.5,
+            spin: (R() - 0.5) * 1.4,
+          });
+        }
+        accM += dt * 38;
+        while (accM >= 1) {
+          accM--;
+          const h = R() * HT * 0.62;
+          const a = R() * TAU;
+          const r = funnelR(h / HT, RT, RB) * (0.85 + R() * 0.3);
+          const [sx, sz] = funnelSway(h / HT, el, SW);
+          mid.spawn({
+            x: cx + sx + Math.cos(a) * r,
+            y: h,
+            z: cz + sz + Math.sin(a) * r,
+            vx: -Math.sin(a) * (300 + R() * 160),
+            vy: 90 + R() * 140,
+            vz: Math.cos(a) * (300 + R() * 160),
+            life: 1.3,
+            s0: 70,
+            s1: 190 + R() * 90,
+            c0: [0.5, 0.43, 0.36],
+            c1: [0.4, 0.37, 0.34],
+            op: 0.32,
+            spin: (R() - 0.5) * 2,
+          });
+        }
+      }
+      dust.step(dt, 0.8, 0);
+      mid.step(dt, 0.6, 0);
       deb.forEach((d) => {
         d.a += d.w * dt;
-        const r = (60 + d.h * 0.6) * st;
-        d.m.position.set(cx + Math.cos(d.a) * r, d.h * st + 20, cz + Math.sin(d.a) * r);
+        const r = orbit(d.h) * st + 10;
+        const [sx, sz] = funnelSway(d.h / HT, el, SW);
+        d.m.position.set(
+          cx + sx * st + Math.cos(d.a) * r,
+          d.h * st + 20,
+          cz + sz * st + Math.sin(d.a) * r,
+        );
         d.m.rotation.x += dt * 8;
         d.m.rotation.y += dt * 5;
         d.m.visible = st > 0.02;
       });
       stuff.forEach((o) => {
         o.a += o.w * dt;
-        const r = (80 + o.h * 0.62) * st;
-        o.s.position.set(cx + Math.cos(o.a) * r, o.h * st + 40, cz + Math.sin(o.a) * r);
+        const r = (orbit(o.h) + 25) * st + 10;
+        const [sx, sz] = funnelSway(o.h / HT, el, SW);
+        o.s.position.set(
+          cx + sx * st + Math.cos(o.a) * r,
+          o.h * st + 40,
+          cz + sz * st + Math.sin(o.a) * r,
+        );
         o.s.material.opacity = Math.min(1, st * 1.5);
       });
-      if (st > 0.3)
-        for (let k = 0; k < 4; k++) {
-          const a = R() * TAU;
-          const r = 120 + R() * 260;
-          ground.spawn(
-            cx + Math.cos(a) * r,
-            16,
-            cz + Math.sin(a) * r,
-            -Math.sin(a) * 380,
-            80 + R() * 90,
-            Math.cos(a) * 380,
-            1.4,
-            [0.5, 0.43, 0.34],
-          );
-        }
-      ground.step(dt, -30, 0.5);
       lt.position.set(cx, 260, cz);
       lt.intensity = 1.6 + (Math.random() < 0.08 ? 5 : 0);
-      if (Math.random() < 0.02) this.flash(0.14, '#dfe8ff');
+      if (Math.random() < 0.025) this.flash(0.16, '#dfe8ff');
       cam.shake = Math.max(cam.shake, 18 * st);
       if (pw) {
         if (!cap && el < T * 0.85 && Math.hypot(pw.position.x - cx, pw.position.z - cz) < 300) {
@@ -1981,7 +2613,10 @@ export class Fx {
             m.position.set(X, 24, Z);
             const a = R() * TAU;
             const sp = 160 + R() * 320;
-            deb.push({ m, v: [Math.cos(a) * sp, 380 + R() * 380, Math.sin(a) * sp] });
+            deb.push({
+              m,
+              v: [Math.cos(a) * sp, 380 + R() * 380, Math.sin(a) * sp],
+            });
           }
           for (let i = 0; i < 22; i++) {
             const a = R() * TAU;

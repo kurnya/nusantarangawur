@@ -38,5 +38,45 @@
     "emoji": "💼",
     "name": "Karyawan",
     "color": "#27a6c8"
+  },
+  {
+    "emoji": "🩺",
+    "name": "Dokter",
+    "color": "#3fb6a8"
+  },
+  {
+    "emoji": "👮",
+    "name": "Polisi",
+    "color": "#8a6a44"
+  },
+  {
+    "emoji": "📚",
+    "name": "Guru",
+    "color": "#b0478f"
+  },
+  {
+    "emoji": "🪖",
+    "name": "Tentara",
+    "color": "#5f7a3a"
+  },
+  {
+    "emoji": "✈️",
+    "name": "Pilot",
+    "color": "#2d4a8a"
+  },
+  {
+    "emoji": "👨‍🍳",
+    "name": "Koki",
+    "color": "#e0b62a"
+  },
+  {
+    "emoji": "🚒",
+    "name": "Pemadam",
+    "color": "#d8322a"
+  },
+  {
+    "emoji": "🔧",
+    "name": "Montir",
+    "color": "#4a7fd0"
   }
 ]

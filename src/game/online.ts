@@ -48,12 +48,33 @@ function ls(): Storage | null {
   }
 }
 
+const DICE_KEY = 'ng_dice_online';
+function loadDice(): number | undefined {
+  try {
+    const v = Number(localStorage.getItem(DICE_KEY));
+    return localStorage.getItem(DICE_KEY) !== null && Number.isInteger(v) && v >= 0 && v < 8
+      ? v
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+function saveDice(k: number): void {
+  try {
+    localStorage.setItem(DICE_KEY, String(k));
+  } catch {
+    /* penyimpanan tidak tersedia */
+  }
+}
+
 export class OnlineGame {
   client: ClientSession | null = null;
   host: HostSession | null = null;
   code = '';
   private name = '';
   private pawn = 0;
+  /** dadu pilihan perangkat ini (disimpan agar terpakai lagi di ruangan berikutnya) */
+  private dice: number | undefined = loadDice();
   private started = false;
   private readonly queue: (() => Promise<void>)[] = [];
   private draining = false;
@@ -146,7 +167,7 @@ export class OnlineGame {
     const { hud, presenter } = this.d;
     this.client = new ClientSession(
       link,
-      { name: this.name || 'Pemain', pawn: this.pawn, token },
+      { name: this.name || 'Pemain', pawn: this.pawn, dice: this.dice, token },
       {
         onWelcome: (_pid, tok, code) => {
           ss()?.setItem(tokenKey(code), tok);
@@ -199,6 +220,21 @@ export class OnlineGame {
     setTurnLimit: (s) => this.host?.setSettings({ turnLimit: s }),
     leave: () => this.leave(),
   };
+
+  /** Dadu yang dipakai pemain `pid`: pilihan yang diumumkan Host, atau bawaan per kursi. */
+  diceOf(pid: number): number {
+    if (pid === this.me && this.dice !== undefined) return this.dice;
+    const d = this.client?.lobby?.players.find((p) => p.id === pid)?.dice;
+    return d ?? pid % 8;
+  }
+
+  /** Pilih dadu untuk pemain ini; Host menyiarkannya ke semua pemain. */
+  setDice(k: number): void {
+    this.dice = k;
+    saveDice(k);
+    const me = this.myLobby();
+    this.client?.setProfile(me?.name ?? this.name, me?.pawn ?? this.pawn, k);
+  }
 
   private myLobby() {
     return this.client?.lobby?.players.find((p) => p.id === this.client?.pid);

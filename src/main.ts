@@ -1,4 +1,6 @@
 import './style.css';
+import './ui-friendly.css';
+import './dice.css';
 import { audio, startAudio } from './audio';
 import type { GameState } from './engine/types';
 import { LocalGame } from './game/local';
@@ -81,6 +83,30 @@ const hud = new Hud(
   },
   reducedMotion,
 );
+
+/* pilihan dadu: satu perangkat = per pemain (disimpan di perangkat), online = diumumkan lewat Host */
+const DICE_LS = 'ng_dice_hotseat';
+const diceHot: Record<number, number> = (() => {
+  try {
+    return JSON.parse(localStorage.getItem(DICE_LS) || '{}') as Record<number, number>;
+  } catch {
+    return {};
+  }
+})();
+hud.diceApi = {
+  skin: (pid) => (online ? online.diceOf(pid) : (diceHot[pid] ?? pid % 8)),
+  pick: (pid, k) => {
+    if (online) online.setDice(k);
+    else {
+      diceHot[pid] = k;
+      try {
+        localStorage.setItem(DICE_LS, JSON.stringify(diceHot));
+      } catch {
+        /* penyimpanan tidak tersedia */
+      }
+    }
+  },
+};
 
 // diisi setelah view dibuat; view memanggil getState() saat membangun petak
 const ref: { presenter?: Presenter } = {};
@@ -181,6 +207,34 @@ camPanel.addEventListener('click', (e) => {
   const b = (e.target as HTMLElement).closest('button');
   if (b && !['camL', 'camR', 'camIn', 'camOut'].includes(b.id)) setMenu(false);
 });
+/* menu "Lainnya" (desktop dan tablet): fitur jarang dipakai dilipat agar toolbar tidak padat */
+const camMore = $('#camMore');
+const morePanel = $('#camMorePanel');
+const setMore = (open: boolean) => {
+  morePanel.classList.toggle('open', open);
+  camMore.setAttribute('aria-expanded', String(open));
+};
+camMore.onclick = () => setMore(!morePanel.classList.contains('open'));
+morePanel.addEventListener('click', () => setMore(false));
+document.addEventListener('pointerdown', (e) => {
+  if (!morePanel.contains(e.target as Node) && e.target !== camMore) setMore(false);
+});
+/* pintasan keyboard: Spasi = lempar dadu, Esc = tutup menu kecil */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    setMore(false);
+    return;
+  }
+  if (e.code !== 'Space' || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  const tag = (document.activeElement?.tagName ?? '').toLowerCase();
+  if (['input', 'select', 'textarea', 'button', 'summary', 'a'].includes(tag)) return;
+  if (document.querySelector('.overlay:not(.hidden)')) return;
+  const go = document.querySelector<HTMLButtonElement>('#acts .btn.pri:not(:disabled)');
+  if (go) {
+    e.preventDefault();
+    go.click();
+  }
+});
 $('#mobFocus').onclick = () => $('#camFocus').click();
 $('#mobAssets').onclick = () => $('#camAssets').click();
 
@@ -203,10 +257,17 @@ gAmb.value = String(audio.st.amb);
 gMute.checked = audio.st.mute;
 $('#camSettings').onclick = () => graphicsPanel.classList.toggle('open');
 gApply.onclick = () => {
-  const next = { quality: gQuality.value as QualityPref, fps: gFps.value as FpsPref };
+  const next = {
+    quality: gQuality.value as QualityPref,
+    fps: gFps.value as FpsPref,
+  };
   saveGraphicsPrefs(next);
   const q = resolveQuality(next.quality, params.get('low') === '1');
-  view?.setGraphics(q, resolveFps(next.fps, q), next.quality === 'auto' && params.get('low') !== '1');
+  view?.setGraphics(
+    q,
+    resolveFps(next.fps, q),
+    next.quality === 'auto' && params.get('low') !== '1',
+  );
   startAudio();
   audio.vol('sfx', Number(gSfx.value));
   audio.vol('amb', Number(gAmb.value));

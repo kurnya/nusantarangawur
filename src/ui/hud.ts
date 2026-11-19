@@ -9,6 +9,10 @@ import { buildCost, canBuild, cityPrice, fmtMoney, ownedCount } from '../engine/
 import type { CardKind, GameState, WeatherKey } from '../engine/types';
 import { $, el, esc, sleep, tkImg } from './dom';
 import type { LogLine } from './messages';
+import { cardArt } from './cardArt';
+import { cardChips, cardNo, cardTone, type Chip } from './cardMeta';
+import { Dice3D } from './dice3d';
+import { DICE_SKINS, diceSkinName, type DiceApi } from './diceSkins';
 
 export interface HudActions {
   roll(): void;
@@ -44,6 +48,12 @@ export class Hud {
   private twRun = false;
   private flyTo = new Set<number>();
   private cubes: HTMLElement[] = [];
+  private dies: HTMLElement[] = [];
+  /** dadu 3D WebGL; null bila WebGL tidak tersedia (dadu CSS dipakai) */
+  private d3: Dice3D | null = null;
+  /** pemilihan dadu per pemain; diisi main.ts */
+  diceApi: DiceApi = { skin: (pid) => pid % 8, pick: () => {} };
+  private dkClose: (() => void) | null = null;
   private spin = 0;
   /** status catatan per id pemain */
   private logOpen: Record<number, boolean> = {};
@@ -84,6 +94,11 @@ export class Hud {
       w.appendChild(d);
     });
     this.syncMoney(s);
+    // baris pemain bisa digeser (HP): bawa kartu pemain yang sedang jalan ke tengah
+    const cur = w.querySelector<HTMLElement>('.pc.on');
+    if (cur && w.scrollWidth > w.clientWidth) {
+      w.scrollLeft = cur.offsetLeft - (w.clientWidth - cur.offsetWidth) / 2;
+    }
   }
 
   private paintMoney(i: number): void {
@@ -101,7 +116,12 @@ export class Hud {
       const tw = this.tws[i];
       if (tw) {
         if (tw.to === p.money) return;
-        this.tws[i] = { from: cur, to: p.money, t0: performance.now(), dur: 900 };
+        this.tws[i] = {
+          from: cur,
+          to: p.money,
+          t0: performance.now(),
+          dur: 900,
+        };
         return;
       }
       if (cur === p.money) return;
@@ -204,8 +224,16 @@ export class Hud {
             opacity: 1,
             offset: 0.18,
           },
-          { transform: `translate(${mx}px,${my}px) scale(1.1)`, opacity: 1, offset: 0.55 },
-          { transform: `translate(${x1}px,${y1}px) scale(.7)`, opacity: 1, offset: 0.92 },
+          {
+            transform: `translate(${mx}px,${my}px) scale(1.1)`,
+            opacity: 1,
+            offset: 0.55,
+          },
+          {
+            transform: `translate(${x1}px,${y1}px) scale(.7)`,
+            opacity: 1,
+            offset: 0.92,
+          },
           { transform: `translate(${x1}px,${y1}px) scale(.4)`, opacity: 0 },
         ],
         { duration: dur, delay, easing: 'ease-in-out', fill: 'backwards' },
@@ -226,10 +254,13 @@ export class Hud {
     const p = s.players[s.turn];
     const t = $('#turn');
     if (!p) return;
+    // dadu di nampan langsung memakai skin pemain yang sedang giliran, bukan baru setelah lempar
+    this.skinDice(s.turn);
     this.applyLog(v.pov, s.phase);
     const tok = PAWNS[p.pawn];
     const mine = v.pov === s.turn;
-    t.innerHTML = `<div class="who" style="--c:${tok?.color ?? '#888'}"><div class="tk">${tkImg(p.pawn)}</div><div><h2>${esc(p.name)}</h2><p>${esc(tok?.name ?? '')} · di ${esc(tileName(p.pos))}</p><span class="pv">${mine ? 'Giliran kamu' : 'Giliran ' + esc(p.name)}</span></div></div><div class="dr">Dadu terakhir <b id="dv">${s.last || '-'}</b></div><div class="tmr" id="tmr"></div><div id="acts"></div>`;
+    t.innerHTML = `<div class="who" style="--c:${tok?.color ?? '#888'}"><div class="tk">${tkImg(p.pawn)}</div><div><h2>${esc(p.name)}</h2><p>${esc(tok?.name ?? '')} · di ${esc(tileName(p.pos))}</p><span class="pv">${mine ? 'Giliran kamu' : 'Giliran ' + esc(p.name)}</span></div></div><div class="dr"><span>Dadu terakhir <b id="dv">${s.last || '-'}</b></span><button class="dkbtn" id="dkBtn" type="button" aria-haspopup="dialog" title="Pilih dadu">🎲 <span id="dkName">${esc(diceSkinName(this.diceApi.skin(v.pov)))}</span></button></div><div class="tmr" id="tmr"></div><div id="acts"></div>`;
+    this.bindDicePick(v.pov);
     const a = $('#acts');
     if (s.phase === 'over') return;
     const me = s.players[v.pov];
@@ -294,6 +325,7 @@ export class Hud {
     const dice = $('#dice');
     dice.innerHTML = '';
     this.cubes = [];
+    this.dies = [];
     const pips: Record<number, number[]> = {
       1: [4],
       2: [0, 8],
@@ -302,18 +334,39 @@ export class Hud {
       5: [0, 2, 4, 6, 8],
       6: [0, 2, 3, 5, 6, 8],
     };
-    [-36, 36].forEach((x) => {
-      const c = el('div', 'cube');
-      c.style.left = `${x}px`;
+    [-38, 38].forEach((x, k) => {
+      const die = el('div', `die k${k}`);
+      die.style.left = `${x}px`;
+      const c = el('div', 'cube sk0');
       for (let v = 1; v <= 6; v++) {
         let h = '';
-        for (let k = 0; k < 9; k++) h += `<i${pips[v]!.includes(k) ? ' class="on"' : ''}></i>`;
+        for (let q = 0; q < 9; q++) h += `<i${pips[v]!.includes(q) ? ' class="on"' : ''}></i>`;
         c.appendChild(el('div', `f f${v} p${v}`, h));
       }
-      dice.appendChild(c);
+      die.appendChild(el('div', 'dshadow'));
+      die.appendChild(c);
+      dice.appendChild(die);
       this.cubes.push(c);
+      this.dies.push(die);
     });
+    dice.appendChild(el('div', 'dsum', ''));
     this.setDice([1, 1], false);
+    try {
+      const tray = dice.parentElement!;
+      const box = el('div', 'd3box');
+      tray.appendChild(box);
+      this.d3 = new Dice3D(box);
+      tray.classList.add('gl');
+      window.addEventListener('resize', () => this.d3?.resize());
+    } catch {
+      this.d3 = null;
+    }
+  }
+
+  private skinDice(pid: number): void {
+    const k = this.diceApi.skin(pid);
+    this.cubes.forEach((c) => (c.className = `cube sk${k}`));
+    this.d3?.setSkin(k);
   }
 
   private setDice(vals: [number, number], anim: boolean): void {
@@ -325,9 +378,111 @@ export class Hud {
     });
   }
 
-  async rollDice(a: number, b: number): Promise<void> {
+  async rollDice(a: number, b: number, pid = 0): Promise<void> {
+    this.skinDice(pid);
+    if (this.d3) {
+      if (this.fast) this.d3.place(a, b);
+      else {
+        this.showSum(a, b);
+        await this.d3.roll(a, b);
+        await sleep(220, false);
+      }
+      this.setDice([a, b], false);
+      return;
+    }
     this.setDice([a, b], !this.fast);
+    if (!this.fast) {
+      // ulang animasi lemparan dan tampilkan jumlah setelah dadu mendarat
+      this.dies.forEach((d) => {
+        d.classList.remove('toss');
+        void d.offsetWidth;
+        d.classList.add('toss');
+      });
+      const sum = $('#dice').querySelector<HTMLElement>('.dsum');
+      if (sum) {
+        sum.innerHTML = `${a + b}${a === b ? '<small>KEMBAR</small>' : ''}`;
+        sum.classList.remove('show');
+        void sum.offsetWidth;
+        sum.classList.add('show');
+      }
+    }
     await sleep(1150, this.fast);
+  }
+
+  private showSum(a: number, b: number): void {
+    const sum = $('#dice').querySelector<HTMLElement>('.dsum');
+    if (!sum) return;
+    sum.innerHTML = `${a + b}${a === b ? '<small>KEMBAR</small>' : ''}`;
+    sum.classList.remove('show');
+    void sum.offsetWidth;
+    sum.classList.add('show');
+  }
+
+  /* ---------- pilihan dadu ---------- */
+
+  /** Tombol dadu di kartu kontrol: buka pemilih skin untuk `pid`. */
+  private bindDicePick(pid: number): void {
+    const b = document.getElementById('dkBtn');
+    if (!b) return;
+    b.onclick = (e) => {
+      e.stopPropagation();
+      if (this.dkClose) {
+        this.dkClose();
+        return;
+      }
+      this.openDicePicker(pid, b);
+    };
+  }
+
+  private openDicePicker(pid: number, anchor: HTMLElement): void {
+    const pop = el('div', 'dkpick');
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', 'Pilih dadu');
+    const cur = this.diceApi.skin(pid);
+    const pips = [[4], [0, 8], [0, 4, 8], [0, 2, 6, 8], [0, 2, 4, 6, 8], [0, 2, 3, 5, 6, 8]];
+    const face = (k: number) => {
+      const p = pips[(k * 5 + 4) % 6]!;
+      let h = '';
+      for (let q = 0; q < 9; q++)
+        h += `<i${p.includes(q) ? (p.length === 1 ? ' class="c"' : '') : ' style="visibility:hidden"'}></i>`;
+      return `<span class="dkface sk${k}">${h}</span>`;
+    };
+    pop.innerHTML = `<h4>Pilih dadu kamu</h4><div class="dkgrid" role="radiogroup">${DICE_SKINS.map(
+      (s, k) =>
+        `<button class="dkopt${k === cur ? ' on' : ''}" role="radio" aria-checked="${k === cur}" data-k="${k}">${face(k)}<span>${esc(s.name)}</span></button>`,
+    ).join('')}</div>`;
+    document.body.appendChild(pop);
+    const r = anchor.getBoundingClientRect();
+    const w = pop.offsetWidth;
+    pop.style.left = `${Math.max(12, Math.min(window.innerWidth - w - 12, r.right - w))}px`;
+    const top = r.top - pop.offsetHeight - 8;
+    pop.style.top = `${top < 8 ? r.bottom + 8 : top}px`;
+    const close = () => {
+      pop.remove();
+      document.removeEventListener('pointerdown', away, true);
+      document.removeEventListener('keydown', key, true);
+      this.dkClose = null;
+    };
+    const away = (e: Event) => {
+      if (!pop.contains(e.target as Node) && e.target !== anchor) close();
+    };
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    document.addEventListener('pointerdown', away, true);
+    document.addEventListener('keydown', key, true);
+    this.dkClose = close;
+    pop.querySelectorAll<HTMLButtonElement>('[data-k]').forEach((o) => {
+      o.onclick = () => {
+        const k = Number(o.dataset.k);
+        this.diceApi.pick(pid, k);
+        this.skinDice(pid);
+        const lab = document.getElementById('dkName');
+        if (lab) lab.textContent = diceSkinName(k);
+        close();
+      };
+    });
+    pop.querySelector<HTMLButtonElement>('.dkopt.on')?.focus();
   }
 
   /* ---------- cuaca ---------- */
@@ -474,14 +629,36 @@ export class Hud {
     if (a) a.textContent = msg;
   }
 
-  cardHTML(kind: CardKind, text: string, iconHtml: string, tag: string): string {
-    return `<div class="cardface c-${kind}"><div class="ch"><span>${kind}</span><small>${esc(tag)}</small></div><div class="cb"><span class="em">${iconHtml}</span>${esc(text)}</div></div>`;
+  /** `artHtml`: gambar garis kartu (cardArt); bila kosong dipakai emoji `iconHtml`. */
+  cardHTML(
+    kind: CardKind,
+    text: string,
+    iconHtml: string,
+    tag: string,
+    artHtml = '',
+    meta: { chips?: Chip[]; no?: string } = {},
+  ): string {
+    // ukuran teks menyesuaikan panjang kalimat supaya kartu tetap rapi
+    const n = text.length;
+    const fit = n <= 52 ? 't1' : n <= 88 ? 't2' : n <= 120 ? 't3' : 't4';
+    const pic = artHtml
+      ? `<div class="cpic">${artHtml}</div>`
+      : `<span class="em">${iconHtml}</span>`;
+    const chips = (meta.chips ?? [])
+      .map((c) => `<span class="chip k-${c.k}"><i></i>${esc(c.t)}</span>`)
+      .join('');
+    const foot = `<div class="cf"><div class="chips">${chips}</div><small class="cno">NUSANTARA NGAWUR${meta.no ? ` · ${esc(meta.no)}` : ''}</small></div>`;
+    const badge = kind === 'BENCANA' ? '▲' : '✦';
+    return `<div class="cardface c-${kind} tone-${cardTone(tag)}"><i class="cor a"></i><i class="cor b"></i><i class="cor c"></i><i class="cor d"></i><div class="ch"><span class="ctt"><b class="cbadge" aria-hidden="true">${badge}</b>${kind}</span><small>${esc(tag)}</small></div><div class="cb ${fit}">${pic}<p class="ct">${esc(text)}</p></div>${foot}<i class="foil"></i></div>`;
   }
 
   /** HTML kartu dari id kartu. Emoji kartu boleh tampil di UI HTML (bukan di peta 3D). */
   cardById(id: string, tag: string, kind: CardKind): string {
     const c = CARD_BY_ID[id];
-    return this.cardHTML(kind, c?.x ?? '', esc(c?.em ?? ''), tag);
+    return this.cardHTML(kind, c?.x ?? '', esc(c?.em ?? ''), tag, cardArt(id, kind), {
+      chips: cardChips(c?.e),
+      no: cardNo(id),
+    });
   }
 
   toast(msg: string): void {

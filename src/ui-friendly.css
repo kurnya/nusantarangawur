@@ -1,0 +1,1042 @@
+/* ============================================================
+   UI ramah: lapisan di atas style.css (dimuat sesudahnya).
+   Prinsip: satu aksi utama yang jelas, kontrol sekunder dilipat,
+   target sentuh >= 44px di layar sentuh, tidak ada tombol saling menimpa.
+   ============================================================ */
+
+/* ---- dasar ---- */
+html,
+body,
+.app {
+  height: 100vh;
+  height: 100dvh;
+}
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn,
+.cam button {
+  min-height: 40px;
+}
+@media (pointer: coarse) {
+  .btn,
+  .cam button {
+    min-height: 44px;
+  }
+}
+
+/* dialog tidak lagi terpotong di atas saat isinya lebih tinggi dari layar */
+.overlay {
+  place-items: start center;
+}
+.dlg {
+  margin-block: auto;
+}
+.dlg .row .btn {
+  min-height: 46px;
+}
+@keyframes sheet {
+  from {
+    transform: translateY(36px);
+    opacity: 0;
+  }
+}
+
+/* ---- toolbar kamera: grup melayang ---- */
+.cam {
+  right: auto;
+  gap: 8px;
+  align-items: flex-start;
+  max-width: calc(100% - 190px);
+}
+.cam .cg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 13px;
+  background: #0d1426d9;
+  border: 1px solid #ffffff1f;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px #0005;
+}
+.cam .cg button {
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.cam .cg button:hover {
+  background: #ffffff16;
+}
+.cam .cg button:active {
+  background: #ffffff26;
+}
+.cam .cg button.warn {
+  color: #ffd5dc;
+}
+.cam .moreWrap {
+  position: relative;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.cam .moreWrap > #camMore {
+  background: #0d1426d9;
+  border: 1px solid #ffffff1f;
+  border-radius: 13px;
+  box-shadow: 0 4px 14px #0005;
+  padding: 9px 13px;
+}
+.cam .morepanel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 190px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px;
+  z-index: 12;
+  background: #0d1426f5;
+  box-shadow: 0 12px 30px #000a;
+}
+.cam .morepanel.open {
+  display: flex;
+}
+.cam .morepanel button {
+  text-align: left;
+  padding: 9px 12px;
+}
+.cam .morepanel button[hidden] {
+  display: none;
+}
+
+/* kotak cuaca dan tombol akhiri: kolom kanan atas, tidak berebut tempat dengan toolbar */
+.endgame-top {
+  top: 12px;
+  min-height: 36px;
+}
+.wxchip {
+  top: 58px;
+  background: #0d1426d9;
+  backdrop-filter: blur(6px);
+}
+
+/* petunjuk bawah: dibuat terbaca di atas peta apa pun */
+.hint {
+  bottom: 12px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: #0d1426b8;
+  color: #d6e0f5;
+  text-shadow: none;
+  max-width: calc(100% - 340px);
+  line-height: 1.35;
+}
+
+/* ---- kartu giliran (desktop dan tablet) ---- */
+.hud {
+  width: min(300px, calc(100% - 28px));
+}
+.hud .turn {
+  background: #0d1426f2;
+  border: 1px solid #ffffff1f;
+  padding: 14px;
+}
+.hud .turn .who .tk {
+  width: 44px;
+  height: 44px;
+}
+.hud .turn h2 {
+  font-size: 17px;
+}
+.hud .turn p {
+  display: block;
+  font-size: 12.5px;
+}
+.hud .btn.pri.big,
+.hud .btn.gold.big {
+  min-height: 56px;
+  font-size: 18px;
+  border-radius: 14px;
+}
+.hud .btn.big:not(.pri):not(.gold) {
+  min-height: 46px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud #acts .btn.pri:not(:disabled)::after {
+    content: 'Spasi';
+    margin-left: 10px;
+    padding: 1px 7px;
+    border: 1px solid #ffffff66;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.85;
+    vertical-align: 2px;
+  }
+}
+
+/* baris pemain */
+.pc .s {
+  font-size: 11.5px;
+}
+#players {
+  scrollbar-width: none;
+}
+#players::-webkit-scrollbar {
+  display: none;
+}
+
+/* dialog beli/kartu/aset di HP potret: lembar dari bawah, mudah dijangkau ibu jari */
+@media (max-width: 700px) and (orientation: portrait) {
+  #modal,
+  .overlay.assets {
+    place-items: end center;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  #modal .dlg,
+  .overlay.assets .dlg {
+    margin-block: 0;
+    border-radius: 22px;
+    animation: sheet 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #modal .dlg,
+  .overlay.assets .dlg {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   MODE HP (kelas html.mob)
+   ============================================================ */
+html.mob .cam .cg,
+html.mob .cam .moreWrap,
+html.mob .cam .morepanel {
+  display: contents;
+}
+html.mob #camMore {
+  display: none;
+}
+html.mob .cam {
+  max-width: none;
+}
+html.mob .cam .cg button {
+  background: #1b2540;
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  min-height: 44px;
+}
+html.mob .cam .cg button[hidden] {
+  display: none;
+}
+html.mob .mobbar button {
+  min-width: 44px;
+  height: 44px;
+}
+html.mob .endgame-top {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+html.mob .hud .turn {
+  display: flex;
+  flex-direction: column;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+/* label giliran ringkas di atas tombol aksi */
+html.mob .hud .turn .who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-end;
+  width: fit-content;
+  margin: 0 0 6px auto;
+  padding: 3px 11px 3px 3px;
+  border-radius: 99px;
+  background: #0d1426e0;
+  border: 1px solid #ffffff22;
+}
+html.mob .hud .turn .who .tk {
+  width: 26px;
+  height: 26px;
+  border-width: 2px;
+  font-size: 14px;
+}
+html.mob .hud .turn .who h2,
+html.mob .hud .turn .who p {
+  display: none;
+}
+html.mob .hud .turn .who .pv {
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+html.mob .hud #acts .btn,
+html.mob .hud #acts .btn.big {
+  min-height: 46px;
+}
+html.mob .hud #acts .btn.pri,
+html.mob .hud #acts .btn.gold {
+  min-height: 56px;
+  font-size: 17px;
+}
+
+/* HP potret: pemain jadi baris sendiri di bawah tombol cepat, tidak saling menimpa */
+@media (max-width: 700px) and (orientation: portrait) {
+  html.mob .side.left {
+    left: 0;
+    right: 0;
+    max-width: none;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding-top: max(6px, env(safe-area-inset-top));
+  }
+  html.mob .side.left .brand {
+    display: block;
+    flex: 1 1 auto;
+    max-width: calc(100% - 215px);
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 14px;
+    text-shadow:
+      0 2px 0 var(--red),
+      0 2px 8px #000a;
+  }
+  html.mob #players {
+    order: 2;
+    flex: 0 0 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 6px;
+    scroll-snap-type: x proximity;
+  }
+  html.mob .pc {
+    scroll-snap-align: center;
+    grid-template-columns: 32px auto;
+    padding: 3px 13px 3px 3px;
+  }
+  html.mob .pc .tk {
+    width: 32px;
+    height: 32px;
+  }
+  html.mob .pc b {
+    font-size: 12px;
+  }
+  html.mob .pc .m {
+    font-size: 13px;
+  }
+  html.mob .wxchip {
+    top: calc(max(6px, env(safe-area-inset-top)) + 100px);
+    left: max(8px, env(safe-area-inset-left));
+    right: auto;
+  }
+  html.mob .cardnotes {
+    top: calc(max(6px, env(safe-area-inset-top)) + 134px);
+  }
+  html.mob .cam {
+    top: calc(max(6px, env(safe-area-inset-top)) + 52px);
+  }
+  html.mob .logd {
+    top: calc(max(6px, env(safe-area-inset-top)) + 100px);
+  }
+  html.mob .fxpanel {
+    top: calc(max(6px, env(safe-area-inset-top)) + 52px);
+  }
+  html.mob .hud .turn .who {
+    margin: 0 auto 6px;
+  }
+  html.mob .hud .tmr,
+  html.mob .hud .wait {
+    margin: 0 auto 6px;
+  }
+  html.mob .tray {
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 118px);
+  }
+}
+
+/* tablet sentuh yang tidak masuk mode HP: kontrol lebih besar */
+@media (pointer: coarse) and (min-width: 701px) {
+  html:not(.mob) .cam .cg button {
+    padding: 9px 14px;
+    font-size: 14.5px;
+  }
+  html:not(.mob) .hint {
+    display: none;
+  }
+}
+
+/* HP potret: dadu naik saat ada lebih dari satu tombol aksi, supaya tidak tertutup */
+@media (max-width: 700px) and (orientation: portrait) {
+  html.mob .app:has(#acts .btn:nth-child(2)) .tray {
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 182px);
+  }
+  html.mob .app:has(#acts .btn:nth-child(3)) .tray {
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 240px);
+  }
+}
+
+/* ============================================================
+   Kartu lobi: header tetap, isi bisa digulir, tombol aksi selalu terlihat
+   ============================================================ */
+#menuBox:has(.lbhead) {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+}
+.overlay#menu .setup:has(.lbhead) {
+  padding: 0;
+  width: min(560px, 100%);
+}
+.lbhead {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #1b2442, var(--panel));
+}
+.lbtop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.overlay#menu .setup .lbhead .brand {
+  font-size: 22px;
+  flex: none;
+}
+.lbhead .roomcode {
+  margin: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.lbhead .roomcode b {
+  font-size: 34px;
+  letter-spacing: 5px;
+  line-height: 1.1;
+}
+.lbhead .invite {
+  margin-top: 10px;
+}
+.lbhead .invite input {
+  font-size: 13px;
+  padding: 9px 11px;
+  text-overflow: ellipsis;
+}
+.lbhead .netstat {
+  margin: 8px 0 0;
+}
+.lbbody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 20px 14px;
+  overscroll-behavior: contain;
+}
+.lbbody .lbl:first-of-type {
+  margin-top: 14px;
+}
+.lbbody .cl {
+  margin-top: 6px;
+}
+.lbset {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.lbset1 {
+  margin-top: 12px;
+}
+.lbfoot {
+  padding: 12px 20px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: #111830;
+  box-shadow: 0 -10px 24px #0006;
+}
+.lbfoot .row {
+  margin-top: 0;
+  flex-wrap: nowrap;
+}
+.lbfoot .row .btn {
+  min-height: 52px;
+}
+.lbfoot #lbStart,
+.lbfoot #lbReady {
+  flex: 2;
+}
+.lbfoot #lbLeave {
+  flex: 1;
+}
+.lbfoot .lbwhy {
+  margin: 0 0 8px;
+  color: #ffd38a;
+  text-align: center;
+}
+@media (max-width: 700px) {
+  .lbhead {
+    padding: 12px 14px 10px;
+  }
+  .lbhead .roomcode b {
+    font-size: 28px;
+    letter-spacing: 4px;
+  }
+  .lbbody {
+    padding: 2px 14px 12px;
+  }
+  .lbfoot {
+    padding: 10px 14px max(12px, env(safe-area-inset-bottom));
+  }
+  .pawnpick {
+    gap: 5px;
+  }
+  .pp span {
+    width: 36px;
+    height: 36px;
+  }
+}
+@media (max-height: 520px) {
+  .lbhead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 16px;
+  }
+  .overlay#menu .setup .lbhead .brand {
+    display: none;
+  }
+  .lbhead .roomcode {
+    align-items: flex-start;
+  }
+  .lbhead .roomcode b {
+    font-size: 26px;
+    letter-spacing: 4px;
+  }
+  .lbhead .invite {
+    flex: 1;
+    margin: 0;
+  }
+  .lbhead .netstat {
+    display: none;
+  }
+  .lbbody {
+    padding: 0 16px 8px;
+  }
+  .lbfoot {
+    padding: 8px 16px max(8px, env(safe-area-inset-bottom));
+  }
+  .lbfoot .row .btn {
+    min-height: 44px;
+  }
+}
+
+/* kartu lobi dipusatkan dan tidak melebihi tinggi layar */
+.overlay#menu:has(.lbhead) {
+  align-items: center;
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+#menuBox:has(.lbhead) {
+  max-height: calc(100vh - 28px);
+  max-height: calc(100dvh - 28px);
+}
+
+/* ---- kartu Nasib dan Bencana: gambar garis dan ukuran teks menyesuaikan ---- */
+.cardface {
+  --ac: #d9c4ff;
+  --ac2: #b497e6;
+  position: relative;
+}
+.cardface.c-BENCANA {
+  --ac: #ffb3aa;
+  --ac2: #ef8176;
+}
+.cardface .cb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 14px 18px 22px;
+}
+.cardface .cpic {
+  position: relative;
+  width: 148px;
+  height: 124px;
+  display: grid;
+  place-items: center;
+  color: var(--ac);
+}
+.cardface .cpic::before {
+  content: '';
+  position: absolute;
+  inset: 4px 14px;
+  border-radius: 50%;
+  border: 2px dashed var(--ac2);
+  opacity: 0.28;
+}
+.cardface .cpic::after {
+  content: '';
+  position: absolute;
+  inset: 14px 24px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.12), transparent);
+}
+.cart {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.cart .s {
+  stroke-width: 2;
+  opacity: 0.62;
+}
+.cardface .cpic .cart {
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.28));
+  animation: cartIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.15s backwards;
+}
+@keyframes cartIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) rotate(-4deg);
+  }
+}
+.cardface .ct {
+  margin: 0;
+  max-width: 34ch;
+  font-weight: 650;
+  line-height: 1.42;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  font-size: var(--fs, 17px);
+}
+.cardface .cb.t1 .ct {
+  --fs: 19px;
+}
+.cardface .cb.t2 .ct {
+  --fs: 17px;
+}
+.cardface .cb.t3 .ct {
+  --fs: 15.5px;
+  line-height: 1.38;
+}
+.cardface .cb.t4 .ct {
+  --fs: 14px;
+  line-height: 1.36;
+}
+.cnote .cnb .em {
+  float: left;
+  width: 38px;
+  height: 32px;
+  margin: 0 8px 2px 0;
+  color: var(--ac, #d9c4ff);
+}
+.cnote.c-BENCANA .cnb .em {
+  color: #ffb3aa;
+}
+.cnote.c-NASIB .cnb .em {
+  color: #d9c4ff;
+}
+.cnote .cart {
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 700px), (max-height: 640px) {
+  .cardface .cpic {
+    width: 112px;
+    height: 94px;
+  }
+  .cardface .cb {
+    gap: 6px;
+    padding: 10px 14px 16px;
+  }
+  .cardface .cb.t1 .ct {
+    --fs: 17px;
+  }
+  .cardface .cb.t2 .ct {
+    --fs: 15.5px;
+  }
+  .cardface .cb.t3 .ct {
+    --fs: 14px;
+  }
+  .cardface .cb.t4 .ct {
+    --fs: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cardface .cpic .cart {
+    animation: none;
+  }
+}
+
+/* gambar kartu dibuat transparan dan selalu di belakang teks, tidak boleh menyusut atau menimpa */
+.cardface .cb {
+  min-height: 0;
+}
+.cardface .cpic {
+  flex: none;
+  overflow: hidden;
+}
+.cardface .cpic .cart {
+  opacity: 0.5;
+  overflow: hidden;
+  z-index: 0;
+}
+.cardface .ct {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 10px rgba(0, 0, 0, 0.35);
+}
+.cnote .cnb .em {
+  opacity: 0.55;
+  overflow: hidden;
+  flex: none;
+}
+.cnote .cnb {
+  position: relative;
+}
+.cnote .cnb b {
+  position: relative;
+  z-index: 2;
+}
+
+/* gambar kartu menjadi latar transparan di belakang teks yang berada di tengah */
+.cardface .cb {
+  position: relative;
+  overflow: hidden;
+  justify-content: center;
+  min-height: 230px;
+  padding: 26px 22px;
+  isolation: isolate;
+}
+.cardface .cpic {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.cardface .cpic::before,
+.cardface .cpic::after {
+  display: none;
+}
+.cardface .cpic .cart {
+  width: 82%;
+  height: 86%;
+  max-width: 270px;
+  opacity: 0.26;
+  filter: none;
+  stroke-width: 2.6;
+  overflow: visible;
+}
+.cardface .cpic .cart .s {
+  opacity: 0.7;
+}
+.cardface .ct {
+  z-index: 2;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.75),
+    0 0 14px rgba(0, 0, 0, 0.45);
+}
+@media (max-width: 700px), (max-height: 640px) {
+  .cardface .cb {
+    min-height: 180px;
+    padding: 18px 16px;
+  }
+  .cardface .cpic .cart {
+    width: 88%;
+    height: 84%;
+  }
+}
+
+/* ---- desain kartu: warna per nada, bingkai ganda, ornamen sudut, chip efek ---- */
+.cardface {
+  --c1: #7a4cc0;
+  --c2: #3b2263;
+  --edge: #e8c76a;
+  isolation: isolate;
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(255, 255, 255, 0.22), transparent 60%),
+    linear-gradient(165deg, var(--c1), var(--c2));
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 2px var(--edge),
+    inset 0 0 0 5px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 6px color-mix(in srgb, var(--edge) 55%, transparent);
+}
+.cardface.tone-baik {
+  --c1: #1f9d78;
+  --c2: #0b4a43;
+  --ac: #c4f7e2;
+  --ac2: #7fe0bd;
+  --edge: #f1d98a;
+}
+.cardface.tone-buruk {
+  --c1: #7a4cc0;
+  --c2: #36205e;
+  --ac: #e0d0ff;
+  --ac2: #b497e6;
+  --edge: #d7c2ff;
+}
+.cardface.tone-bencana {
+  --c1: #d6403a;
+  --c2: #5e1213;
+  --ac: #ffc9bd;
+  --ac2: #ef8176;
+  --edge: #ffb27a;
+}
+/* pola kawung halus di latar */
+.cardface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.1;
+  background:
+    radial-gradient(circle at 25% 25%, #fff 0 9px, transparent 10px),
+    radial-gradient(circle at 75% 75%, #fff 0 9px, transparent 10px),
+    radial-gradient(circle at 75% 25%, transparent 0 12px, #fff 13px 14px, transparent 15px),
+    radial-gradient(circle at 25% 75%, transparent 0 12px, #fff 13px 14px, transparent 15px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(180deg, #000, transparent 70%);
+}
+.cardface .cor {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  z-index: 3;
+  border: 2px solid var(--edge);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.cardface .cor.a {
+  top: 12px;
+  left: 12px;
+  border-right: 0;
+  border-bottom: 0;
+  border-radius: 8px 0 0 0;
+}
+.cardface .cor.b {
+  top: 12px;
+  right: 12px;
+  border-left: 0;
+  border-bottom: 0;
+  border-radius: 0 8px 0 0;
+}
+.cardface .cor.c {
+  bottom: 12px;
+  left: 12px;
+  border-right: 0;
+  border-top: 0;
+  border-radius: 0 0 0 8px;
+}
+.cardface .cor.d {
+  bottom: 12px;
+  right: 12px;
+  border-left: 0;
+  border-top: 0;
+  border-radius: 0 0 8px 0;
+}
+.cardface .ch {
+  position: relative;
+  z-index: 2;
+  padding: 18px 24px 10px;
+  font-size: 22px;
+  letter-spacing: 3px;
+  border-bottom: 1px solid color-mix(in srgb, var(--edge) 40%, transparent);
+  margin: 0 8px;
+}
+.cardface .ch .ctt {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.cardface .cbadge {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  letter-spacing: 0;
+  color: #2a1a00;
+  background: linear-gradient(145deg, #fff3c4, var(--edge));
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+}
+.cardface .ch small {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--edge) 55%, transparent);
+  opacity: 1;
+}
+.cardface .cb {
+  background: transparent;
+  margin: 0 8px;
+}
+.cardface .cf {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 8px;
+  padding: 10px 16px 18px;
+  border-top: 1px solid color-mix(in srgb, var(--edge) 40%, transparent);
+}
+.cardface .chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.cardface .chips:empty {
+  display: none;
+}
+.cardface .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px 4px 8px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+.cardface .chip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot, #fff);
+  box-shadow: 0 0 6px var(--dot, #fff);
+}
+.cardface .chip.k-plus,
+.cardface .chip.k-free,
+.cardface .chip.k-disc {
+  --dot: #6ef2a8;
+}
+.cardface .chip.k-minus,
+.cardface .chip.k-lose,
+.cardface .chip.k-jail {
+  --dot: #ff7a6e;
+}
+.cardface .chip.k-move {
+  --dot: #7cc4ff;
+}
+.cardface .chip.k-skip {
+  --dot: #ffd166;
+}
+.cardface .cno {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 2.4px;
+  opacity: 0.55;
+}
+/* kilau foil sekali saat kartu muncul */
+.cardface .foil {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 62%
+  );
+  background-size: 260% 100%;
+  background-position: 130% 0;
+  animation: cardFoil 1.1s ease-out 0.5s 1 both;
+}
+@keyframes cardFoil {
+  from {
+    background-position: 130% 0;
+  }
+  to {
+    background-position: -30% 0;
+  }
+}
+.cardface .cpic {
+  inset: 0;
+}
+@media (max-width: 700px), (max-height: 640px) {
+  .cardface .ch {
+    padding: 14px 18px 8px;
+    font-size: 19px;
+  }
+  .cardface .cf {
+    padding: 8px 12px 14px;
+  }
+  .cardface .chip {
+    font-size: 11.5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cardface .foil {
+    animation: none;
+    opacity: 0;
+  }
+}
+.cardface .ch {
+  gap: 10px;
+  letter-spacing: 2px;
+}
+.cardface .ch .ctt {
+  min-width: 0;
+  white-space: nowrap;
+}
+.cardface .ch small {
+  flex: none;
+  white-space: nowrap;
+}
+@media (max-width: 700px), (max-height: 640px) {
+  .cardface .ch {
+    letter-spacing: 1.5px;
+  }
+  .cardface .ch small {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+.cardface .cbadge {
+  flex: none;
+  min-width: 28px;
+}

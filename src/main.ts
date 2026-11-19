@@ -1,6 +1,7 @@
 import './style.css';
 import './ui-friendly.css';
 import './dice.css';
+import './ui/turnDraw.css';
 import { audio, startAudio } from './audio';
 import type { GameState } from './engine/types';
 import { LocalGame } from './game/local';
@@ -94,7 +95,8 @@ const diceHot: Record<number, number> = (() => {
   }
 })();
 hud.diceApi = {
-  skin: (pid) => (online ? online.diceOf(pid) : (diceHot[pid] ?? pid % 8)),
+  // Online hanya memakai skin milik perangkat ini; skin pemain lain bukan bagian tampilan lokal.
+  skin: (pid) => (online ? online.localDice() : (diceHot[pid] ?? pid % 8)),
   pick: (pid, k) => {
     if (online) online.setDice(k);
     else {
@@ -313,6 +315,7 @@ function startLocal(): void {
     hud,
     view,
     presenter,
+    reducedMotion,
     weatherScale: Number(params.get('wx') ?? 1) || 1,
   });
   game = local;
@@ -328,7 +331,15 @@ async function makeOnline(): Promise<OnlineGame> {
       ? import('./net/bc').then((m) => new m.TabTransport())
       : import('./net/peer').then((m) => new m.PeerTransport(params.get('relay') === '1')),
   ]);
-  const o = new OnlineGame({ hud, view, presenter, transport, toMenu });
+  const o = new OnlineGame({
+    hud,
+    view,
+    presenter,
+    transport,
+    toMenu,
+    fast,
+    reducedMotion,
+  });
   online = o;
   game = o;
   return o;

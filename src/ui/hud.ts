@@ -74,6 +74,19 @@ export class Hud {
 
   /* ---------- panel pemain ---------- */
 
+  /** Buat lencana status (pil kecil) HTML dari daftar kondisi pemain. */
+  private statusBadges(p: { jail: number; skip: number; free: number; disc: boolean }): string {
+    const badges: string[] = [];
+    if (p.jail > 0) badges.push('<span class="sbadge sb-jail" title="Di penjara">🔒 Penjara</span>');
+    if (p.skip > 0)
+      badges.push('<span class="sbadge sb-skip" title="Lewat giliran">⏭ Lewat</span>');
+    if (p.free > 0)
+      badges.push('<span class="sbadge sb-free" title="Tiket bebas sewa">🎫 Bebas</span>');
+    if (p.disc)
+      badges.push('<span class="sbadge sb-disc" title="Kupon bangun">🏗 Kupon</span>');
+    return badges.join('');
+  }
+
   /** `me`: id pemain pemilik layar (null di mode hot-seat). */
   renderPlayers(s: GameState, me: number | null = null): void {
     const w = $('#players');
@@ -88,10 +101,17 @@ export class Hud {
       );
       d.style.setProperty('--c', PAWNS[p.pawn]?.color ?? '#888');
       d.id = `pc${i}`;
-      const tags = p.bankrupt
+      // Statistik: ringkas agar muat di kartu sempit (kota & provinsi)
+      const statText = p.bankrupt
         ? 'Bangkrut'
-        : `${mine} kota · ${sets} provinsi penuh${p.jail ? ' · di penjara' : ''}${p.skip ? ' · lewat giliran' : ''}${p.free ? ' · tiket bebas sewa' : ''}${p.disc ? ' · kupon bangun' : ''}`;
-      d.innerHTML = `<div class="tk">${tkImg(p.pawn)}</div><div><b>${esc(p.name)}${i === me ? '<span class="you">kamu</span>' : ''}</b><div class="m">${fmtMoney(this.shown[i] ?? p.money)}</div><div class="s">${esc(tags)}</div></div>`;
+        : `${mine} kota · ${sets} prov`;
+      // Tooltip lengkap untuk statistik
+      const statFull = p.bankrupt
+        ? 'Bangkrut'
+        : `${mine} kota · ${sets} provinsi penuh`;
+      // Lencana status (lewat giliran, penjara, dll.) sebagai pil kecil
+      const badges = p.bankrupt ? '' : this.statusBadges(p);
+      d.innerHTML = `<div class="tk">${tkImg(p.pawn)}</div><div class="pinfo"><b>${esc(p.name)}${i === me ? '<span class="you">kamu</span>' : ''}</b><div class="m">${fmtMoney(this.shown[i] ?? p.money)}</div><div class="s" title="${esc(statFull)}">${esc(statText)}</div>${badges ? `<div class="sbadges">${badges}</div>` : ''}</div>`;
       w.appendChild(d);
     });
     this.syncMoney(s);
@@ -256,8 +276,10 @@ export class Hud {
     const t = $('#turn');
     if (!p) return;
     if (this.diceCount !== s.diceCount) this.buildDice(s.diceCount);
-    // dadu di nampan langsung memakai skin pemain yang sedang giliran, bukan baru setelah lempar
-    this.skinDice(s.turn);
+    // Mode online (me != null): tampilkan kulit lokal milik pemain di perangkat ini (pov),
+    // bukan kulit pemain yang sedang giliran. Kulit tidak perlu disinkronkan antar perangkat.
+    // Mode hot-seat (me == null): semua pemain berbagi satu layar, kulit ikut pemain giliran.
+    this.skinDice(v.pov);
     this.applyLog(v.pov, s.phase);
     const tok = PAWNS[p.pawn];
     const mine = v.pov === s.turn;

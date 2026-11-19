@@ -99,12 +99,20 @@ summary:focus-visible {
   gap: 8px;
   flex: 1;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+#players::-webkit-scrollbar {
+  display: none;
 }
 .pc {
   display: grid;
   grid-template-columns: 34px 1fr;
   gap: 8px;
-  align-items: center;
+  align-items: start;
   flex: 1 1 140px;
   min-width: 136px;
   max-width: 230px;
@@ -116,6 +124,17 @@ summary:focus-visible {
     border-color 0.2s,
     transform 0.2s,
     background 0.2s;
+}
+/* Kolom info kanan: nama, uang, statistik, lencana */
+.pc .pinfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+/* Avatar icon rata tengah secara vertikal dengan baris atas */
+.pc .tk {
+  margin-top: 3px;
 }
 .pc.on {
   border-color: var(--gold);
@@ -153,9 +172,56 @@ summary:focus-visible {
 .pc .s {
   font-size: 10.5px;
   color: var(--mute);
+  /* Statistik ringkas: potong di akhir kata, tooltip lengkap via title */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+}
+/* Baris lencana status (penjara, lewat giliran, dll.) */
+.pc .sbadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 3px;
+  margin-top: 2px;
+}
+/* Lencana status: pil kecil berwarna */
+.sbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 99px;
+  line-height: 1.4;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sbadge[title] {
+  cursor: help;
+}
+.sb-jail {
+  background: #3b1a1a;
+  color: #ff9fac;
+  border: 1px solid #7a2d2d;
+}
+.sb-skip {
+  background: #1a2a3b;
+  color: #93c5ff;
+  border: 1px solid #2d507a;
+}
+.sb-free {
+  background: #1a3b1a;
+  color: #86efac;
+  border: 1px solid #2d7a2d;
+}
+.sb-disc {
+  background: #2a2a1a;
+  color: #fde68a;
+  border: 1px solid #7a6a2d;
 }
 .pc.up {
   animation: fup 0.7s;

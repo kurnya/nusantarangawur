@@ -14,6 +14,7 @@ import { probeTurn, sessionIce } from '../net/ice';
 import { inviteUrl, isRoomCode, makeRoomCode, normalizeCode } from '../net/room';
 import type { Link, Transport } from '../net/transport';
 import { confirmEndGame, showWinner } from '../ui/endgame';
+import { showTurnDraw } from '../ui/turnDraw';
 import type { Hud } from '../ui/hud';
 import { setupNetPanel, type NetInfo } from '../ui/netpanel';
 import { hideMenu, menuBusy, renderLobby, setLobbyStatus, type LobbyActions } from '../ui/lobby';
@@ -27,6 +28,8 @@ export interface OnlineDeps {
   transport: Transport;
   /** kembali ke menu dengan pesan */
   toMenu: (error?: string, code?: string) => void;
+  fast: boolean;
+  reducedMotion: boolean;
 }
 
 const RECONNECT_TRIES = 15;
@@ -222,14 +225,12 @@ export class OnlineGame {
     leave: () => this.leave(),
   };
 
-  /** Dadu yang dipakai pemain `pid`: pilihan yang diumumkan Host, atau bawaan per kursi. */
-  diceOf(pid: number): number {
-    if (pid === this.me && this.dice !== undefined) return this.dice;
-    const d = this.client?.lobby?.players.find((p) => p.id === pid)?.dice;
-    return d ?? pid % 8;
+  /** Skin dadu lokal perangkat; pilihan pemain lain tidak pernah dipakai untuk merender layar ini. */
+  localDice(): number {
+    return this.dice ?? 0;
   }
 
-  /** Pilih dadu untuk pemain ini; Host menyiarkannya ke semua pemain. */
+  /** Pilih dadu untuk pemain ini dan simpan sebagai preferensi lokal. */
   setDice(k: number): void {
     this.dice = k;
     saveDice(k);
@@ -396,7 +397,7 @@ export class OnlineGame {
     }
   }
 
-  private applySnapshot(s: GameState): void {
+  private async applySnapshot(s: GameState): Promise<void> {
     const { hud, view, presenter } = this.d;
     if (!this.started) {
       this.started = true;
@@ -420,6 +421,12 @@ export class OnlineGame {
         msg: `Cuaca awal: ${WEATHER[s.weather].name}. ${WEATHER[s.weather].desc}`,
         cls: 'wx',
       });
+      await showTurnDraw({
+        state: s,
+        fast: this.d.fast,
+        reducedMotion: this.d.reducedMotion,
+      });
+      presenter.renderAll();
       return;
     }
     view?.setWeather(s.weather);

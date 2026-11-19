@@ -78,12 +78,16 @@ export class Presenter {
       if (line) hud.log(line);
     };
     switch (ev.e) {
-      case 'DiceRolled':
-        await hud.rollDice(ev.values ?? [ev.a, ev.b], ev.pid);
+      case 'DiceRolled': {
+        // Mode online (me != null): tampilkan kulit lokal pemain di perangkat ini,
+        // bukan kulit pemain yang melempar. Mode hot-seat: kulit ikut pemain yang lempar.
+        const diceOwner = this.d.me() !== null ? this.d.pov() : ev.pid;
+        await hud.rollDice(ev.values ?? [ev.a, ev.b], diceOwner);
         applyEvent(s, ev);
         log();
         this.renderAll();
         return;
+      }
       case 'PawnStepped':
         applyEvent(s, ev);
         view?.syncPawns(s);

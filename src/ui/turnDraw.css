@@ -1,0 +1,261 @@
+
+/* ============================================================
+   UNDIAN URUTAN GILIRAN (.tdo-*)
+   Overlay penuh layar yang muncul sesaat sebelum permainan mulai.
+   ============================================================ */
+
+/* Overlay latar */
+.tdo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(5, 8, 20, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: tdoIn 0.3s ease;
+}
+.tdo-overlay.tdo-out {
+  animation: tdoOut 0.4s ease forwards;
+}
+@keyframes tdoIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes tdoOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tdo-overlay,
+  .tdo-overlay.tdo-out {
+    animation: none;
+  }
+}
+
+/* Kotak konten */
+.tdo-box {
+  background: var(--panel, #151c30);
+  border: 1px solid var(--line, #2a3552);
+  border-radius: 20px;
+  padding: 24px 28px 20px;
+  width: min(520px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  box-shadow: 0 30px 80px #000c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Judul */
+.tdo-title {
+  margin: 0;
+  font-family: var(--font-d, 'Bungee', sans-serif);
+  font-size: 22px;
+  color: var(--gold, #f2b632);
+  text-align: center;
+  letter-spacing: 1px;
+}
+.tdo-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mute, #93a0c0);
+  text-align: center;
+}
+
+/* Fase kocokan: kartu bertumpuk bergerak */
+.tdo-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+  min-height: 72px;
+  transition: opacity 0.3s;
+}
+.tdo-cards.tdo-hidden {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Kartu pemain di fase kocokan */
+.tdo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 64px;
+  padding: 8px 4px 6px;
+  background: var(--panel, #151c30);
+  border: 2px solid var(--c, #888);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px #0006;
+}
+.tdo-card.tdo-shuffle {
+  animation: tdoShuf 0.7s ease-in-out infinite alternate;
+}
+.tdo-card:nth-child(2n).tdo-shuffle { animation-delay: 0.1s; }
+.tdo-card:nth-child(3n).tdo-shuffle { animation-delay: 0.2s; }
+.tdo-card:nth-child(4n).tdo-shuffle { animation-delay: 0.3s; }
+@keyframes tdoShuf {
+  0%  { transform: translateY(0) rotate(-2deg); }
+  100%{ transform: translateY(-6px) rotate(2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tdo-card.tdo-shuffle { animation: none; }
+}
+
+/* Avatar di kartu kocokan */
+.tdo-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: #fffaf0;
+  border: 2px solid var(--c, #888);
+  overflow: hidden;
+}
+.tdo-name {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text, #eef1f8);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60px;
+}
+
+/* Panel hasil */
+.tdo-result {
+  width: 100%;
+}
+.tdo-result.hidden {
+  display: none;
+}
+
+/* Daftar urutan */
+.tdo-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Item urutan satu pemain */
+.tdo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #1b2440;
+  border: 1px solid var(--c, #888);
+  border-radius: 10px;
+  opacity: 0;
+  transform: translateX(-16px);
+}
+.tdo-item.tdo-reveal {
+  animation: tdoReveal 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+@keyframes tdoReveal {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tdo-item { opacity: 1; transform: none; }
+  .tdo-item.tdo-reveal { animation: none; }
+}
+
+/* Nomor urutan */
+.tdo-rank {
+  font-family: var(--font-d, 'Bungee', sans-serif);
+  font-size: 20px;
+  color: var(--gold, #f2b632);
+  min-width: 28px;
+  text-align: center;
+}
+/* Avatar kecil di hasil */
+.tdo-av {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  background: #fffaf0;
+  border: 2px solid var(--c, #888);
+  overflow: hidden;
+  flex: none;
+}
+/* Nama di hasil */
+.tdo-nm {
+  flex: 1;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text, #eef1f8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Label "Jalan Duluan!" */
+.tdo-first {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gold, #f2b632);
+  background: #2a2200;
+  border: 1px solid #f2b63255;
+  border-radius: 99px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex: none;
+}
+
+/* Tombol lewati */
+.tdo-skip {
+  margin-top: 4px;
+  align-self: center;
+  font-size: 13px;
+  padding: 8px 20px;
+  min-height: 40px;
+  opacity: 0.75;
+}
+.tdo-skip:hover {
+  opacity: 1;
+}
+
+/* Layar kecil: ringkas sedikit */
+@media (max-width: 480px) {
+  .tdo-box {
+    padding: 16px 14px 14px;
+  }
+  .tdo-title {
+    font-size: 18px;
+  }
+  .tdo-card {
+    width: 54px;
+    padding: 6px 3px;
+  }
+  .tdo-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+  .tdo-rank {
+    font-size: 17px;
+    min-width: 22px;
+  }
+  .tdo-nm {
+    font-size: 13px;
+  }
+}

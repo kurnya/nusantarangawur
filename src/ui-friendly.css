@@ -183,8 +183,14 @@ button {
 }
 
 /* baris pemain */
+.pc .pinfo {
+  min-width: 0;
+}
 .pc .s {
-  font-size: 11.5px;
+  font-size: 11px;
+}
+.pc .sbadges {
+  margin-top: 2px;
 }
 #players {
   scrollbar-width: none;
@@ -326,17 +332,27 @@ html.mob .hud #acts .btn.gold {
   html.mob .pc {
     scroll-snap-align: center;
     grid-template-columns: 32px auto;
-    padding: 3px 13px 3px 3px;
+    align-items: start;
+    padding: 3px 10px 4px 3px;
   }
   html.mob .pc .tk {
     width: 32px;
     height: 32px;
+    margin-top: 2px;
   }
   html.mob .pc b {
     font-size: 12px;
   }
   html.mob .pc .m {
     font-size: 13px;
+  }
+  /* Lencana HP: tampilkan hanya satu, sisanya disembunyikan untuk hemat tempat */
+  html.mob .pc .sbadges {
+    gap: 2px;
+  }
+  html.mob .sbadge {
+    font-size: 9px;
+    padding: 1px 4px;
   }
   html.mob .wxchip {
     top: calc(max(6px, env(safe-area-inset-top)) + 100px);

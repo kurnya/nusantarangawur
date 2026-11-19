@@ -111,20 +111,31 @@ export class Fx {
   private readonly ringTex: THREE.CanvasTexture;
   private readonly smokeTex: THREE.Texture[];
   private readonly U: Record<string, THREE.IUniform>;
+  private readonly assetsReady: Promise<void>;
+  /** Saat true, animasi tidak dijadwalkan; hanya objek/material yang dirakit untuk pemanasan. */
+  private warming = false;
+  private warmupDone: Promise<void> | null = null;
 
   constructor(private readonly d: FxDeps) {
     d.root.add(this.fxG);
     this.ov = document.createElement('div');
     this.ov.className = 'fxflash';
     d.stage.appendChild(this.ov);
+    const loaded: Promise<void>[] = [];
     this.fxTex = MANIFEST.fx.map((_, i) => {
       const t = new THREE.Texture();
-      loadImg(assetUrl(`fx/e${i}.webp`), (im) => {
-        t.image = im;
-        t.needsUpdate = true;
-      });
+      loaded.push(
+        new Promise<void>((resolve) => {
+          loadImg(assetUrl(`fx/e${i}.webp`), (im) => {
+            t.image = im;
+            t.needsUpdate = true;
+            resolve();
+          });
+        }),
+      );
       return t;
     });
+    this.assetsReady = Promise.all(loaded).then(() => undefined);
     this.dotTex = markShared(
       mkTex((x, s) => {
         const g = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
@@ -164,7 +175,54 @@ export class Fx {
     this.ovBase = op;
   }
   private run(dur: number, fn: (p: number, dt: number, el: number) => void): Promise<void> {
+    if (this.warming) return Promise.resolve();
     return new Promise((res) => this.list.push({ el: 0, dur, fn, res }));
+  }
+
+  /** Tahan pemutaran nyata bila pemain menekan aksi ketika pemanasan belum selesai. */
+  setWarmup(task: Promise<void>): void {
+    this.warmupDone = task.catch(() => undefined);
+  }
+
+  /** Merakit satu efek di luar area pandang lalu compile/render sekali. */
+  async warmup(
+    key: string,
+    tile: number,
+    pi: number,
+    renderer: THREE.WebGLRenderer,
+    camera: THREE.Camera,
+  ): Promise<void> {
+    const f = this.effect(key as FxKey);
+    const q = this.d.TC[tile] ?? POS[tile];
+    if (!f || !q) return;
+    const c = cpt(tile * PITCH);
+    let nx = c.nx;
+    let nz = c.nz;
+    if (nx * (q[0] - MID[0]) + nz * (q[1] - MID[1]) < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    const C: FxCtx = { x: q[0], z: q[1], nx, nz, tx: nz, tz: -nx, i: tile, pi };
+    const oldY = this.fxG.position.y;
+    this.warming = true;
+    this.fxG.visible = true;
+    // Visible bagi compiler, tetapi seluruh grup berada jauh di luar kamera.
+    this.fxG.position.y = -100000;
+    try {
+      await Promise.race([
+        this.assetsReady,
+        new Promise<void>((resolve) => window.setTimeout(resolve, 3000)),
+      ]);
+      await f(C);
+      const scene = this.d.root.parent ?? this.d.root;
+      renderer.compile(scene, camera);
+      renderer.render(scene, camera);
+    } finally {
+      this.clear();
+      this.fxG.position.y = oldY;
+      this.fxG.visible = true;
+      this.warming = false;
+    }
   }
 
   update(dt: number): void {
@@ -523,6 +581,7 @@ export class Fx {
 
   /** Putar satu efek di petak `tile` untuk pemain `pi`. Kamera kembali seperti semula sesudahnya. */
   async play(key: string, tile: number, pi: number): Promise<void> {
+    if (this.warmupDone) await this.warmupDone;
     const f = this.effect(key as FxKey);
     if (!f) return;
     const q = this.d.TC[tile] ?? POS[tile];

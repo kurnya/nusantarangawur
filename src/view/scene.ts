@@ -13,7 +13,7 @@ import {
   updateCamera,
   type Cam,
 } from './camera';
-import { Fx } from './fx';
+import { FX_KEYS, Fx } from './fx';
 import { MID } from './layout';
 import { loadModels } from './models';
 import { Pawns } from './pawns';
@@ -153,6 +153,43 @@ export class GameView {
         .catch(() => {});
 
     requestAnimationFrame(this.frame);
+    this.fx.setWarmup(this.warmupFx());
+  }
+
+  /** Hangatkan shader dan aset efek per frame agar layar pembuka tetap responsif. */
+  private async warmupFx(): Promise<void> {
+    const keys =
+      this.o.quality.level === 'low'
+        ? FX_KEYS.filter((k) => ['banjir', 'merapi', 'petir'].includes(k))
+        : FX_KEYS;
+    const box = document.createElement('div');
+    box.setAttribute('aria-live', 'polite');
+    box.style.cssText =
+      'position:absolute;left:50%;bottom:18%;transform:translateX(-50%);z-index:8;padding:8px 14px;border-radius:10px;background:#102333dd;color:#fff;font:600 13px system-ui;pointer-events:none;';
+    const text = document.createElement('span');
+    const bar = document.createElement('progress');
+    bar.max = keys.length;
+    bar.value = 0;
+    bar.style.cssText = 'display:block;width:180px;height:6px;margin-top:5px;';
+    text.textContent = 'Menyiapkan efek…';
+    box.append(text, bar);
+    let shown = false;
+    const showTimer = window.setTimeout(() => {
+      this.o.stage.appendChild(box);
+      shown = true;
+    }, 120);
+    const deadline = performance.now() + 2500;
+    try {
+      for (const key of keys) {
+        if (performance.now() >= deadline) break;
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        await this.fx.warmup(key, 0, 0, this.renderer, this.camera);
+        bar.value += 1;
+      }
+    } finally {
+      clearTimeout(showTimer);
+      if (shown) box.remove();
+    }
   }
 
   /** Terapkan pengaturan lokal tanpa membangun ulang sesi multiplayer. */

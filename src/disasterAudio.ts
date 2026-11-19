@@ -1014,3 +1014,9 @@ export function playDisaster(key: string, ctx: BaseAudioContext, out: AudioNode)
       return false;
   }
 }
+
+/** Membuat kit audio setelah gestur pengguna, tanpa mengeluarkan suara. */
+export function warmDisasterAudio(ctx: BaseAudioContext, out: AudioNode): void {
+  // Hanya membangun reverb dan buffer derau; suara bencana pertama tetap murni milik pemain.
+  kitFor(ctx, out);
+}

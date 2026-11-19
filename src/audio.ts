@@ -1,7 +1,7 @@
 // Modul ini sengaja tetap bersumber dari reference/prototype agar acuan audio tidak terduplikasi.
 // @ts-expect-error Modul JavaScript referensi belum memiliki deklarasi TypeScript.
 import { Snd as ReferenceSnd } from '../reference/prototype/snd-audio-module.js';
-import { playDisaster } from './disasterAudio';
+import { playDisaster, warmDisasterAudio } from './disasterAudio';
 
 export interface AudioSettings {
   music: number;
@@ -18,6 +18,7 @@ interface Bus {
 
 // Efek bencana memakai sintesis yang lebih realistis; kunci lain tetap memakai tabel referensi.
 const referenceFx = ReferenceSnd.fx.bind(ReferenceSnd) as (key: string) => void;
+let disasterAudioWarmed = false;
 ReferenceSnd.fx = (key: string): void => {
   const bus = ReferenceSnd._bus() as Bus | null;
   const ctx = (bus?.sfx as (AudioNode & { context: BaseAudioContext }) | undefined)?.context;
@@ -32,4 +33,9 @@ export const audio = ReferenceSnd as AudioApi & {
 
 export function startAudio(): void {
   audio.start();
+  const bus = ReferenceSnd._bus() as Bus | null;
+  const ctx = (bus?.sfx as (AudioNode & { context: BaseAudioContext }) | undefined)?.context;
+  if (!bus || !ctx || disasterAudioWarmed) return;
+  warmDisasterAudio(ctx, bus.sfx);
+  disasterAudioWarmed = true;
 }

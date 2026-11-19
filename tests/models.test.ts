@@ -68,7 +68,7 @@ describe('kait model GLB', () => {
         pawn2: 'javascript:alert(1)',
         ship4: 42,
       }),
-    ).toEqual({ pawn0: 'pawn0.glb', ship3: 'kapal/ship3.gltf' });
+    ).toEqual({ pawn0: 'pawn0.glb', pawn9: 'x.glb', ship3: 'kapal/ship3.gltf' });
     expect(parseManifest(null)).toEqual({});
     expect(parseManifest([1, 2])).toEqual({});
   });

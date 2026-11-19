@@ -7,7 +7,10 @@ import { assetValue, buildCost, cityPrice, rentFor, rentOf, wealth } from '../sr
 import { cityTiles, has, mkGame, ofType, own, place, rigDice, step, tilesOf } from './helpers';
 
 const jailTiles = tilesOf('JAIL');
-const T7 = 7; // kota pertama Sumatera Utara (pos 0 + dadu 7)
+const T7 = PROV.SUT!.tiles[0]!; // kota pertama Sumatera Utara
+const ROLL_A = 3;
+const ROLL_B = 5;
+const ROLL_TOTAL = ROLL_A + ROLL_B;
 
 describe('pembuatan dan penolakan', () => {
   it('createGame memberi uang awal dan fase roll', () => {
@@ -50,7 +53,7 @@ describe('pembuatan dan penolakan', () => {
     expect(JSON.stringify(s)).toBe(before);
   });
   it('state masukan tidak dimutasi dan rev naik satu', () => {
-    const s = rigDice(mkGame(3), 3, 4);
+    const s = rigDice(mkGame(3), ROLL_A, ROLL_B);
     const before = JSON.stringify(s);
     const r = step(s, { t: 'roll', pid: 0 });
     expect(JSON.stringify(s)).toBe(before);
@@ -84,13 +87,13 @@ describe('pembuatan dan penolakan', () => {
 describe('gerak, beli, sewa', () => {
   it('lempar dadu jalan, mendarat di kota kosong lalu bisa dibeli', () => {
     expect(TILES[T7]!.t).toBe('city');
-    const s = rigDice(mkGame(3), 3, 4);
+    const s = rigDice(mkGame(3), ROLL_A, ROLL_B);
     const r = step(s, { t: 'roll', pid: 0 });
-    expect(ofType(r.events, 'PawnStepped')).toHaveLength(7);
+    expect(ofType(r.events, 'PawnStepped')).toHaveLength(ROLL_TOTAL);
     expect(r.state.players[0]!.pos).toBe(T7);
     expect(r.state.pending).toBe(T7);
     expect(r.state.phase).toBe('act');
-    expect(r.state.last).toBe(7);
+    expect(r.state.last).toBe(ROLL_TOTAL);
     const b = step(r.state, { t: 'buy', pid: 0 });
     const price = cityPrice(cityOf(T7)!.prov);
     expect(b.state.owners[T7]).toEqual({ p: 0, lv: 0 });
@@ -98,7 +101,7 @@ describe('gerak, beli, sewa', () => {
     expect(b.state.pending).toBeNull();
   });
   it('tidak bisa beli jika uang kurang', () => {
-    let s = rigDice(mkGame(3), 3, 4);
+    let s = rigDice(mkGame(3), ROLL_A, ROLL_B);
     s = step(s, { t: 'roll', pid: 0 }).state;
     s.players[0]!.money = 10;
     expect(applyIntent(s, { t: 'buy', pid: 0 }).ok).toBe(false);
@@ -119,7 +122,7 @@ describe('gerak, beli, sewa', () => {
     expect(Math.abs(rentFor(prov, 5, 0) - rentFor(prov, 1, 0) * 2)).toBeLessThanOrEqual(10);
   });
   it('mendarat di kota lawan membayar sewa', () => {
-    const s = rigDice(mkGame(3), 3, 4);
+    const s = rigDice(mkGame(3), ROLL_A, ROLL_B);
     own(s, T7, 1, 1);
     const rent = rentOf(s, T7);
     const r = step(s, { t: 'roll', pid: 0 });
@@ -133,7 +136,7 @@ describe('gerak, beli, sewa', () => {
     });
   });
   it('tiket bebas sewa dipakai sekali', () => {
-    const s = rigDice(mkGame(3), 3, 4);
+    const s = rigDice(mkGame(3), ROLL_A, ROLL_B);
     own(s, T7, 1);
     s.players[0]!.free = 1;
     const r = step(s, { t: 'roll', pid: 0 });
@@ -150,7 +153,7 @@ describe('gerak, beli, sewa', () => {
     expect(r.state.players[0]!.money).toBe(15000 + C.SALARY);
   });
   it('mendarat di kota sendiri tidak membayar', () => {
-    const s = rigDice(mkGame(3), 3, 4);
+    const s = rigDice(mkGame(3), ROLL_A, ROLL_B);
     own(s, T7, 0);
     const r = step(s, { t: 'roll', pid: 0 });
     expect(r.state.players[0]!.money).toBe(15000);

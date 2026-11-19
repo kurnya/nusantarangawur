@@ -357,12 +357,15 @@ export class Hud {
       this.dies.push(die);
     });
     dice.appendChild(el('div', 'dsum', ''));
-    this.setDice(Array.from({ length: count }, () => 1), false);
-    if (count === 2) try {
+    this.setDice(
+      Array.from({ length: count }, () => 1),
+      false,
+    );
+    try {
       const tray = dice.parentElement!;
       const box = el('div', 'd3box');
       tray.appendChild(box);
-      this.d3 = new Dice3D(box);
+      this.d3 = new Dice3D(box, count);
       tray.classList.add('gl');
       window.addEventListener('resize', () => this.d3?.resize());
     } catch {
@@ -388,15 +391,14 @@ export class Hud {
   async rollDice(values: readonly number[], pid = 0): Promise<void> {
     if (this.diceCount !== values.length) this.buildDice(values.length);
     this.skinDice(pid);
-    if (this.d3 && values.length === 2) {
-      const [a, b] = values as [number, number];
-      if (this.fast) this.d3.place(a, b);
+    if (this.d3) {
+      if (this.fast) this.d3.place(values);
       else {
-        this.showSum(a, b);
-        await this.d3.roll(a, b);
+        this.showSum(values);
+        await this.d3.roll(values);
         await sleep(220, false);
       }
-      this.setDice([a, b], false);
+      this.setDice(values, false);
       return;
     }
     this.setDice(values, !this.fast);
@@ -418,10 +420,11 @@ export class Hud {
     await sleep(1150, this.fast);
   }
 
-  private showSum(a: number, b: number): void {
+  private showSum(values: readonly number[]): void {
     const sum = $('#dice').querySelector<HTMLElement>('.dsum');
     if (!sum) return;
-    sum.innerHTML = `${a + b}${a === b ? '<small>KEMBAR</small>' : ''}`;
+    const total = values.reduce((t, v) => t + v, 0);
+    sum.innerHTML = `${total}${values.length > 1 && values.every((v) => v === values[0]) ? '<small>KEMBAR</small>' : ''}`;
     sum.classList.remove('show');
     void sum.offsetWidth;
     sum.classList.add('show');

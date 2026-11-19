@@ -73,12 +73,12 @@ describe('paritas dengan prototipe', () => {
       const k = T.t === 'city' ? 'city' : T.k;
       cnt[k] = (cnt[k] ?? 0) + 1;
     }
-    expect(TILES.length).toBe(266);
+    expect(TILES.length).toBe(279);
     expect(cnt).toEqual({
       START: 1,
       city: 190,
-      NASIB: 42,
-      BENCANA: 21,
+      NASIB: 57,
+      BENCANA: 19,
       RAZIA: 4,
       JAIL: 4,
       PAJAK: 3,
@@ -88,14 +88,18 @@ describe('paritas dengan prototipe', () => {
     PROVINCES.forEach((p) => expect(p.tiles.length).toBe(5));
   });
 
-  it('menyisipkan Nasib atau Bencana setelah setiap tiga kota', () => {
+  it('menyisipkan Nasib atau Bencana setiap dua atau tiga kota', () => {
     let cities = 0;
-    TILES.forEach((T, i) => {
-      if (T.t !== 'city') return;
-      cities++;
-      if (cities % 3 !== 0) return;
-      expect(TILES[i + 1]).toMatchObject({ t: 'sp' });
-      expect(['NASIB', 'BENCANA']).toContain((TILES[i + 1] as { k: string }).k);
+    let previous = 0;
+    TILES.forEach((T) => {
+      if (T.t === 'city') {
+        cities++;
+        return;
+      }
+      if (!['NASIB', 'BENCANA'].includes(T.k)) return;
+      expect(cities - previous).toBeGreaterThanOrEqual(2);
+      expect(cities - previous).toBeLessThanOrEqual(3);
+      previous = cities;
     });
   });
 

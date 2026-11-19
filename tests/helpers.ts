@@ -15,6 +15,8 @@ export function mkGame(n = 3, weather: WeatherKey = 'cerah', seed = 1): GameStat
     seed,
     players: Array.from({ length: n }, (_, i) => ({ name: `P${i}`, pawn: i })),
   });
+  // Fixture aksi di test lama selalu dijalankan oleh pemain 0.
+  s.turn = 0;
   s.weather = weather;
   return s;
 }

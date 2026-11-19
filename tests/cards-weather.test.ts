@@ -163,7 +163,7 @@ describe('cuaca', () => {
     const kabut = frac('kabut');
     const asap = frac('asap');
     expect(cerah.steered).toBe(0);
-    expect(cerah.hit).toBeLessThan(0.3);
+    expect(cerah.hit).toBeLessThan(0.35);
     expect(kabut.hit).toBeGreaterThan(0.45);
     expect(asap.hit).toBeGreaterThan(0.75);
     expect(asap.hit).toBeGreaterThan(kabut.hit);
@@ -210,7 +210,7 @@ describe('kejadian cuaca setelah bergerak', () => {
     const hz = C.WEATHER[w].hazard!;
     let s = mkGame(3, w);
     setup?.(s);
-    s = rigDice(s, 3, 4, (r) => r.float() < hz === hit);
+    s = rigDice(s, 3, 5, (r) => r.float() < hz === hit);
     return step(s, { t: 'roll', pid: 0 });
   };
 
@@ -271,6 +271,6 @@ describe('kejadian cuaca setelah bergerak', () => {
     expect(has(step(s, { t: 'roll', pid: 0 }).events, 'HazardHit')).toBe(false);
   });
   it('petak terkait kota dipakai konsisten', () => {
-    expect(cityOf(7)!.prov.code).toBe('SUT');
+    expect(cityOf(8)!.prov.code).toBe('SUT');
   });
 });

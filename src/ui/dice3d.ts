@@ -231,6 +231,30 @@ const BOUNCES: [number, number, number][] = [
   [0.87, 1, 0.05],
 ];
 
+/** Letak dadu di nampan (x, z): 1-2 dadu sebaris; 3 dadu: satu di tengah atas, dua di bawah; 4 dadu: dua baris 2x2. */
+function layout(n: number): [number, number][] {
+  const X = 0.85;
+  const Z = 0.8;
+  if (n <= 1) return [[0, 0]];
+  if (n === 2)
+    return [
+      [-X, 0],
+      [X, 0],
+    ];
+  if (n === 3)
+    return [
+      [0, -Z],
+      [-X, Z],
+      [X, Z],
+    ];
+  return [
+    [-X, -Z],
+    [X, -Z],
+    [-X, Z],
+    [X, Z],
+  ];
+}
+
 export class Dice3D {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
@@ -243,7 +267,10 @@ export class Dice3D {
   private skin = -1;
   private readonly cache = new Map<string, ReturnType<typeof faceMaps>>();
 
-  constructor(private readonly host: HTMLElement) {
+  constructor(
+    private readonly host: HTMLElement,
+    private readonly count = 2,
+  ) {
     const cv = document.createElement('canvas');
     cv.className = 'dice3d';
     host.appendChild(cv);
@@ -254,7 +281,9 @@ export class Dice3D {
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
-    this.camera.position.set(0, 6.0, 4.7);
+    // dadu lebih banyak: kamera mundur supaya semuanya muat di nampan
+    const zoom = count <= 2 ? 1 : 1.18;
+    this.camera.position.set(0, 6.0 * zoom, 4.7 * zoom);
     this.camera.lookAt(0, 0.2, 0);
 
     this.scene.add(new THREE.HemisphereLight(0xdde8ff, 0x30281c, 0.75));
@@ -283,13 +312,13 @@ export class Dice3D {
     this.scene.add(floor);
 
     const geo = new RoundedBoxGeometry(1, 1, 1, 4, 0.14);
-    [-0.85, 0.85].forEach((x) => {
+    layout(count).forEach(([x, z]) => {
       const mesh = new THREE.Mesh(geo, []);
       mesh.castShadow = true;
       this.scene.add(mesh);
       this.dice.push({
         mesh,
-        home: new THREE.Vector3(x, 0, 0.1),
+        home: new THREE.Vector3(x, 0, 0.1 + z),
         start: new THREE.Vector3(),
         final: new THREE.Quaternion(),
         axis: new THREE.Vector3(1, 0, 0),
@@ -301,7 +330,7 @@ export class Dice3D {
       });
     });
     this.setSkin(0);
-    this.place(1, 1);
+    this.place(Array.from({ length: count }, () => 1));
     this.resize();
   }
 
@@ -352,12 +381,12 @@ export class Dice3D {
   }
 
   /** Letakkan dadu diam dengan sisi atas a dan b. */
-  place(a: number, b: number): void {
-    [a, b].forEach((v, i) => {
+  place(vals: readonly number[]): void {
+    vals.slice(0, this.dice.length).forEach((v, i) => {
       const d = this.dice[i]!;
       d.final.copy(
         new THREE.Quaternion()
-          .setFromAxisAngle(new THREE.Vector3(0, 1, 0), i ? 0.5 : -0.35)
+          .setFromAxisAngle(new THREE.Vector3(0, 1, 0), i % 2 ? 0.5 : -0.35)
           .multiply(upQuat(v)),
       );
       d.mesh.quaternion.copy(d.final);
@@ -367,9 +396,10 @@ export class Dice3D {
   }
 
   /** Lempar dan berhenti di (a, b). Selesai saat dadu diam. */
-  roll(a: number, b: number): Promise<void> {
+  roll(vals: readonly number[]): Promise<void> {
     this.finish();
-    [a, b].forEach((v, i) => {
+    const n = this.dice.length;
+    vals.slice(0, n).forEach((v, i) => {
       const d = this.dice[i]!;
       const yaw = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(0, 1, 0),
@@ -380,12 +410,12 @@ export class Dice3D {
       d.restPos.copy(d.mesh.position);
       d.restQ.copy(d.mesh.quaternion);
       d.start.set(
-        d.home.x + (i ? 1 : -1) * (0.25 + Math.random() * 0.3),
+        d.home.x * 0.35 + (Math.random() - 0.5) * 0.5,
         LIFT_Y,
         d.home.z - 0.9 + Math.random() * 0.4,
       );
       d.axis.set(Math.random() - 0.5, Math.random() * 0.6 - 0.3, Math.random() - 0.5).normalize();
-      d.spin = Math.PI * (4 + Math.random() * 2) * (i ? -1 : 1);
+      d.spin = Math.PI * (4 + Math.random() * 2) * (i % 2 ? -1 : 1);
       d.liftQ.setFromAxisAngle(d.axis, d.spin).multiply(d.final);
       d.delay = i * 0.04;
     });

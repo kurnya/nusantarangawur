@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { botIntent } from '../src/engine/bot';
+import { PROV } from '../src/engine/board';
 import { stateHash } from '../src/engine/hash';
 import { ClientSession } from '../src/net/client';
 import {
@@ -331,7 +332,7 @@ describe('kelola aset lewat jaringan', () => {
     const other = t.clients.find((r) => r.c.pid !== t.host.state!.turn)!;
     const pid = other.c.pid!;
     // beri kota ke pemain itu di Host, lalu semua client minta snapshot
-    const tile = 7;
+    const tile = PROV.SUT!.tiles[0]!;
     t.host.state!.owners[tile] = { p: pid, lv: 1 };
     t.clients.forEach((r) => r.c.requestSync());
     await flush();
@@ -353,13 +354,14 @@ describe('kelola aset lewat jaringan', () => {
   });
   it('tidak bisa mengelola kota milik orang lain', async () => {
     const t = await started(3);
-    t.host.state!.owners[7] = { p: 0, lv: 0 };
+    const tile = PROV.SUT!.tiles[0]!;
+    t.host.state!.owners[tile] = { p: 0, lv: 0 };
     t.clients.forEach((r) => r.c.requestSync());
     await flush();
-    t.clients[1]!.c.intent({ t: 'sell', tile: 7 });
+    t.clients[1]!.c.intent({ t: 'sell', tile });
     await flush();
     expect(t.clients[1]!.rejects).toEqual(['Kota ini bukan milikmu.']);
-    expect(t.host.state!.owners[7]).toEqual({ p: 0, lv: 0 });
+    expect(t.host.state!.owners[tile]).toEqual({ p: 0, lv: 0 });
   });
 });
 
